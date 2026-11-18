@@ -10,6 +10,10 @@ di kasir, mengelola produk dan stok, serta memantau laporan penjualan.
 
 **Demo:** https://larispos-olive.vercel.app
 
+Akun demo — kata sandi keduanya `password`:
+- Owner: owner@larispos.com
+- Kasir: kasir@larispos.com
+
 ## Fitur
 
 - **Kasir** — Pencarian produk, keranjang belanja, pembayaran tunai
