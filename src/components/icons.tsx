@@ -154,3 +154,25 @@ export function IconChevron(props: IconProps) {
     </Base>
   )
 }
+
+/** Mark merek LarisPOS — toko kelontong: atap tenda bergelombang,
+    badan toko, dan pintu yang terbuka ke bawah. Satu warna
+    (currentColor), diisi penuh — bukan ikon garis. */
+export function BrandMark({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      fillRule="evenodd"
+      aria-hidden="true"
+    >
+      {/* Atap tenda. */}
+      <path d="M3.5 10.2 5.2 4h13.6l1.7 6.2H3.5Z" />
+      {/* Tepi bergelombang di bawah atap. */}
+      <path d="M3.5 10.2h17v.9a1.7 1.7 0 0 1-3.4 0 1.7 1.7 0 0 1-3.4 0 1.7 1.7 0 0 1-3.4 0 1.7 1.7 0 0 1-3.4 0 1.7 1.7 0 0 1-3.4 0v-.9Z" />
+      {/* Badan toko + pintu (lubang evenodd, terbuka ke bawah). */}
+      <path d="M5.5 13.6h13V21h-13V13.6Zm5.5 7.8v-4.6h2v4.6h-2Z" />
+    </svg>
+  )
+}

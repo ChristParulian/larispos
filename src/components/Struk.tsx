@@ -19,7 +19,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
-      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:rounded-2xl">
+      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-lg bg-white shadow-xl sm:rounded-lg">
         {/* Area struk — satu-satunya yang tercetak. */}
         <div className="print-area px-6 py-6">
           <div className="text-center">
@@ -31,7 +31,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
             </p>
           </div>
 
-          <hr className="my-4 border-dashed border-stone-300" />
+          <hr className="my-4 border-dashed border-garis" />
 
           <ul className="space-y-2">
             {items.map((it) => (
@@ -50,7 +50,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
             ))}
           </ul>
 
-          <hr className="my-4 border-dashed border-stone-300" />
+          <hr className="my-4 border-dashed border-garis" />
 
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
@@ -63,7 +63,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
             </div>
             <div className="flex justify-between">
               <dt>Kembalian</dt>
-              <dd className="font-bold text-emerald-700">
+              <dd className="font-bold text-pinus-700">
                 {formatRupiah(hasil.kembalian)}
               </dd>
             </div>
@@ -80,14 +80,14 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
               href={linkWhatsApp(teks)}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-green-700"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-green-700"
             >
               Kirim via WhatsApp
             </a>
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-stone-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-stone-900"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-stone-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-stone-900"
             >
               Simpan / Cetak PDF
             </button>
@@ -96,14 +96,14 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
             <button
               type="button"
               onClick={onTransaksiBaru}
-              className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-pinus-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-pinus-800"
             >
               Transaksi Baru
             </button>
             <button
               type="button"
               onClick={onTutup}
-              className="flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-lg border border-garis px-4 py-2.5 text-sm font-semibold text-stone-700 hover:bg-kertas-gelap"
             >
               Tutup
             </button>

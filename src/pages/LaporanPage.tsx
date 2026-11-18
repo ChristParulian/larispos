@@ -7,12 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchTransaksi } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal, labelMetode, tanggalHariIni } from '../lib/format'
-import {
-  IconChevron,
-  IconKasir,
-  IconLaporan,
-  IconProduk,
-} from '../components/icons'
+import { IconChevron } from '../components/icons'
 
 export default function LaporanPage() {
   // Estimasi laba kotor hanya untuk owner (dihitung dari harga beli).
@@ -60,7 +55,7 @@ export default function LaporanPage() {
   return (
     <div>
       <div className="mb-4">
-        <h1 className="text-2xl font-bold">Laporan</h1>
+        <h1 className="judul-halaman">Laporan</h1>
         <p className="text-sm text-stone-500">
           Ringkasan penjualan dan riwayat transaksi.
         </p>
@@ -77,12 +72,12 @@ export default function LaporanPage() {
             className="input disabled:opacity-50"
           />
         </label>
-        <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-garis bg-white px-4 text-sm font-medium">
           <input
             type="checkbox"
             checked={semuaTanggal}
             onChange={(e) => setSemuaTanggal(e.target.checked)}
-            className="h-4 w-4 accent-emerald-700"
+            className="h-4 w-4 accent-pinus-700"
           />
           Semua tanggal
         </label>
@@ -92,7 +87,7 @@ export default function LaporanPage() {
         <p className="text-stone-500">Memuat laporan…</p>
       )}
       {transaksiQuery.isError && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           Gagal memuat laporan:{' '}
           {transaksiQuery.error instanceof Error
             ? transaksiQuery.error.message
@@ -104,15 +99,10 @@ export default function LaporanPage() {
         <>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="card p-4 sm:p-5">
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                  <IconKasir className="h-5 w-5" />
-                </span>
-                <span className="text-sm font-medium text-stone-500">
-                  Total Penjualan {semuaTanggal ? '(semua)' : 'Hari Ini'}
-                </span>
-              </div>
-              <div className="mt-2 text-2xl font-bold text-emerald-700">
+              <p className="eyebrow">
+                Total Penjualan {semuaTanggal ? '(semua)' : 'Hari Ini'}
+              </p>
+              <div className="mt-2 text-[28px] font-extrabold leading-none tracking-tight">
                 {formatRupiah(ringkasan.totalPenjualan)}
               </div>
               <div className="mt-1 text-xs text-stone-500">
@@ -121,15 +111,8 @@ export default function LaporanPage() {
             </div>
             {isOwner && (
               <div className="card p-4 sm:p-5">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                    <IconLaporan className="h-5 w-5" />
-                  </span>
-                  <span className="text-sm font-medium text-stone-500">
-                    Estimasi Laba Kotor
-                  </span>
-                </div>
-                <div className="mt-2 text-2xl font-bold text-emerald-700">
+                <p className="eyebrow">Estimasi Laba Kotor</p>
+                <div className="mt-2 text-[28px] font-extrabold leading-none tracking-tight">
                   {formatRupiah(ringkasan.labaKotor)}
                 </div>
                 <div className="mt-1 text-xs text-stone-500">
@@ -140,15 +123,8 @@ export default function LaporanPage() {
               </div>
             )}
             <div className="card p-4 sm:p-5">
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-stone-600">
-                  <IconProduk className="h-5 w-5" />
-                </span>
-                <span className="text-sm font-medium text-stone-500">
-                  Rata-rata per Transaksi
-                </span>
-              </div>
-              <div className="mt-2 text-2xl font-bold">
+              <p className="eyebrow">Rata-rata per Transaksi</p>
+              <div className="mt-2 text-[28px] font-extrabold leading-none tracking-tight">
                 {formatRupiah(
                   ringkasan.jumlahTransaksi > 0
                     ? Math.round(
@@ -177,7 +153,7 @@ export default function LaporanPage() {
                     className="flex items-center justify-between gap-2 text-sm"
                   >
                     <span className="flex min-w-0 items-center gap-2">
-                      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+                      <span className="w-5 shrink-0 text-sm font-extrabold text-pinus-700">
                         {i + 1}
                       </span>
                       <span className="truncate font-medium">{p.nama}</span>
@@ -192,7 +168,7 @@ export default function LaporanPage() {
           </div>
 
           <div className="card mt-4">
-            <h2 className="border-b border-stone-100 px-4 py-4 text-lg font-bold sm:px-5">
+            <h2 className="border-b border-garis px-4 py-4 text-lg font-bold sm:px-5">
               Riwayat Transaksi
             </h2>
             {transaksi.length === 0 ? (
@@ -200,7 +176,7 @@ export default function LaporanPage() {
                 Belum ada transaksi pada periode ini.
               </p>
             ) : (
-              <ul className="divide-y divide-stone-100">
+              <ul className="divide-y divide-garis">
                 {transaksi.map((t) => {
                   const terbuka = detailId === t.id
                   return (
@@ -210,7 +186,7 @@ export default function LaporanPage() {
                         onClick={() =>
                           setDetailId(terbuka ? null : t.id)
                         }
-                        className="flex min-h-16 w-full flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-left transition-colors hover:bg-stone-50 sm:px-5"
+                        className="flex min-h-16 w-full flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-left transition-colors hover:bg-kertas sm:px-5"
                       >
                         <span className="min-w-0">
                           <span className="font-medium">
@@ -233,7 +209,7 @@ export default function LaporanPage() {
                         </span>
                       </button>
                       {terbuka && (
-                        <div className="bg-stone-50 px-4 py-3.5 text-sm sm:px-5">
+                        <div className="bg-kertas px-4 py-3.5 text-sm sm:px-5">
                           <ul className="space-y-1.5">
                             {(t.item_transaksi ?? []).map((it) => (
                               <li
@@ -250,7 +226,7 @@ export default function LaporanPage() {
                               </li>
                             ))}
                           </ul>
-                          <dl className="mt-2.5 space-y-1 border-t border-dashed border-stone-300 pt-2.5">
+                          <dl className="mt-2.5 space-y-1 border-t border-dashed border-garis pt-2.5">
                             <div className="flex justify-between">
                               <dt>Total</dt>
                               <dd className="font-bold">

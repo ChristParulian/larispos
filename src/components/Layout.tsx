@@ -4,6 +4,7 @@ import { isDemoMode } from '../lib/supabase'
 import { demoReset } from '../lib/demo'
 import { useAuth } from '../lib/auth'
 import {
+  BrandMark,
   IconDashboard,
   IconKasir,
   IconLaporan,
@@ -31,34 +32,35 @@ const NAV_PENGGUNA: NavItem = {
 }
 
 function linkDesktop({ isActive }: { isActive: boolean }) {
-  return `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-    isActive ? 'bg-white text-emerald-800' : 'text-emerald-50 hover:bg-emerald-600'
+  return `rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+    isActive
+      ? 'bg-pinus-800 text-white'
+      : 'text-pinus-100/75 hover:bg-pinus-800/60 hover:text-white'
   }`
 }
 
-/** Satu tab di menu bawah (HP): ikon + label, tab aktif menonjol. */
+/** Satu tab di menu bawah (HP): ikon + label, tab aktif ditandai
+    garis amber di atas dan warna pinus — tanpa pil berwarna. */
 function BottomNavItem({ item }: { item: NavItem }) {
   return (
     <NavLink
       to={item.to}
-      className="flex min-h-16 flex-col items-center justify-center gap-0.5 py-2 text-[11px] leading-none"
+      className="relative flex min-h-16 flex-col items-center justify-center gap-0.5 py-2 text-[11px] leading-none"
     >
       {({ isActive }) => (
         <>
-          <span
-            className={`flex items-center justify-center rounded-full px-4 py-1 transition-colors ${
-              isActive
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'text-stone-500'
-            }`}
-          >
-            <item.Icon className="h-6 w-6" strokeWidth={isActive ? 2.1 : 1.8} />
-          </span>
+          {isActive && (
+            <span className="absolute left-1/2 top-0 h-[3px] w-8 -translate-x-1/2 rounded-b bg-aksen-500" />
+          )}
+          <item.Icon
+            className={`h-6 w-6 ${isActive ? 'text-pinus-700' : 'text-stone-400'}`}
+            strokeWidth={isActive ? 2.1 : 1.8}
+          />
           <span
             className={
               isActive
-                ? 'font-bold text-emerald-700'
-                : 'font-medium text-stone-500'
+                ? 'font-bold text-pinus-700'
+                : 'font-medium text-stone-400'
             }
           >
             {item.label}
@@ -70,7 +72,7 @@ function BottomNavItem({ item }: { item: NavItem }) {
 }
 
 export default function Layout() {
-  const { user, profil, isOwner, signOut } = useAuth()
+  const { user, isOwner, signOut } = useAuth()
   const navigate = useNavigate()
   const tampilPengguna = isOwner && !isDemoMode
 
@@ -80,11 +82,14 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900">
-      <header className="sticky top-0 z-40 bg-emerald-700 text-white shadow-md no-print">
+    <div className="min-h-screen bg-kertas text-tinta">
+      <header className="sticky top-0 z-40 bg-pinus-900 text-white no-print">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <NavLink to="/dashboard" className="text-xl font-bold tracking-tight">
-            LarisPOS
+          <NavLink to="/dashboard" className="flex items-center gap-2">
+            <BrandMark className="h-7 w-7 text-aksen-400" />
+            <span className="text-xl font-extrabold tracking-tight">
+              LarisPOS
+            </span>
           </NavLink>
           {/* Navigasi atas hanya di layar sedang ke atas;
               di HP navigasi pindah ke menu bawah. */}
@@ -101,21 +106,15 @@ export default function Layout() {
             )}
           </nav>
           <div className="ml-auto flex items-center gap-2 md:ml-0">
-            <span className="rounded-full bg-emerald-800 px-2.5 py-1 text-xs font-medium">
-              Open Source
-            </span>
             {!isDemoMode && user && (
               <div className="flex items-center gap-2">
-                <span className="hidden text-xs text-emerald-50 sm:block">
-                  {profil?.nama ?? user.email}
-                  <span className="ml-1.5 rounded-full bg-emerald-800 px-2 py-0.5 font-semibold">
-                    {isOwner ? 'Owner' : 'Kasir'}
-                  </span>
+                <span className="hidden rounded-md border border-pinus-700 bg-pinus-800 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-pinus-100 sm:block">
+                  {isOwner ? 'Owner' : 'Kasir'}
                 </span>
                 <button
                   type="button"
                   onClick={handleKeluar}
-                  className="min-h-10 rounded-lg border border-emerald-500 px-3 py-2 text-xs font-semibold text-emerald-50 hover:bg-emerald-600"
+                  className="min-h-10 rounded-lg border border-pinus-700 px-3 py-2 text-xs font-semibold text-pinus-100 hover:bg-pinus-800"
                 >
                   Keluar
                 </button>
@@ -126,13 +125,13 @@ export default function Layout() {
       </header>
 
       {isDemoMode && (
-        <div className="bg-amber-100 px-4 py-2 text-center text-sm text-amber-900 no-print">
+        <div className="bg-aksen-100 px-4 py-2 text-center text-sm text-aksen-800 no-print">
           <strong>Mode demo — data lokal.</strong> Supabase belum
           dikonfigurasi, jadi transaksi hanya tersimpan di browser ini.
-          Isi <code className="rounded bg-amber-200 px-1">.env</code> dengan{' '}
-          <code className="rounded bg-amber-200 px-1">VITE_SUPABASE_URL</code>{' '}
+          Isi <code className="rounded bg-aksen-200 px-1">.env</code> dengan{' '}
+          <code className="rounded bg-aksen-200 px-1">VITE_SUPABASE_URL</code>{' '}
           dan{' '}
-          <code className="rounded bg-amber-200 px-1">
+          <code className="rounded bg-aksen-200 px-1">
             VITE_SUPABASE_ANON_KEY
           </code>{' '}
           untuk memakai database nyata.{' '}
@@ -160,14 +159,14 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="mx-auto hidden max-w-6xl px-4 pb-6 text-center text-xs text-stone-500 no-print md:block">
+      <footer className="mx-auto hidden max-w-6xl px-4 pb-6 text-center text-xs text-stone-400 no-print md:block">
         LarisPOS — kasir warung kelontong, open source (MIT).
       </footer>
 
       {/* Menu bawah (HP saja): navigasi utama dalam jangkauan jempol. */}
       <nav
         aria-label="Navigasi utama"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200 bg-white/95 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] backdrop-blur no-print md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-white no-print md:hidden"
       >
         <div
           className={`grid pb-[env(safe-area-inset-bottom)] ${

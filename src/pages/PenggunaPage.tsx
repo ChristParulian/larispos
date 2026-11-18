@@ -54,10 +54,10 @@ export default function PenggunaPage() {
   function badgePeran(role: Peran) {
     return (
       <span
-        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
+        className={`inline-flex rounded-md px-2.5 py-1 text-xs font-bold ${
           role === 'owner'
-            ? 'bg-amber-100 text-amber-800'
-            : 'bg-stone-100 text-stone-700'
+            ? 'bg-aksen-100 text-aksen-800'
+            : 'bg-kertas-gelap text-stone-700'
         }`}
       >
         {role === 'owner' ? 'Owner' : 'Kasir'}
@@ -68,8 +68,8 @@ export default function PenggunaPage() {
   if (isDemoMode) {
     return (
       <div>
-        <h1 className="mb-3 text-2xl font-bold">Pengguna</h1>
-        <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <h1 className="mb-3 judul-halaman">Pengguna</h1>
+        <p className="rounded-lg bg-aksen-100 px-4 py-3 text-sm text-aksen-800">
           Halaman ini hanya tersedia saat memakai Supabase. Di mode demo
           tidak ada akun pengguna.
         </p>
@@ -80,7 +80,7 @@ export default function PenggunaPage() {
   return (
     <div>
       <div className="mb-4">
-        <h1 className="text-2xl font-bold">Pengguna</h1>
+        <h1 className="judul-halaman">Pengguna</h1>
         <p className="mt-1 text-sm text-stone-500">
           Owner bisa melihat harga beli, laba, dan mengatur peran. Kasir
           fokus berjualan. Akun baru yang mendaftar otomatis menjadi
@@ -89,12 +89,12 @@ export default function PenggunaPage() {
       </div>
 
       {pesan && (
-        <p className="mb-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <p className="mb-3 rounded-lg bg-pinus-50 px-4 py-3 text-sm text-pinus-800">
           {pesan}
         </p>
       )}
       {error && (
-        <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       )}
@@ -103,7 +103,7 @@ export default function PenggunaPage() {
         <p className="text-stone-500">Memuat pengguna…</p>
       )}
       {profilQuery.isError && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           Gagal memuat pengguna:{' '}
           {profilQuery.error instanceof Error
             ? profilQuery.error.message
@@ -121,11 +121,11 @@ export default function PenggunaPage() {
           <div className="card hidden overflow-x-auto md:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-stone-50 text-left">
-                  <th className="px-4 py-3 font-semibold">Nama</th>
-                  <th className="px-4 py-3 font-semibold">Peran</th>
-                  <th className="px-4 py-3 font-semibold">Terdaftar</th>
-                  <th className="px-4 py-3 font-semibold">Aksi</th>
+                <tr className="border-b bg-kertas text-left">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Nama</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Peran</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Terdaftar</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,13 +134,13 @@ export default function PenggunaPage() {
                   return (
                     <tr
                       key={p.id}
-                      className="border-b transition-colors last:border-0 hover:bg-stone-50"
+                      className="border-b transition-colors last:border-0 hover:bg-kertas"
                     >
                       <td className="px-4 py-3">
                         <div className="font-medium">
                           {p.nama ?? 'Tanpa nama'}
                           {iniSaya && (
-                            <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                            <span className="ml-2 rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
                               Kamu
                             </span>
                           )}
@@ -163,7 +163,7 @@ export default function PenggunaPage() {
                             type="button"
                             disabled={ubahMutation.isPending}
                             onClick={() => konfirmasiUbah(p)}
-                            className="inline-flex min-h-9 items-center rounded-lg border border-stone-300 px-3 text-xs font-bold hover:bg-stone-100 disabled:opacity-50"
+                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap disabled:opacity-50"
                           >
                             {p.role === 'owner'
                               ? 'Jadikan Kasir'
@@ -188,7 +188,7 @@ export default function PenggunaPage() {
                       <div className="break-words font-semibold leading-snug">
                         {p.nama ?? 'Tanpa nama'}
                         {iniSaya && (
-                          <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                          <span className="ml-2 rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
                             Kamu
                           </span>
                         )}

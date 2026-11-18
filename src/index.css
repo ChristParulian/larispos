@@ -1,14 +1,69 @@
 @import "tailwindcss";
 
+/* Identitas visual LarisPOS — "warung modern": kertas hangat,
+   hijau pinus gelap, aksen amber hemat. Sengaja BUKAN palet
+   default Tailwind: tidak ada emerald, gradien, atau kaca. */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+
+  /* Kertas & tinta. */
+  --color-kertas: #faf6f0;
+  --color-kertas-gelap: #f1eadd;
+  --color-garis: #e7ddcd;
+  --color-tinta: #1c1917;
+
+  /* Hijau pinus — warna utama (jangkar: #1b4332). */
+  --color-pinus-50: #eef5f0;
+  --color-pinus-100: #d9e9de;
+  --color-pinus-200: #b5d3c2;
+  --color-pinus-300: #88b39c;
+  --color-pinus-400: #5c9074;
+  --color-pinus-500: #41735a;
+  --color-pinus-600: #2e5b46;
+  --color-pinus-700: #1b4332;
+  --color-pinus-800: #163829;
+  --color-pinus-900: #112c21;
+  --color-pinus-950: #0a1f16;
+
+  /* Amber hangat — aksen, dipakai hemat (sorotan, penanda). */
+  --color-aksen-100: #fbebd3;
+  --color-aksen-200: #f5d9a8;
+  --color-aksen-300: #edbe6e;
+  --color-aksen-400: #e8a33d;
+  --color-aksen-500: #d98a1f;
+  --color-aksen-600: #b45309;
+  --color-aksen-700: #92400e;
+  --color-aksen-800: #7c3a0b;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-kertas font-sans text-tinta antialiased;
+    /* Angka rata (tabular) di seluruh aplikasi: harga dan total
+       sejajar rapi di tabel, keranjang, dan laporan. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--color-pinus-100);
+  }
+}
+
 /* Komponen bersama — dipakai semua halaman agar tampilannya
-   konsisten: mobile-first, target sentuh minimal ~44px. */
+   konsisten: mobile-first, target sentuh minimal ~44px.
+   Kartu datar (tanpa bayangan), sudut rounded-lg, garis hangat. */
 @layer components {
   .card {
-    @apply rounded-2xl border border-stone-200 bg-white shadow-sm;
+    @apply rounded-lg border border-garis bg-white;
   }
 
   .input {
-    @apply min-h-11 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base outline-none transition placeholder:text-stone-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100;
+    @apply min-h-11 w-full rounded-lg border border-garis bg-white px-4 py-3 text-base outline-none transition placeholder:text-stone-400 focus:border-pinus-700 focus:ring-2 focus:ring-pinus-100;
   }
 
   .label {
@@ -16,25 +71,34 @@
   }
 
   .btn-primary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-pinus-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-pinus-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition hover:bg-stone-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-garis bg-white px-5 py-3 text-sm font-bold text-tinta transition hover:bg-kertas active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-danger-outline {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-300 bg-white px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .icon-btn {
-    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-300 bg-white text-stone-700 transition hover:bg-stone-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-garis bg-white text-stone-700 transition hover:bg-kertas active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
-}
 
-@layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
+  /* Judul halaman: besar, tebal, tracking rapat. */
+  .judul-halaman {
+    @apply text-[28px] font-extrabold leading-tight tracking-tight sm:text-3xl;
+  }
+
+  /* Eyebrow: label kecil uppercase di atas judul atau angka section. */
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500;
+  }
+
+  /* Tautan dalam konten: hijau pinus, tebal. */
+  .tautan {
+    @apply shrink-0 text-sm font-semibold text-pinus-700 hover:underline;
   }
 }
 

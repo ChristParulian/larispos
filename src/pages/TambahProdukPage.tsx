@@ -119,7 +119,7 @@ export default function TambahProdukPage() {
           <IconBack className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold leading-tight">{judul}</h1>
+          <h1 className="judul-halaman">{judul}</h1>
           <p className="text-sm text-stone-500">
             {isEdit
               ? 'Ubah detail produk, lalu simpan.'
@@ -159,7 +159,7 @@ export default function TambahProdukPage() {
       {(!isEdit || produkEdit) && (
         <form onSubmit={handleSimpan} className="card p-4 sm:p-6">
           {error && (
-            <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </p>
           )}

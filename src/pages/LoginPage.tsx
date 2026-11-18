@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { IconKasir } from '../components/icons'
+import { BrandMark } from '../components/icons'
 
 type Mode = 'masuk' | 'daftar'
 
@@ -79,22 +79,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-stone-100 px-4 py-10">
+    <div className="flex min-h-screen flex-col justify-center bg-kertas px-4 py-10">
       <div className="mx-auto w-full max-w-md">
         <div className="mb-6 text-center">
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-md">
-            <IconKasir className="h-8 w-8" strokeWidth={1.6} />
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-pinus-900 text-aksen-400">
+            <BrandMark className="h-9 w-9" />
           </span>
-          <div className="mt-3 text-3xl font-bold tracking-tight text-emerald-700">
-            LarisPOS
+          <div className="mt-3 text-3xl font-extrabold tracking-tight">
+            Laris<span className="text-aksen-600">POS</span>
           </div>
           <p className="mt-1 text-sm text-stone-500">
             Kasir warung kelontong — masuk untuk mulai berjualan.
           </p>
         </div>
 
-        <div className="card p-5 shadow-md sm:p-6">
-          <div className="mb-5 flex gap-2 rounded-xl bg-stone-100 p-1">
+        <div className="card p-5 sm:p-6">
+          <div className="mb-5 flex gap-2 rounded-lg bg-kertas-gelap p-1">
             {(
               [
                 { mode: 'masuk', label: 'Masuk' },
@@ -111,7 +111,7 @@ export default function LoginPage() {
                 }}
                 className={`min-h-11 flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
                   mode === t.mode
-                    ? 'bg-emerald-700 text-white shadow-sm'
+                    ? 'bg-pinus-800 text-white'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
@@ -121,12 +121,12 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </p>
           )}
           {info && (
-            <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <p className="mb-4 rounded-lg bg-pinus-50 px-4 py-3 text-sm text-pinus-800">
               {info}
             </p>
           )}

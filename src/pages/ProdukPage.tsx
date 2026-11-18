@@ -82,20 +82,20 @@ export default function ProdukPage() {
     <div>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Produk &amp; Stok</h1>
+          <h1 className="judul-halaman">Produk &amp; Stok</h1>
           <p className="text-sm text-stone-500">
             {produkQuery.data
               ? `${produkTampil.length} dari ${produkQuery.data.length} produk`
               : 'Kelola daftar produk warung.'}
           </p>
         </div>
-        <div className="flex rounded-xl bg-stone-200/70 p-1">
+        <div className="flex rounded-lg bg-kertas-gelap p-1">
           <button
             type="button"
             onClick={() => setTab('produk')}
             className={`min-h-10 rounded-lg px-4 text-sm font-bold transition-colors ${
               tab === 'produk'
-                ? 'bg-white text-emerald-800 shadow-sm'
+                ? 'bg-pinus-800 text-white'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
@@ -106,7 +106,7 @@ export default function ProdukPage() {
             onClick={() => setTab('log')}
             className={`min-h-10 rounded-lg px-4 text-sm font-bold transition-colors ${
               tab === 'log'
-                ? 'bg-white text-emerald-800 shadow-sm'
+                ? 'bg-pinus-800 text-white'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
@@ -116,12 +116,12 @@ export default function ProdukPage() {
       </div>
 
       {pesan && (
-        <p className="mb-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <p className="mb-3 rounded-lg bg-pinus-50 px-4 py-3 text-sm text-pinus-800">
           {pesan}
         </p>
       )}
       {error && (
-        <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       )}
@@ -162,7 +162,7 @@ export default function ProdukPage() {
             <p className="text-stone-500">Memuat produk…</p>
           )}
           {produkQuery.isError && (
-            <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
               Gagal memuat produk:{' '}
               {produkQuery.error instanceof Error
                 ? produkQuery.error.message
@@ -171,9 +171,7 @@ export default function ProdukPage() {
           )}
           {produkQuery.data && produkTampil.length === 0 && (
             <div className="card flex flex-col items-center px-6 py-10 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-                <IconProduk className="h-7 w-7" />
-              </span>
+              <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
               <p className="mt-3 font-semibold">
                 {sedangFilter
                   ? 'Tidak ada produk yang cocok.'
@@ -198,26 +196,26 @@ export default function ProdukPage() {
             <div className="card hidden overflow-x-auto md:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-stone-50 text-left">
-                    <th className="px-4 py-3 font-semibold">Produk</th>
-                    <th className="px-4 py-3 font-semibold">Kategori</th>
+                  <tr className="border-b bg-kertas text-left">
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Produk</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Kategori</th>
                     {isOwner && (
-                      <th className="px-4 py-3 text-right font-semibold">
+                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">
                         Harga Beli
                       </th>
                     )}
-                    <th className="px-4 py-3 text-right font-semibold">
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">
                       Harga Jual
                     </th>
-                    <th className="px-4 py-3 text-right font-semibold">Stok</th>
-                    <th className="px-4 py-3 font-semibold">Aksi</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">Stok</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
                   {produkTampil.map((p) => (
                     <tr
                       key={p.id}
-                      className="border-b transition-colors last:border-0 hover:bg-stone-50"
+                      className="border-b transition-colors last:border-0 hover:bg-kertas"
                     >
                       <td className="px-4 py-3">
                         <div className="font-medium">{p.nama}</div>
@@ -233,11 +231,11 @@ export default function ProdukPage() {
                           {formatRupiah(p.harga_beli)}
                         </td>
                       )}
-                      <td className="px-4 py-3 text-right font-semibold">
+                      <td className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">
                         {formatRupiah(p.harga_jual)}
                       </td>
                       <td
-                        className={`px-4 py-3 text-right font-semibold ${
+                        className={`px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500 ${
                           p.stok <= 5 ? 'text-red-600' : ''
                         }`}
                       >
@@ -247,7 +245,7 @@ export default function ProdukPage() {
                         <div className="flex gap-2">
                           <Link
                             to={`/produk/ubah/${p.id}`}
-                            className="inline-flex min-h-9 items-center rounded-lg border border-stone-300 px-3 text-xs font-bold hover:bg-stone-100"
+                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                           >
                             Ubah
                           </Link>
@@ -280,10 +278,10 @@ export default function ProdukPage() {
                     </div>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${
+                    className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-bold ${
                       p.stok <= 5
                         ? 'bg-red-100 text-red-700'
-                        : 'bg-stone-100 text-stone-700'
+                        : 'bg-kertas-gelap text-stone-700'
                     }`}
                   >
                     Stok {p.stok}
@@ -297,7 +295,7 @@ export default function ProdukPage() {
                   ) : (
                     <span />
                   )}
-                  <span className="text-base font-bold text-emerald-700">
+                  <span className="text-base font-bold text-pinus-700">
                     {formatRupiah(p.harga_jual)}
                   </span>
                 </div>
@@ -349,7 +347,7 @@ export default function ProdukPage() {
               Belum ada pergerakan stok.
             </p>
           )}
-          <ul className="divide-y divide-stone-100">
+          <ul className="divide-y divide-garis">
             {(logQuery.data ?? []).map((l) => (
               <li
                 key={l.id}
@@ -366,7 +364,7 @@ export default function ProdukPage() {
                 <div className="shrink-0 text-right">
                   <span
                     className={`font-bold ${
-                      l.perubahan < 0 ? 'text-red-600' : 'text-emerald-700'
+                      l.perubahan < 0 ? 'text-red-600' : 'text-pinus-700'
                     }`}
                   >
                     {l.perubahan > 0 ? `+${l.perubahan}` : l.perubahan}

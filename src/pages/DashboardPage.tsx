@@ -175,16 +175,16 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-5">
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
           {sapaanWaktu()}
           {namaDepan ? `, ${namaDepan}` : ''}
         </h1>
-        <p className="mt-0.5 text-sm text-stone-500">{tanggalPanjang()}</p>
+        <p className="eyebrow mt-1.5">{tanggalPanjang()}</p>
       </div>
 
       {memuat && <p className="text-stone-500">Memuat dashboard…</p>}
       {galat && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           Gagal memuat dashboard:{' '}
           {galat instanceof Error ? galat.message : 'terjadi kesalahan.'}
         </p>
@@ -194,10 +194,8 @@ export default function DashboardPage() {
         <>
           {/* Angka utama hari ini — satu-satunya yang besar di halaman. */}
           <section aria-label="Penjualan hari ini">
-            <p className="text-sm font-medium text-stone-500">
-              Penjualan hari ini
-            </p>
-            <p className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">
+            <p className="eyebrow">Penjualan hari ini</p>
+            <p className="mt-2 text-5xl font-extrabold tracking-tighter sm:text-6xl">
               {formatRupiah(ringkasanHariIni.total)}
             </p>
             <p className="mt-2 text-sm text-stone-500">
@@ -215,7 +213,7 @@ export default function DashboardPage() {
             )}
           </section>
 
-          <hr className="my-5 border-stone-200" />
+          <hr className="my-5 border-garis" />
 
           {/* Jalan pintas. */}
           <div className="flex flex-col gap-2 sm:flex-row">
@@ -235,12 +233,12 @@ export default function DashboardPage() {
             <section className="card p-4 sm:p-5">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-base font-bold">
-                  <IconPeringatan className="h-5 w-5 text-amber-600" />
+                  <IconPeringatan className="h-5 w-5 text-aksen-600" />
                   Stok menipis
                 </h2>
                 <Link
                   to="/produk"
-                  className="shrink-0 text-sm font-medium text-emerald-700 hover:underline"
+                  className="tautan"
                 >
                   Lihat produk
                 </Link>
@@ -250,7 +248,7 @@ export default function DashboardPage() {
                   Semua stok aman. Tidak ada produk dengan stok 5 atau kurang.
                 </p>
               ) : (
-                <ul className="mt-2 divide-y divide-stone-100">
+                <ul className="mt-2 divide-y divide-garis">
                   {stokTipis.slice(0, 8).map((p) => (
                     <li key={p.id}>
                       <Link
@@ -267,7 +265,7 @@ export default function DashboardPage() {
                         </span>
                         <span
                           className={`shrink-0 font-semibold ${
-                            p.stok === 0 ? 'text-red-700' : 'text-amber-700'
+                            p.stok === 0 ? 'text-red-700' : 'text-aksen-700'
                           }`}
                         >
                           {p.stok === 0
@@ -293,7 +291,7 @@ export default function DashboardPage() {
                 <h2 className="text-base font-bold">Produk terlaris</h2>
                 <Link
                   to="/laporan"
-                  className="shrink-0 text-sm font-medium text-emerald-700 hover:underline"
+                  className="tautan"
                 >
                   Lihat laporan
                 </Link>
@@ -310,7 +308,7 @@ export default function DashboardPage() {
                       className="flex items-center justify-between gap-2 text-sm"
                     >
                       <span className="flex min-w-0 items-center gap-2">
-                        <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+                        <span className="w-5 shrink-0 text-sm font-extrabold text-pinus-700">
                           {i + 1}
                         </span>
                         <span className="truncate font-medium">{p.nama}</span>
@@ -330,7 +328,7 @@ export default function DashboardPage() {
                 <h2 className="text-base font-bold">Transaksi terakhir</h2>
                 <Link
                   to="/laporan"
-                  className="shrink-0 text-sm font-medium text-emerald-700 hover:underline"
+                  className="tautan"
                 >
                   Lihat semua
                 </Link>
@@ -340,7 +338,7 @@ export default function DashboardPage() {
                   Belum ada transaksi.
                 </p>
               ) : (
-                <ul className="mt-2 divide-y divide-stone-100">
+                <ul className="mt-2 divide-y divide-garis">
                   {transaksiTerakhir.map((t) => (
                     <li key={t.id}>
                       <Link
@@ -398,7 +396,7 @@ export default function DashboardPage() {
                           <div className="flex h-28 items-end">
                             <div
                               className={`mx-auto w-full max-w-10 rounded-t-md ${
-                                h.hariIni ? 'bg-emerald-800' : 'bg-emerald-600'
+                                h.hariIni ? 'bg-aksen-500' : 'bg-pinus-200'
                               }`}
                               style={{
                                 height: `${Math.max(pct, h.total > 0 ? 4 : 0)}%`,

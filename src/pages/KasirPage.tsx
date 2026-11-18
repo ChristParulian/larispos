@@ -78,7 +78,7 @@ function CartPanel(props: CartPanelProps) {
                   type="button"
                   aria-label={`Kurangi ${it.produk.nama}`}
                   onClick={() => onUbahQty(it.produk.id, -1)}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-stone-300 text-xl font-bold hover:bg-stone-100 active:scale-95"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                 >
                   −
                 </button>
@@ -89,7 +89,7 @@ function CartPanel(props: CartPanelProps) {
                   type="button"
                   aria-label={`Tambah ${it.produk.nama}`}
                   onClick={() => onUbahQty(it.produk.id, 1)}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-stone-300 text-xl font-bold hover:bg-stone-100 active:scale-95"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                 >
                   +
                 </button>
@@ -102,10 +102,10 @@ function CartPanel(props: CartPanelProps) {
         </ul>
       )}
 
-      <div className="mt-4 border-t border-dashed border-stone-300 pt-3">
+      <div className="mt-4 border-t border-dashed border-garis pt-3">
         <div className="flex justify-between text-lg">
           <span className="font-semibold">Total</span>
-          <span className="font-bold text-emerald-700">
+          <span className="font-bold text-pinus-700">
             {formatRupiah(total)}
           </span>
         </div>
@@ -124,10 +124,10 @@ function CartPanel(props: CartPanelProps) {
               key={m.value}
               type="button"
               onClick={() => onMetode(m.value)}
-              className={`min-h-11 rounded-xl border px-3 py-2.5 text-sm font-bold transition-colors ${
+              className={`min-h-11 rounded-lg border px-3 py-2.5 text-sm font-bold transition-colors ${
                 metode === m.value
-                  ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
-                  : 'border-stone-300 text-stone-600 hover:bg-stone-50'
+                  ? 'border-pinus-700 bg-pinus-50 text-pinus-800'
+                  : 'border-garis text-stone-600 hover:bg-kertas'
               }`}
             >
               {m.label}
@@ -153,7 +153,7 @@ function CartPanel(props: CartPanelProps) {
           <div className="mt-2 flex justify-between text-base">
             <span>Kembalian</span>
             <span
-              className={`font-bold ${uangKurang ? 'text-red-600' : 'text-emerald-700'}`}
+              className={`font-bold ${uangKurang ? 'text-red-600' : 'text-pinus-700'}`}
             >
               {uangKurang
                 ? `Kurang ${formatRupiah(total - dibayarNum)}`
@@ -166,7 +166,7 @@ function CartPanel(props: CartPanelProps) {
                 key={n}
                 type="button"
                 onClick={() => onDibayar(String(n))}
-                className="min-h-9 rounded-full border border-stone-300 px-3 py-2 text-xs font-semibold hover:bg-stone-100"
+                className="min-h-9 rounded-md border border-garis px-3 py-2 text-xs font-semibold hover:bg-kertas-gelap"
               >
                 {formatRupiah(n)}
               </button>
@@ -175,21 +175,21 @@ function CartPanel(props: CartPanelProps) {
               type="button"
               onClick={() => onDibayar(String(total))}
               disabled={total === 0}
-              className="min-h-9 rounded-full border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+              className="min-h-9 rounded-md border border-aksen-600 px-3 py-2 text-xs font-bold text-aksen-700 hover:bg-aksen-100 disabled:opacity-50"
             >
               Uang pas
             </button>
           </div>
         </div>
       ) : (
-        <p className="mt-4 rounded-xl bg-stone-100 px-3 py-2.5 text-sm text-stone-600">
+        <p className="mt-4 rounded-lg bg-kertas-gelap px-3 py-2.5 text-sm text-stone-600">
           QRIS: pembeli membayar tepat sebesar total — tidak ada kembalian.
           Pastikan pembayaran QRIS sudah masuk sebelum menekan Bayar.
         </p>
       )}
 
       {error && (
-        <p className="mt-3 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-700">
+        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
           {error}
         </p>
       )}
@@ -359,9 +359,9 @@ export default function KasirPage() {
       {/* Daftar produk */}
       <section>
         <div className="mb-3 flex items-baseline justify-between gap-2">
-          <h1 className="text-2xl font-bold">Kasir</h1>
+          <h1 className="judul-halaman">Kasir</h1>
           {keranjang.length > 0 && (
-            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800">
+            <span className="rounded-md bg-pinus-100 px-2.5 py-1 text-xs font-bold text-pinus-800">
               {keranjang.length} item di keranjang
             </span>
           )}
@@ -380,7 +380,7 @@ export default function KasirPage() {
           <p className="text-stone-500">Memuat produk…</p>
         )}
         {produkQuery.isError && (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
             Gagal memuat produk:{' '}
             {produkQuery.error instanceof Error
               ? produkQuery.error.message
@@ -389,9 +389,7 @@ export default function KasirPage() {
         )}
         {produkQuery.data && produkList.length === 0 && (
           <div className="card flex flex-col items-center px-6 py-10 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-              <IconProduk className="h-7 w-7" />
-            </span>
+            <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
             <p className="mt-3 font-semibold">
               {cari.trim()
                 ? `Tidak ada produk yang cocok dengan “${cari}”.`
@@ -411,7 +409,7 @@ export default function KasirPage() {
               type="button"
               onClick={() => tambahKeKeranjang(p)}
               disabled={p.stok <= 0}
-              className="card min-w-0 p-3 text-left transition hover:border-emerald-500 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:p-4"
+              className="card min-w-0 p-3 text-left transition hover:border-pinus-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:p-4"
             >
               <div className="break-words font-semibold leading-snug">
                 {p.nama}
@@ -419,16 +417,16 @@ export default function KasirPage() {
               <div className="mt-1 text-xs text-stone-500">
                 {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
               </div>
-              <div className="mt-2 text-base font-bold text-emerald-700 sm:text-lg">
+              <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
                 {formatRupiah(p.harga_jual)}
               </div>
               <div
-                className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                className={`mt-1.5 inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ${
                   p.stok <= 0
-                    ? 'bg-stone-100 text-stone-500'
+                    ? 'bg-kertas-gelap text-stone-500'
                     : p.stok <= 5
                       ? 'bg-red-100 text-red-700'
-                      : 'bg-stone-100 text-stone-600'
+                      : 'bg-kertas-gelap text-stone-600'
                 }`}
               >
                 Stok {p.stok}
@@ -439,7 +437,7 @@ export default function KasirPage() {
           ))}
         </div>
         {error && (
-          <p className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 md:hidden">
+          <p className="mt-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 md:hidden">
             {error}
           </p>
         )}
@@ -459,7 +457,7 @@ export default function KasirPage() {
         <button
           type="button"
           onClick={() => setKeranjangTerbuka(true)}
-          className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-emerald-700 px-4 py-3 text-white shadow-lg transition active:scale-[0.99] no-print md:hidden"
+          className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 flex min-h-14 items-center justify-between gap-3 rounded-lg bg-pinus-800 px-4 py-3 text-white shadow-lg transition active:scale-[0.99] no-print md:hidden"
         >
           <span className="flex items-center gap-2 text-sm font-medium">
             <IconKeranjang className="h-5 w-5" />
@@ -467,7 +465,7 @@ export default function KasirPage() {
           </span>
           <span className="flex items-center gap-3">
             <span className="text-base font-bold">{formatRupiah(total)}</span>
-            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-emerald-800">
+            <span className="rounded-md bg-white px-3 py-1.5 text-xs font-bold text-pinus-800">
               Keranjang
             </span>
           </span>
@@ -481,14 +479,14 @@ export default function KasirPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setKeranjangTerbuka(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white pb-[env(safe-area-inset-bottom)] shadow-xl">
-            <div className="sticky top-0 flex items-center justify-between border-b border-stone-100 bg-white px-4 py-3">
+          <div className="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-lg bg-white pb-[env(safe-area-inset-bottom)] shadow-xl">
+            <div className="sticky top-0 flex items-center justify-between border-b border-garis bg-white px-4 py-3">
               <h2 className="text-lg font-bold">Keranjang</h2>
               <button
                 type="button"
                 aria-label="Tutup keranjang"
                 onClick={() => setKeranjangTerbuka(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-stone-500 hover:bg-stone-100"
+                className="flex h-10 w-10 items-center justify-center rounded-md text-stone-500 hover:bg-kertas-gelap"
               >
                 <IconTutup className="h-5 w-5" />
               </button>
