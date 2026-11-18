@@ -32,7 +32,7 @@ const NAV_PENGGUNA: NavItem = {
 }
 
 /** Satu tab di menu bawah: ikon + label, tab aktif ditandai garis
-    amber di atas dan warna pinus, tanpa pil berwarna. */
+    kuning di atas dan warna pinus, tanpa pil berwarna. */
 function BottomNavItem({ item }: { item: NavItem }) {
   return (
     <NavLink

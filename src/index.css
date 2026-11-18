@@ -1,52 +1,58 @@
 @import "tailwindcss";
 
-/* Identitas visual LarisPOS, "warung modern": kertas hangat,
-   hijau pinus gelap, aksen amber hemat. Sengaja BUKAN palet
-   default Tailwind: tidak ada emerald, gradien, atau kaca. */
+/* Identitas visual LarisPOS, "warung modern": palet ColorHunt
+   (F5F7F8, F4CE14, 495E57, 45474B). Latar abu terang, hijau
+   abu-abu sebagai warna utama, kuning cerah sebagai aksen hemat,
+   dan arang untuk teks. Sengaja BUKAN palet default Tailwind:
+   tidak ada emerald, gradien, atau kaca. */
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
 
-  /* Kertas & tinta. */
-  --color-kertas: #faf6f0;
-  --color-kertas-gelap: #f1eadd;
-  --color-garis: #e7ddcd;
-  --color-tinta: #1c1917;
+  /* Latar & tinta. */
+  --color-kertas: #f5f7f8;
+  --color-kertas-gelap: #e4e6e7;
+  --color-garis: #cecfd0;
+  --color-tinta: #45474b;
 
-  /* Hijau pinus, warna utama (jangkar: #1b4332). */
-  --color-pinus-50: #eef5f0;
-  --color-pinus-100: #d9e9de;
-  --color-pinus-200: #b5d3c2;
-  --color-pinus-300: #88b39c;
-  --color-pinus-400: #5c9074;
-  --color-pinus-500: #41735a;
-  --color-pinus-600: #2e5b46;
-  --color-pinus-700: #1b4332;
-  --color-pinus-800: #163829;
-  --color-pinus-900: #112c21;
-  --color-pinus-950: #0a1f16;
+  /* Hijau abu-abu, warna utama (jangkar: #495e57). Nama token
+     "pinus" dipertahankan agar tidak mengubah semua pemakaian;
+     nilainya mengikuti palet baru. */
+  --color-pinus-50: #f2f4f3;
+  --color-pinus-100: #e4e7e6;
+  --color-pinus-200: #c8cfcd;
+  --color-pinus-300: #a8b2ae;
+  --color-pinus-400: #83928d;
+  --color-pinus-500: #647670;
+  --color-pinus-600: #546861;
+  --color-pinus-700: #495e57;
+  --color-pinus-800: #3a4b46;
+  --color-pinus-900: #2c3834;
+  --color-pinus-950: #1f2725;
 
-  /* Amber hangat, aksen, dipakai hemat (sorotan, penanda). */
-  --color-aksen-100: #fbebd3;
-  --color-aksen-200: #f5d9a8;
-  --color-aksen-300: #edbe6e;
-  --color-aksen-400: #e8a33d;
-  --color-aksen-500: #d98a1f;
-  --color-aksen-600: #b45309;
-  --color-aksen-700: #92400e;
-  --color-aksen-800: #7c3a0b;
+  /* Kuning cerah, aksen, dipakai hemat (sorotan, penanda).
+     Langkah gelap (600-800) dibuat cukup gelap agar teks di atas
+     latar terang tetap lolos kontras AA. */
+  --color-aksen-100: #fefbec;
+  --color-aksen-200: #fdf5d0;
+  --color-aksen-300: #fbeca6;
+  --color-aksen-400: #f8df66;
+  --color-aksen-500: #f4ce14;
+  --color-aksen-600: #7a670a;
+  --color-aksen-700: #5d4e08;
+  --color-aksen-800: #443a06;
 
-  /* Bayangan hangat, senada tinta dan pinus, bukan abu abu dingin
+  /* Bayangan senada tinta dan hijau gelap, bukan abu abu dingin
      bawaan. Dipakai hemat sebagai penanda elevasi (R-12): hanya
      kartu, chrome (header, menu bawah), dan elemen yang benar-benar
      mengambang yang berbayang. Tombol, kolom isian, dan lencana
      tetap datar. */
-  --shadow-kartu: 0 1px 2px rgb(28 25 23 / 0.04),
-    0 6px 16px rgb(28 25 23 / 0.05);
-  --shadow-bar-atas: 0 6px 20px rgb(17 44 33 / 0.22);
-  --shadow-bar-bawah: 0 -6px 20px rgb(28 25 23 / 0.07);
-  --shadow-angkat: 0 2px 6px rgb(28 25 23 / 0.08),
-    0 16px 32px rgb(28 25 23 / 0.14);
+  --shadow-kartu: 0 1px 2px rgb(69 71 75 / 0.04),
+    0 6px 16px rgb(69 71 75 / 0.05);
+  --shadow-bar-atas: 0 6px 20px rgb(44 56 52 / 0.22);
+  --shadow-bar-bawah: 0 -6px 20px rgb(69 71 75 / 0.07);
+  --shadow-angkat: 0 2px 6px rgb(69 71 75 / 0.08),
+    0 16px 32px rgb(69 71 75 / 0.14);
 }
 
 @layer base {

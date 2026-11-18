@@ -4,9 +4,9 @@ Arah visual LarisPOS. File ini memberi desain jiwanya; antislop
 (`.agents/skills/`) hanya menyaring slop di atas arah ini. Untuk
 pekerjaan UI, baca file ini dulu, lalu terapkan antislop sebagai filter.
 
-> Reading this as: a POS app for Indonesian warung owners, in a warm
-> paper-and-pine "warung modern" language, dial ENERGY 1 / RHYTHM 1 /
-> MOTION 1.
+> Reading this as: a POS app for Indonesian warung owners, in a
+> light-grey, green-grey, and yellow "warung modern" language, dial
+> ENERGY 1 / RHYTHM 1 / MOTION 1.
 
 ## Dial (Part 3 antislop)
 
@@ -19,27 +19,32 @@ pekerjaan UI, baca file ini dulu, lalu terapkan antislop sebagai filter.
 
 ## Identitas: "warung modern"
 
-Hangat, tenang, dan bisa dipercaya, seperti warung kelontong yang
+Tenang, bersih, dan bisa dipercaya, seperti warung kelontong yang
 rapi. Bukan tampilan startup teknologi, bukan pula template generik.
 
 ## Palet (maksimal 2 warna inti + 1 aksen, R-29)
 
+Palet berasal dari ColorHunt (F5F7F8, F4CE14, 495E57, 45474B),
+dipilih owner.
+
 | Token | Hex | Alasan (R-31) |
 | --- | --- | --- |
-| `kertas` | `#FAF6F0` | Latar kertas hangat, terasa seperti nota dan rak kayu warung, bukan abu abu dingin bawaan template. |
-| `pinus-700` | `#1B4332` | Hijau pinus gelap sebagai warna utama: tegas, dewasa, dan jelas bukan hijau emerald bawaan AI. |
-| `pinus-900` | `#112C21` | Header gelap: memberi jangkar visual dan memisahkan navigasi dari konten. |
-| `aksen-600` | `#B45309` | Amber hangat dipakai hemat: sorotan, penanda aktif, dan angka bon. Satu aksen, di momen penting saja. |
-| `tinta` | `#1C1917` | Teks utama: hitam hangat, lebih lembut dari hitam murni. |
-| `garis` | `#E7DDCD` | Garis pemisah hangat, senada kertas. |
+| `kertas` | `#F5F7F8` | Latar abu terang, bersih dan netral, membuat kartu putih dan konten terbaca jelas. |
+| `pinus-700` | `#495E57` | Hijau abu-abu sebagai warna utama: tenang, dewasa, dan jelas bukan hijau emerald bawaan AI. |
+| `pinus-900` | `#2C3834` | Header gelap: memberi jangkar visual dan memisahkan navigasi dari konten. |
+| `aksen-500` | `#F4CE14` | Kuning cerah dipakai hemat: sorotan, penanda aktif, dan angka bon. Satu aksen, di momen penting saja. |
+| `tinta` | `#45474B` | Teks utama: arang, lebih lembut dari hitam murni. |
+| `garis` | `#CECFD0` | Garis pemisah abu terang, senada latar. |
 
 Netral (putih kartu, stone untuk teks sekunder) tidak dihitung
 sebagai warna inti. Merah hanya untuk bahaya dan error, sesuai
 maknanya, bukan dekorasi.
 
 Kontras sudah diperiksa dengan `contrast-check.py` (antislop-human):
-teks sekunder memakai `stone-600` (7,09:1 di atas kertas), bukan
-`stone-500` (4,46:1, di bawah standar AA). Jangan turunkan lagi.
+teks sekunder memakai `stone-600` (7,10:1 di atas kertas), bukan
+`stone-500` (4,46:1, di bawah standar AA). Jangan turunkan lagi. Pasangan
+kunci lain juga lolos AA: putih di atas pinus-700 6,95:1, aksen-600
+di atas kertas 5,18:1, aksen-800 di atas aksen-100 10,91:1.
 
 ## Tipografi
 
@@ -61,12 +66,12 @@ teks sekunder memakai `stone-600` (7,09:1 di atas kertas), bukan
   Bayangan hanya untuk kartu, chrome (header, menu bawah), dan
   elemen yang benar-benar mengambang (bar total HP, bottom sheet,
   modal struk). Tombol, kolom isian, dan lencana tetap datar.
-  Semua bayangan berwarna hangat senada tinta dan pinus, bukan
-  abu abu dingin bawaan (lihat token `--shadow-*` di `index.css`).
+  Semua bayangan senada tinta dan hijau gelap, bukan abu abu
+  dingin bawaan (lihat token `--shadow-*` di `index.css`).
 - **Tombol primer** (`.btn-primary`): hijau pinus solid, `rounded-lg`
   (bukan pil). Alasan: tegas dan konsisten dengan sudut kartu.
 - **Navigasi bawah (semua ukuran layar)**: satu-satunya navigasi,
-  item aktif ditandai garis amber di atas dan warna pinus, bukan
+  item aktif ditandai garis kuning di atas dan warna pinus, bukan
   pil berwarna. Alasan: penanda yang tenang dan tidak berteriak,
   dan kasir tidak perlu belajar dua pola navigasi.
 - **Mark merek** (`BrandMark` di `icons.tsx`): toko kelontong satu
