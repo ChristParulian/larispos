@@ -35,6 +35,18 @@
   --color-aksen-600: #b45309;
   --color-aksen-700: #92400e;
   --color-aksen-800: #7c3a0b;
+
+  /* Bayangan hangat, senada tinta dan pinus, bukan abu abu dingin
+     bawaan. Dipakai hemat sebagai penanda elevasi (R-12): hanya
+     kartu, chrome (header, menu bawah), dan elemen yang benar-benar
+     mengambang yang berbayang. Tombol, kolom isian, dan lencana
+     tetap datar. */
+  --shadow-kartu: 0 1px 2px rgb(28 25 23 / 0.04),
+    0 6px 16px rgb(28 25 23 / 0.05);
+  --shadow-bar-atas: 0 6px 20px rgb(17 44 33 / 0.22);
+  --shadow-bar-bawah: 0 -6px 20px rgb(28 25 23 / 0.07);
+  --shadow-angkat: 0 2px 6px rgb(28 25 23 / 0.08),
+    0 16px 32px rgb(28 25 23 / 0.14);
 }
 
 @layer base {
@@ -90,10 +102,10 @@
 
 /* Komponen bersama, dipakai semua halaman agar tampilannya
    konsisten: mobile-first, target sentuh minimal ~44px.
-   Kartu datar (tanpa bayangan), sudut rounded-lg, garis hangat. */
+   Kartu berbayang lembut, sudut rounded-lg, garis hangat. */
 @layer components {
   .card {
-    @apply rounded-lg border border-garis bg-white;
+    @apply rounded-lg border border-garis bg-white shadow-kartu;
   }
 
   .input {

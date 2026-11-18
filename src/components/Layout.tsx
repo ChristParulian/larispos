@@ -75,7 +75,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-kertas text-tinta">
-      <header className="sticky top-0 z-40 bg-pinus-900 text-white no-print">
+      <header className="sticky top-0 z-40 bg-pinus-900 text-white shadow-bar-atas no-print">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <NavLink to="/dashboard" className="flex items-center gap-2">
             <BrandMark className="h-7 w-7 text-aksen-400" />
@@ -144,7 +144,7 @@ export default function Layout() {
           Tab dibatasi lebar konten agar tidak melebar di layar besar. */}
       <nav
         aria-label="Navigasi utama"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-white no-print"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-white shadow-bar-bawah no-print"
       >
         <div
           className={`mx-auto grid max-w-6xl pb-[env(safe-area-inset-bottom)] ${

@@ -19,7 +19,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
-      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-lg bg-white shadow-xl sm:rounded-lg">
+      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-lg bg-white shadow-angkat sm:rounded-lg">
         {/* Area struk, satu-satunya yang tercetak. */}
         <div className="print-area px-6 py-6">
           <div className="text-center">

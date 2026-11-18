@@ -457,7 +457,7 @@ export default function KasirPage() {
         <button
           type="button"
           onClick={() => setKeranjangTerbuka(true)}
-          className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 flex min-h-14 items-center justify-between gap-3 rounded-lg bg-pinus-800 px-4 py-3 text-white shadow-lg transition active:scale-[0.99] no-print md:hidden"
+          className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 flex min-h-14 items-center justify-between gap-3 rounded-lg bg-pinus-800 px-4 py-3 text-white shadow-angkat transition active:scale-[0.99] no-print md:hidden"
         >
           <span className="flex items-center gap-2 text-sm font-medium">
             <IconKeranjang className="h-5 w-5" />
@@ -479,7 +479,7 @@ export default function KasirPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setKeranjangTerbuka(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-lg bg-white pb-[env(safe-area-inset-bottom)] shadow-xl">
+          <div className="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-lg bg-white pb-[env(safe-area-inset-bottom)] shadow-angkat">
             <div className="sticky top-0 flex items-center justify-between border-b border-garis bg-white px-4 py-3">
               <h2 className="text-lg font-bold">Keranjang</h2>
               <button

@@ -55,9 +55,14 @@ teks sekunder memakai `stone-600` (7,09:1 di atas kertas), bukan
 
 ## Komponen
 
-- **Kartu datar** (`.card`): `rounded-lg`, border hangat, tanpa
-  bayangan. Alasan: bayangan hanya untuk elemen yang benar-benar
-  mengambang (bar total HP, bottom sheet, modal struk).
+- **Kartu** (`.card`): `rounded-lg`, border hangat, bayangan
+  lembut (`shadow-kartu`). Alasan: kartu duduk sedikit di atas
+  kertas sehingga hierarki terbaca, tanpa terlihat melayang.
+  Bayangan hanya untuk kartu, chrome (header, menu bawah), dan
+  elemen yang benar-benar mengambang (bar total HP, bottom sheet,
+  modal struk). Tombol, kolom isian, dan lencana tetap datar.
+  Semua bayangan berwarna hangat senada tinta dan pinus, bukan
+  abu abu dingin bawaan (lihat token `--shadow-*` di `index.css`).
 - **Tombol primer** (`.btn-primary`): hijau pinus solid, `rounded-lg`
   (bukan pil). Alasan: tegas dan konsisten dengan sudut kartu.
 - **Navigasi bawah (semua ukuran layar)**: satu-satunya navigasi,
