@@ -136,7 +136,7 @@ export default function Layout() {
 
       {/* Padding bawah ekstra agar menu bawah tidak menutupi konten,
           di semua ukuran layar. */}
-      <main className="mx-auto max-w-6xl px-4 py-4 pb-28 sm:py-6">
+      <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:pt-6">
         <Outlet />
       </main>
 
