@@ -21,8 +21,10 @@ import type {
   CheckoutResult,
   Kategori,
   LogStok,
+  Peran,
   Produk,
   ProdukInput,
+  Profil,
   Transaksi,
 } from './types'
 
@@ -59,16 +61,28 @@ export async function fetchProduk(): Promise<Produk[]> {
   return (data ?? []) as unknown as Produk[]
 }
 
-export async function saveProduk(input: ProdukInput, id?: string): Promise<Produk> {
+/**
+ * Simpan (tambah/ubah) produk. Bila includeHargaBeli false (kasir),
+ * kolom harga_beli DIHILANGKAN dari payload agar nilainya tidak
+ * tertimpa null — trigger jaga_harga_beli (004) juga menolak
+ * perubahan harga beli oleh kasir.
+ */
+export async function saveProduk(
+  input: ProdukInput,
+  id?: string,
+  opts?: { includeHargaBeli?: boolean },
+): Promise<Produk> {
   if (isDemoMode) return demoSaveProduk(input, id)
   const sb = requireSupabase()
-  const payload = {
+  const payload: Record<string, unknown> = {
     nama: input.nama,
     kategori_id: input.kategori_id,
     satuan: input.satuan,
-    harga_beli: input.harga_beli,
     harga_jual: input.harga_jual,
     stok: input.stok,
+  }
+  if (opts?.includeHargaBeli ?? true) {
+    payload.harga_beli = input.harga_beli
   }
   if (id) {
     const { data, error } = await sb
@@ -129,6 +143,39 @@ export async function fetchTransaksi(tanggal?: string): Promise<Transaksi[]> {
   const { data, error } = await query
   if (error) throw error
   return (data ?? []) as unknown as Transaksi[]
+}
+
+/** Profil satu pengguna (dipakai AuthProvider setelah login). */
+export async function fetchProfil(userId: string): Promise<Profil | null> {
+  if (isDemoMode) return null
+  const { data, error } = await requireSupabase()
+    .from('profiles')
+    .select('id, nama, role, created_at')
+    .eq('id', userId)
+    .maybeSingle()
+  if (error) throw error
+  return data as Profil | null
+}
+
+/** Semua profil (hanya owner yang boleh membaca, ditegakkan RLS). */
+export async function fetchSemuaProfil(): Promise<Profil[]> {
+  if (isDemoMode) return []
+  const { data, error } = await requireSupabase()
+    .from('profiles')
+    .select('id, nama, role, created_at')
+    .order('created_at')
+  if (error) throw error
+  return (data ?? []) as Profil[]
+}
+
+/** Ubah peran pengguna (hanya owner; trigger menjaga owner terakhir). */
+export async function ubahPeranProfil(id: string, role: Peran): Promise<void> {
+  if (isDemoMode) return
+  const { error } = await requireSupabase()
+    .from('profiles')
+    .update({ role })
+    .eq('id', id)
+  if (error) throw error
 }
 
 export interface CheckoutItem {

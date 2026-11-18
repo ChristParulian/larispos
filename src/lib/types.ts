@@ -73,3 +73,13 @@ export interface CartItem {
   produk: Produk
   qty: number
 }
+
+/** Peran pengguna (tabel profiles, lihat 001 + 004). */
+export type Peran = 'owner' | 'kasir'
+
+export interface Profil {
+  id: string
+  nama: string | null
+  role: Peran
+  created_at: string
+}

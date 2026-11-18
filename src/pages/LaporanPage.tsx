@@ -5,9 +5,12 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchTransaksi } from '../lib/api'
+import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal, labelMetode, tanggalHariIni } from '../lib/format'
 
 export default function LaporanPage() {
+  // Estimasi laba kotor hanya untuk owner (dihitung dari harga beli).
+  const { isOwner } = useAuth()
   const [tanggal, setTanggal] = useState(tanggalHariIni())
   const [semuaTanggal, setSemuaTanggal] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
@@ -99,19 +102,21 @@ export default function LaporanPage() {
                 {ringkasan.jumlahTransaksi} transaksi
               </div>
             </div>
-            <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-              <div className="text-sm text-stone-500">
-                Estimasi Laba Kotor
+            {isOwner && (
+              <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+                <div className="text-sm text-stone-500">
+                  Estimasi Laba Kotor
+                </div>
+                <div className="mt-1 text-2xl font-bold text-emerald-700">
+                  {formatRupiah(ringkasan.labaKotor)}
+                </div>
+                <div className="mt-1 text-xs text-stone-500">
+                  {ringkasan.adaHargaBeliKosong
+                    ? 'Sebagian item tanpa harga beli — tidak dihitung dalam laba.'
+                    : 'Selisih harga jual − harga beli per item terjual.'}
+                </div>
               </div>
-              <div className="mt-1 text-2xl font-bold text-emerald-700">
-                {formatRupiah(ringkasan.labaKotor)}
-              </div>
-              <div className="mt-1 text-xs text-stone-500">
-                {ringkasan.adaHargaBeliKosong
-                  ? 'Sebagian item tanpa harga beli — tidak dihitung dalam laba.'
-                  : 'Selisih harga jual − harga beli per item terjual.'}
-              </div>
-            </div>
+            )}
             <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
               <div className="text-sm text-stone-500">
                 Rata-rata per Transaksi

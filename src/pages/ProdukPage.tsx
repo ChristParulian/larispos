@@ -11,6 +11,7 @@ import {
   hapusProduk,
   saveProduk,
 } from '../lib/api'
+import { useAuth } from '../lib/auth'
 import type { Produk, ProdukInput } from '../lib/types'
 import { formatRupiah, formatTanggal } from '../lib/format'
 
@@ -26,6 +27,9 @@ const FORM_AWAL: ProdukInput = {
 type Tab = 'produk' | 'log'
 
 export default function ProdukPage() {
+  // Harga beli hanya terlihat & bisa diubah oleh owner (Tahap 2).
+  // Kasir tetap bisa mengelola produk lain (nama, harga jual, stok).
+  const { isOwner } = useAuth()
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<Tab>('produk')
   const [cari, setCari] = useState('')
@@ -58,7 +62,10 @@ export default function ProdukPage() {
   }, [produkQuery.data, cari, filterKategori])
 
   const simpanMutation = useMutation({
-    mutationFn: () => saveProduk(form, editId ?? undefined),
+    mutationFn: () =>
+      saveProduk(form, editId ?? undefined, {
+        includeHargaBeli: isOwner,
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       setPesan(editId ? 'Produk berhasil diubah.' : 'Produk berhasil ditambahkan.')
@@ -99,7 +106,9 @@ export default function ProdukPage() {
       nama: p.nama,
       kategori_id: p.kategori_id,
       satuan: p.satuan,
-      harga_beli: p.harga_beli,
+      // Kasir tidak melihat harga beli; nilainya tidak dikirim saat
+      // simpan (includeHargaBeli: false) agar tidak tertimpa null.
+      harga_beli: isOwner ? p.harga_beli : null,
       harga_jual: p.harga_jual,
       stok: p.stok,
     })
@@ -253,27 +262,29 @@ export default function ProdukPage() {
                     placeholder="pcs, kg, botol…"
                   />
                 </label>
-                <label className="block">
-                  <span className="text-sm font-medium">
-                    Harga beli (boleh kosong)
-                  </span>
-                  <input
-                    className={inputCls}
-                    type="number"
-                    min={0}
-                    value={form.harga_beli ?? ''}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        harga_beli:
-                          e.target.value === ''
-                            ? null
-                            : Number(e.target.value),
-                      })
-                    }
-                    placeholder="Isi agar laba bisa dihitung"
-                  />
-                </label>
+                {isOwner && (
+                  <label className="block">
+                    <span className="text-sm font-medium">
+                      Harga beli (boleh kosong)
+                    </span>
+                    <input
+                      className={inputCls}
+                      type="number"
+                      min={0}
+                      value={form.harga_beli ?? ''}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          harga_beli:
+                            e.target.value === ''
+                              ? null
+                              : Number(e.target.value),
+                        })
+                      }
+                      placeholder="Isi agar laba bisa dihitung"
+                    />
+                  </label>
+                )}
                 <label className="block">
                   <span className="text-sm font-medium">Harga jual *</span>
                   <input
@@ -346,9 +357,11 @@ export default function ProdukPage() {
                 <tr className="border-b bg-stone-50 text-left">
                   <th className="px-4 py-3 font-semibold">Produk</th>
                   <th className="px-4 py-3 font-semibold">Kategori</th>
-                  <th className="px-4 py-3 text-right font-semibold">
-                    Harga Beli
-                  </th>
+                  {isOwner && (
+                    <th className="px-4 py-3 text-right font-semibold">
+                      Harga Beli
+                    </th>
+                  )}
                   <th className="px-4 py-3 text-right font-semibold">
                     Harga Jual
                   </th>
@@ -368,9 +381,11 @@ export default function ProdukPage() {
                     <td className="px-4 py-3 text-stone-600">
                       {p.kategori?.nama ?? '—'}
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      {formatRupiah(p.harga_beli)}
-                    </td>
+                    {isOwner && (
+                      <td className="px-4 py-3 text-right">
+                        {formatRupiah(p.harga_beli)}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-right font-semibold">
                       {formatRupiah(p.harga_jual)}
                     </td>
@@ -437,9 +452,13 @@ export default function ProdukPage() {
                   </span>
                 </div>
                 <div className="mt-2 flex justify-between text-sm">
-                  <span className="text-stone-500">
-                    Beli: {formatRupiah(p.harga_beli)}
-                  </span>
+                  {isOwner ? (
+                    <span className="text-stone-500">
+                      Beli: {formatRupiah(p.harga_beli)}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
                   <span className="font-semibold">
                     Jual: {formatRupiah(p.harga_jual)}
                   </span>

@@ -24,11 +24,14 @@ nanti sebagai modul di atas core yang sama — bukan di repo ini.
 - **Laporan** — total penjualan harian, estimasi laba kotor (harga jual
   − harga beli), **Top 5** produk terlaris, dan riwayat transaksi yang
   bisa dibuka detailnya.
+- **Login & peran** — akun **Owner** melihat harga beli, laba, dan
+  mengatur pengguna; akun **Kasir** fokus berjualan tanpa akses harga
+  beli dan laba. Akun pertama yang mendaftar menjadi Owner.
 - **Mode demo** — tanpa Supabase pun aplikasi tetap jalan dengan 12
   produk seed lokal, jelas berlabel "Mode demo — data lokal".
 
-Yang **tidak** ada di Gratis (Pro nanti): bon / hutang-piutang, login
-dan peran owner/kasir, PWA & mode offline, printer thermal, Apriori.
+Yang **tidak** ada di Gratis (Pro nanti): bon / hutang-piutang, PWA &
+mode offline, printer thermal, Apriori.
 
 ## Cara menjalankan (lokal)
 
@@ -47,6 +50,8 @@ demo** (12 produk seed, transaksi tersimpan di browser saja).
 2. Buka **SQL Editor**, jalankan file di folder `supabase/` **berurutan**:
    - `001_free_core.sql` — tabel core + RLS + fungsi `buat_transaksi()`.
    - `002_seed_12_produk.sql` — 12 produk awal di 4 kategori.
+   - `004_tahap2_auth.sql` — login + peran, cabut akses anon.
+     Jalankan setelah aplikasi dengan halaman login tayang.
    
    > `003_pro_addon.sql` adalah migrasi **Pro-only** dan tidak boleh
    > masuk repo publik Gratis.
@@ -77,9 +82,10 @@ Detail skema, urutan migrasi, dan checklist pengujian ada di
   atau di repo.** Kunci itu melewati RLS.
 - Checkout hanya lewat `buat_transaksi()` — tidak ada penulisan langsung
   ke `transaksi` / `item_transaksi` / `log_stok` dari browser.
-- Untuk demo awal, peran `anon` masih diizinkan memanggil
-  `buat_transaksi()` agar kasir bisa dicoba tanpa login. Izin ini
-  sementara dan dicabut setelah login kasir aktif (Tahap 2 roadmap).
+- Sejak Tahap 2, checkout hanya untuk pengguna login: grant `anon` ke
+  `buat_transaksi()` dan akses baca anon dicabut di
+  `004_tahap2_auth.sql`. Akun pertama yang mendaftar menjadi Owner;
+  akun berikutnya menjadi Kasir.
 
 ## Perintah
 

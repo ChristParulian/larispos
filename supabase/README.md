@@ -11,6 +11,7 @@ Checkout hanya lewat fungsi `buat_transaksi()` di database.
 | `001_free_core.sql` | **Core Gratis (wajib).** Tabel `profiles` (peran owner/kasir), `kategori`, `produk` (harga beli, harga jual, stok), `transaksi`, `item_transaksi`, `log_stok`. RLS aktif di semua tabel. Fungsi atomik `buat_transaksi()` + grant demo sementara untuk `anon`. |
 | `002_seed_12_produk.sql` | **Seed Gratis.** 12 produk warung realistis di 4 kategori (Sembako, Minuman, Makanan Ringan, Perawatan & Rumah Tangga), masing-masing dengan harga beli, harga jual, dan stok awal. Idempotent (aman dijalankan ulang). |
 | `003_pro_addon.sql` | **Pro-only.** Tabel `pelanggan`, `piutang`, `pembayaran_hutang` + trigger cicilan otomatis + view ringkasan piutang + perpanjangan `buat_transaksi()` untuk pembayaran Bon. **Jangan masukkan ke repo publik Gratis.** |
+| `004_tahap2_auth.sql` | **Tahap 2 (Gratis).** Login + peran: trigger profil otomatis saat signup (akun pertama = owner, sisanya kasir), penjaga peran & harga beli, RLS baca hanya untuk pengguna login, dan pencabutan grant `anon` ke `buat_transaksi()`. Jalankan SETELAH frontend Tahap 2 (dengan halaman login) tayang. |
 
 ## Urutan menjalankan
 
@@ -18,7 +19,8 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 
 1. `001_free_core.sql` — dulu, di project Gratis **dan** project Pro.
 2. `002_seed_12_produk.sql` — setelah 001.
-3. `003_pro_addon.sql` — **hanya di project Pro**, setelah 001 + 002.
+3. `004_tahap2_auth.sql` — setelah frontend Tahap 2 (dengan halaman login) tayang, di project Gratis **dan** project Pro.
+4. `003_pro_addon.sql` — **hanya di project Pro**, setelah 001 + 002 (urutan terhadap 004 bebas).
 
 Project Gratis dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing — jangan tertukar.
@@ -42,10 +44,12 @@ nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
 5. Di project Pro: jalankan 003, uji Bon (stok berkurang, kas tidak
    bertambah, piutang tercatat), uji cicilan (sisa berkurang otomatis,
    status jadi `lunas` saat sisa 0), uji tolak bayar melebihi sisa.
-6. Di Tahap 2 (login kasir aktif): jalankan
-   `REVOKE EXECUTE ON FUNCTION public.buat_transaksi(jsonb, text, bigint, uuid, boolean) FROM anon;`
-   dan ganti policy SELECT `demo baca ...` menjadi `TO authenticated`,
-   lalu uji kasir tanpa login sudah tidak bisa checkout.
+6. Di Tahap 2 (login kasir aktif): jalankan `004_tahap2_auth.sql`
+   (mencabut grant `anon` ke `buat_transaksi()` dan akses baca anon),
+   lalu uji: kasir tanpa login sudah tidak bisa checkout maupun
+   membaca produk; akun pertama yang mendaftar menjadi owner, akun
+   berikutnya kasir; kasir tidak bisa mengubah harga beli maupun
+   mengangkat dirinya menjadi owner.
 
 ## Aturan keamanan kunci (dari spec — jangan dilanggar)
 

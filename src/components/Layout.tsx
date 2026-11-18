@@ -1,6 +1,7 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { isDemoMode } from '../lib/supabase'
 import { demoReset } from '../lib/demo'
+import { useAuth } from '../lib/auth'
 
 const NAV = [
   { to: '/kasir', label: 'Kasir' },
@@ -9,6 +10,14 @@ const NAV = [
 ]
 
 export default function Layout() {
+  const { user, profil, isOwner, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleKeluar() {
+    await signOut()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="min-h-screen bg-stone-100 text-stone-900">
       <header className="sticky top-0 z-40 bg-emerald-700 text-white shadow no-print">
@@ -32,10 +41,41 @@ export default function Layout() {
                 {item.label}
               </NavLink>
             ))}
+            {isOwner && !isDemoMode && (
+              <NavLink
+                to="/pengguna"
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-white text-emerald-800'
+                      : 'text-emerald-50 hover:bg-emerald-600'
+                  }`
+                }
+              >
+                Pengguna
+              </NavLink>
+            )}
           </nav>
           <span className="rounded-full bg-emerald-800 px-2.5 py-1 text-xs font-medium">
             Gratis
           </span>
+          {!isDemoMode && user && (
+            <div className="flex items-center gap-2">
+              <span className="hidden text-xs text-emerald-50 sm:block">
+                {profil?.nama ?? user.email}
+                <span className="ml-1.5 rounded-full bg-emerald-800 px-2 py-0.5 font-semibold">
+                  {isOwner ? 'Owner' : 'Kasir'}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={handleKeluar}
+                className="rounded-lg border border-emerald-500 px-2.5 py-1 text-xs font-semibold text-emerald-50 hover:bg-emerald-600"
+              >
+                Keluar
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
