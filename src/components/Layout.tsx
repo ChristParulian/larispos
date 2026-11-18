@@ -74,8 +74,7 @@ export default function Layout() {
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-stone-500 no-print">
-        LarisPOS — kasir warung kelontong, versi Gratis (MIT). Nama masih
-        placeholder sampai nama repo final dipilih.
+        LarisPOS — kasir warung kelontong, versi Gratis (MIT).
       </footer>
     </div>
   )

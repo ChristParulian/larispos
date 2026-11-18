@@ -1,9 +1,5 @@
 # LarisPOS — Warung POS Gratis
 
-> ⚠️ **Nama placeholder.** Nama repo final belum dipilih (kandidat:
-> LarisPOS, Bakul, LarisManis, KasirKita). Sampai diputuskan, project ini
-> memakai nama kerja **larispos**.
-
 Sistem kasir (Point of Sale) gratis untuk warung kelontong — lisensi MIT,
 repo publik. Frontend **React + Vite + TypeScript + Tailwind CSS**,
 backend **Supabase saja** (tanpa Express), di-hosting di **Vercel**.
