@@ -14,6 +14,10 @@ Akun demo: kata sandi keduanya `password`:
 - Owner: owner@larispos.com
 - Kasir: kasir@larispos.com
 
+Demo sudah diisi data contoh (40 transaksi dalam 7 hari, 12 produk,
+dan beberapa produk dengan stok menipis), supaya semua halaman bisa
+langsung dilihat.
+
 ## Fitur
 
 - **Kasir**: Pencarian produk, keranjang belanja, pembayaran tunai
