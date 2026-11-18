@@ -140,10 +140,6 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="mx-auto hidden max-w-6xl px-4 pb-24 text-center text-xs text-stone-600 no-print md:block">
-        LarisPOS, kasir warung kelontong, open source (MIT).
-      </footer>
-
       {/* Menu bawah: satu-satunya navigasi, di semua ukuran layar.
           Tab dibatasi lebar konten agar tidak melebar di layar besar. */}
       <nav

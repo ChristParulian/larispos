@@ -198,10 +198,6 @@ export default function LoginPage() {
             </p>
           )}
         </div>
-
-        <p className="mt-4 text-center text-xs text-stone-600">
-          LarisPOS, kasir warung kelontong, open source (MIT).
-        </p>
       </div>
     </div>
   )
