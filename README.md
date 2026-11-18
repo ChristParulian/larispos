@@ -1,90 +1,90 @@
 # LarisPOS — Sistem Kasir Warung Kelontong
 
-Sistem kasir (Point of Sale) open source untuk warung kelontong —
-lisensi MIT, repo publik. Frontend **React + Vite + TypeScript +
-Tailwind CSS**, backend **Supabase saja** (tanpa Express), di-hosting
-di **Vercel**.
+LarisPOS adalah aplikasi kasir (Point of Sale) open source untuk warung
+kelontong. Dibangun dengan React, TypeScript, dan Tailwind CSS, dengan
+Supabase sebagai backend dan database, serta Vercel sebagai platform
+hosting.
 
-Project open source yang benar-benar bisa dipakai jualan sehari-hari:
-kasir, produk & stok, dan laporan harian.
+Aplikasi ini siap dipakai untuk operasional harian: melayani transaksi
+di kasir, mengelola produk dan stok, serta memantau laporan penjualan.
+
+**Demo:** https://larispos-olive.vercel.app
 
 ## Fitur
 
-- **Kasir** — cari produk berdasarkan nama, keranjang dengan qty +/−,
-  total & kembalian jelas di layar, bayar **Tunai** atau **QRIS**.
-  Checkout lewat fungsi database `buat_transaksi()` (harga & total
-  dihitung ulang di database, stok berkurang otomatis, atomik).
-  Setelah bayar: **struk digital** di layar, kirim teks via **WhatsApp**,
-  atau simpan/cetak **PDF**.
-- **Produk & Stok** — daftar produk dengan cari + filter kategori,
-  tambah/ubah produk (nama, kategori, satuan, harga beli opsional,
-  harga jual, stok), hapus produk yang belum pernah terjual, dan
-  riwayat pergerakan stok (`log_stok`).
-- **Laporan** — total penjualan harian, estimasi laba kotor (harga jual
-  − harga beli), **Top 5** produk terlaris, dan riwayat transaksi yang
-  bisa dibuka detailnya.
-- **Login & peran** — akun **Owner** melihat harga beli, laba, dan
-  mengatur pengguna; akun **Kasir** fokus berjualan tanpa akses harga
-  beli dan laba. Akun pertama yang mendaftar menjadi Owner.
-- **Mode demo** — tanpa Supabase pun aplikasi tetap jalan dengan 12
-  produk seed lokal, jelas berlabel "Mode demo — data lokal".
+- **Kasir** — Pencarian produk, keranjang belanja, pembayaran tunai
+  atau QRIS, dan perhitungan kembalian otomatis. Setiap transaksi
+  diproses secara atomik melalui fungsi database `buat_transaksi()`,
+  sehingga harga, total, dan stok selalu konsisten. Struk digital
+  tersedia di layar, dapat dibagikan melalui WhatsApp, atau disimpan
+  sebagai PDF.
+- **Produk & Stok** — Manajemen produk dan kategori, pencatatan harga
+  beli dan harga jual, serta riwayat pergerakan stok.
+- **Laporan** — Ringkasan penjualan harian, estimasi laba kotor,
+  produk terlaris, dan riwayat transaksi lengkap.
+- **Login & Peran** — Akun Owner dapat mengakses harga beli, laba,
+  dan mengelola pengguna; akun Kasir fokus melayani penjualan.
+  Akun pertama yang terdaftar otomatis menjadi Owner.
+- **Mode Demo** — Aplikasi dapat dijalankan tanpa Supabase, dengan
+  12 produk contoh yang tersimpan lokal di browser.
 
-Di luar cakupan saat ini: bon / hutang-piutang, PWA & mode offline,
-printer thermal, dan analisis keranjang belanja (Apriori).
+## Teknologi
 
-## Cara menjalankan (lokal)
+| Lapisan  | Teknologi                                       |
+| -------- | ----------------------------------------------- |
+| Frontend | React, TypeScript, Vite, Tailwind CSS           |
+| Backend  | Supabase (PostgreSQL, Auth, Row Level Security) |
+| Hosting  | Vercel                                          |
+
+## Memulai
 
 ```bash
 npm install
 npm run dev
 ```
 
-Buka http://localhost:5173 — tanpa `.env`, aplikasi jalan dalam **mode
-demo** (12 produk seed, transaksi tersimpan di browser saja).
+Buka http://localhost:5173. Tanpa konfigurasi Supabase, aplikasi
+berjalan dalam mode demo dengan data contoh lokal.
 
-## Setup Supabase (database nyata)
+## Menghubungkan Supabase
 
-1. Buat project di [Supabase](https://supabase.com/dashboard)
-   (Free plan, 1 project = 1 database).
-2. Buka **SQL Editor**, jalankan file di folder `supabase/` **berurutan**:
-   - `001_free_core.sql` — tabel core + RLS + fungsi `buat_transaksi()`.
-   - `002_seed_12_produk.sql` — 12 produk awal di 4 kategori.
-   - `004_tahap2_auth.sql` — login + peran, cabut akses anon.
-     Jalankan setelah aplikasi dengan halaman login tayang.
-   
-   > `003_pro_addon.sql` adalah migrasi modul Pro dan tidak termasuk
-   > di repo ini.
-3. Salin `.env.example` menjadi `.env`, isi dari **Project Settings → API**:
+1. Buat project di [Supabase](https://supabase.com/dashboard).
+2. Buka **SQL Editor**, lalu jalankan file migrasi di folder
+   `supabase/` secara berurutan:
+   - `001_free_core.sql` — skema database, RLS, dan fungsi transaksi
+   - `002_seed_12_produk.sql` — 12 produk contoh
+   - `004_tahap2_auth.sql` — login dan peran pengguna
+3. Salin `.env.example` menjadi `.env`, lalu isi dari
+   **Project Settings → API**:
    - `VITE_SUPABASE_URL` — Project URL
    - `VITE_SUPABASE_ANON_KEY` — anon / publishable key
-4. Jalankan ulang `npm run dev`. Banner mode demo hilang — data kini
-   dari Supabase.
+4. Jalankan ulang `npm run dev`.
 
-Detail skema, urutan migrasi, dan checklist pengujian ada di
+Detail skema dan urutan migrasi tersedia di
 [`supabase/README.md`](supabase/README.md).
 
 ## Deploy ke Vercel
 
-- Framework preset: **Vite**. Build command: `npm run build`.
-  Output directory: `dist`.
-- Tambahkan environment variables di Vercel:
-  `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY` dari project
-  Supabase-mu.
-- `vercel.json` sudah berisi rewrite semua rute ke `/index.html`
-  agar refresh di `/kasir` / `/laporan` tidak 404.
+- Framework preset: **Vite** — build command `npm run build`,
+  output directory `dist`.
+- Tambahkan environment variables `VITE_SUPABASE_URL` dan
+  `VITE_SUPABASE_ANON_KEY` di pengaturan project Vercel.
+- File `vercel.json` sudah mengatur rewrite agar refresh di rute
+  seperti `/kasir` dan `/laporan` tetap berfungsi.
 
 ## Keamanan
 
-- **Anon key** boleh ada di frontend/Vercel — semua akses data dibatasi
-  Row Level Security (RLS).
-- **`service_role` key TIDAK PERNAH ditaruh di Vercel, di frontend,
-  atau di repo.** Kunci itu melewati RLS.
-- Checkout hanya lewat `buat_transaksi()` — tidak ada penulisan langsung
-  ke `transaksi` / `item_transaksi` / `log_stok` dari browser.
-- Sejak Tahap 2, checkout hanya untuk pengguna login: grant `anon` ke
-  `buat_transaksi()` dan akses baca anon dicabut di
-  `004_tahap2_auth.sql`. Akun pertama yang mendaftar menjadi Owner;
-  akun berikutnya menjadi Kasir.
+- Semua akses data dibatasi oleh Row Level Security (RLS) di
+  PostgreSQL, sehingga anon key aman digunakan di frontend.
+- Transaksi hanya dapat dibuat melalui fungsi database
+  `buat_transaksi()` — browser tidak dapat menulis langsung ke
+  tabel transaksi, item transaksi, atau log stok.
+- Harga dan total selalu dihitung ulang di database, bukan
+  dipercaya dari input browser.
+- Hanya pengguna yang sudah login yang dapat mengakses data dan
+  melakukan checkout.
+- Service role key tidak pernah digunakan di frontend, Vercel,
+  maupun repo ini, karena key tersebut melewati RLS.
 
 ## Perintah
 
