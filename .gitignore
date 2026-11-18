@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables — JANGAN commit file .env berisi key nyata.
+.env
+.env.local
+.env.*.local
+.env.pro
+
+# Pro-only — JANGAN masuk repo publik Gratis (lihat supabase/README.md).
+# 003 berisi modul bon/piutang Pro; file tetap ada di disk untuk setup Pro.
+supabase/003_pro_addon.sql
+
+# Editor & OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vite / TS build info
+node_modules/.tmp/

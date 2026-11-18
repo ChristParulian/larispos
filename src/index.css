@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Struk digital: saat print / simpan PDF, hanya area struk yang
+   tercetak — navigasi dan tombol disembunyikan. */
+@media print {
+  body {
+    background: #fff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Sembunyikan semua kecuali area struk. */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 320px;
+    padding: 0 !important;
+  }
+}

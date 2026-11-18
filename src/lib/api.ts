@@ -1,0 +1,158 @@
+// Lapisan data: satu API untuk halaman, dua sumber di belakangnya.
+// - Mode online: Supabase (tabel + RPC buat_transaksi di 001_free_core.sql).
+// - Mode demo: data lokal di src/lib/demo.ts.
+//
+// Checkout SELALU lewat RPC buat_transaksi() saat online — harga dan
+// total dihitung ulang di database, tidak pernah dipercaya dari browser.
+// Tidak ada INSERT langsung ke transaksi / item_transaksi / log_stok
+// (ditolak RLS, sesuai desain skema).
+
+import { isDemoMode, requireSupabase } from './supabase'
+import {
+  DEMO_KATEGORI,
+  demoCheckout,
+  demoGetLogStok,
+  demoGetProduk,
+  demoGetTransaksi,
+  demoHapusProduk,
+  demoSaveProduk,
+} from './demo'
+import type {
+  CheckoutResult,
+  Kategori,
+  LogStok,
+  Produk,
+  ProdukInput,
+  Transaksi,
+} from './types'
+
+const PRODUK_SELECT = 'id, kategori_id, nama, satuan, harga_beli, harga_jual, stok, kategori:kategori_id ( id, nama )'
+const TRANSAKSI_SELECT = `
+  id, created_at, metode_bayar, total, dibayar, kembalian,
+  item_transaksi (
+    id, transaksi_id, produk_id, qty, harga_jual, harga_beli, subtotal,
+    produk:produk_id ( nama )
+  )
+`
+const LOG_SELECT = `
+  id, produk_id, transaksi_id, perubahan, stok_sebelum, stok_sesudah, alasan, created_at,
+  produk:produk_id ( nama )
+`
+
+export async function fetchKategori(): Promise<Kategori[]> {
+  if (isDemoMode) return DEMO_KATEGORI
+  const { data, error } = await requireSupabase()
+    .from('kategori')
+    .select('id, nama')
+    .order('nama')
+  if (error) throw error
+  return (data ?? []) as Kategori[]
+}
+
+export async function fetchProduk(): Promise<Produk[]> {
+  if (isDemoMode) return demoGetProduk()
+  const { data, error } = await requireSupabase()
+    .from('produk')
+    .select(PRODUK_SELECT)
+    .order('nama')
+  if (error) throw error
+  return (data ?? []) as unknown as Produk[]
+}
+
+export async function saveProduk(input: ProdukInput, id?: string): Promise<Produk> {
+  if (isDemoMode) return demoSaveProduk(input, id)
+  const sb = requireSupabase()
+  const payload = {
+    nama: input.nama,
+    kategori_id: input.kategori_id,
+    satuan: input.satuan,
+    harga_beli: input.harga_beli,
+    harga_jual: input.harga_jual,
+    stok: input.stok,
+  }
+  if (id) {
+    const { data, error } = await sb
+      .from('produk')
+      .update(payload)
+      .eq('id', id)
+      .select(PRODUK_SELECT)
+      .single()
+    if (error) throw error
+    return data as unknown as Produk
+  }
+  const { data, error } = await sb
+    .from('produk')
+    .insert(payload)
+    .select(PRODUK_SELECT)
+    .single()
+  if (error) throw error
+  return data as unknown as Produk
+}
+
+export async function hapusProduk(id: string): Promise<void> {
+  if (isDemoMode) {
+    demoHapusProduk(id)
+    return
+  }
+  const { error } = await requireSupabase().from('produk').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function fetchLogStok(limit = 100): Promise<LogStok[]> {
+  if (isDemoMode) return demoGetLogStok().slice(0, limit)
+  const { data, error } = await requireSupabase()
+    .from('log_stok')
+    .select(LOG_SELECT)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return (data ?? []) as unknown as LogStok[]
+}
+
+/** Riwayat transaksi + itemnya, terbaru dulu. Filter tanggal opsional (YYYY-MM-DD, zona lokal). */
+export async function fetchTransaksi(tanggal?: string): Promise<Transaksi[]> {
+  if (isDemoMode) {
+    const semua = demoGetTransaksi()
+    if (!tanggal) return semua
+    return semua.filter((t) => t.created_at.slice(0, 10) === tanggal)
+  }
+  let query = requireSupabase()
+    .from('transaksi')
+    .select(TRANSAKSI_SELECT)
+    .order('created_at', { ascending: false })
+    .limit(200)
+  if (tanggal) {
+    query = query
+      .gte('created_at', `${tanggal}T00:00:00`)
+      .lt('created_at', `${tanggal}T23:59:59.999`)
+  }
+  const { data, error } = await query
+  if (error) throw error
+  return (data ?? []) as unknown as Transaksi[]
+}
+
+export interface CheckoutItem {
+  produk_id: string
+  qty: number
+}
+
+/**
+ * Checkout via fungsi database buat_transaksi().
+ * Signature SQL: buat_transaksi(p_items jsonb, p_metode_bayar text,
+ * p_dibayar bigint, p_pelanggan_id uuid, p_allow_minus boolean).
+ * Gratis hanya memakai p_items, p_metode_bayar, p_dibayar.
+ */
+export async function checkout(
+  items: CheckoutItem[],
+  metode: 'tunai' | 'qris',
+  dibayar: number,
+): Promise<CheckoutResult> {
+  if (isDemoMode) return demoCheckout(items, metode, dibayar)
+  const { data, error } = await requireSupabase().rpc('buat_transaksi', {
+    p_items: items,
+    p_metode_bayar: metode,
+    p_dibayar: dibayar,
+  })
+  if (error) throw error
+  return data as unknown as CheckoutResult
+}
