@@ -188,7 +188,11 @@ DROP POLICY IF EXISTS "pengguna buat profil sendiri" ON public.profiles;
 
 -- ---------------------------------------------------------------------
 -- 5. Cabut grant anon ke buat_transaksi() (grant sementara Tahap 1).
+-- Postgres memberikan EXECUTE ke PUBLIC secara default saat fungsi
+-- dibuat — dan anon termasuk PUBLIC — jadi mencabut dari anon saja
+-- TIDAK cukup; PUBLIC harus dicabut juga. Grant eksplisit ke
+-- authenticated (dari 001) tetap berlaku.
 -- ---------------------------------------------------------------------
 REVOKE EXECUTE ON FUNCTION
   public.buat_transaksi(jsonb, text, bigint, uuid, boolean)
-  FROM anon;
+  FROM anon, PUBLIC;

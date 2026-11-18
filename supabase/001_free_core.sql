@@ -370,10 +370,11 @@ $$;
 -- bersifat sementara dan dicabut setelah login kasir aktif pada
 -- Tahap 2 roadmap."
 --
--- CABUT di Tahap 2 dengan:
---   REVOKE EXECUTE ON FUNCTION public.buat_transaksi(jsonb, text, bigint, uuid, boolean) FROM anon;
--- dan pada saat yang sama ganti policy SELECT "demo baca ..." di atas
--- menjadi TO authenticated.
+-- CABUT di Tahap 2 dengan menjalankan 004_tahap2_auth.sql (mencabut
+-- dari anon DAN PUBLIC — Postgres memberi EXECUTE ke PUBLIC secara
+-- default, jadi mencabut dari anon saja tidak cukup) dan pada saat
+-- yang sama mengganti policy SELECT "demo baca ..." di atas menjadi
+-- TO authenticated.
 -- ---------------------------------------------------------------------
 GRANT EXECUTE ON FUNCTION
   public.buat_transaksi(jsonb, text, bigint, uuid, boolean)
