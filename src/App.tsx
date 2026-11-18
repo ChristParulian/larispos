@@ -5,6 +5,7 @@ import { isDemoMode } from './lib/supabase'
 import Layout from './components/Layout'
 import KasirPage from './pages/KasirPage'
 import ProdukPage from './pages/ProdukPage'
+import TambahProdukPage from './pages/TambahProdukPage'
 import LaporanPage from './pages/LaporanPage'
 import LoginPage from './pages/LoginPage'
 import PenggunaPage from './pages/PenggunaPage'
@@ -51,6 +52,22 @@ export default function App() {
             element={
               <ButuhLogin>
                 <ProdukPage />
+              </ButuhLogin>
+            }
+          />
+          <Route
+            path="/produk/tambah"
+            element={
+              <ButuhLogin>
+                <TambahProdukPage />
+              </ButuhLogin>
+            }
+          />
+          <Route
+            path="/produk/ubah/:id"
+            element={
+              <ButuhLogin>
+                <TambahProdukPage />
               </ButuhLogin>
             }
           />

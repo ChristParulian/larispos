@@ -7,6 +7,12 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchTransaksi } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal, labelMetode, tanggalHariIni } from '../lib/format'
+import {
+  IconChevron,
+  IconKasir,
+  IconLaporan,
+  IconProduk,
+} from '../components/icons'
 
 export default function LaporanPage() {
   // Estimasi laba kotor hanya untuk owner (dihitung dari harga beli).
@@ -53,24 +59,30 @@ export default function LaporanPage() {
 
   return (
     <div>
-      <h1 className="mb-3 text-2xl font-bold">Laporan</h1>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold">Laporan</h1>
+        <p className="text-sm text-stone-500">
+          Ringkasan penjualan dan riwayat transaksi.
+        </p>
+      </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-sm font-medium">
-          Tanggal
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end">
+        <label className="block flex-1 sm:max-w-64">
+          <span className="label">Tanggal</span>
           <input
             type="date"
             value={tanggal}
             disabled={semuaTanggal}
             onChange={(e) => setTanggal(e.target.value)}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 disabled:opacity-50"
+            className="input disabled:opacity-50"
           />
         </label>
-        <label className="flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium">
           <input
             type="checkbox"
             checked={semuaTanggal}
             onChange={(e) => setSemuaTanggal(e.target.checked)}
+            className="h-4 w-4 accent-emerald-700"
           />
           Semua tanggal
         </label>
@@ -80,7 +92,7 @@ export default function LaporanPage() {
         <p className="text-stone-500">Memuat laporan…</p>
       )}
       {transaksiQuery.isError && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
           Gagal memuat laporan:{' '}
           {transaksiQuery.error instanceof Error
             ? transaksiQuery.error.message
@@ -91,11 +103,16 @@ export default function LaporanPage() {
       {!transaksiQuery.isLoading && !transaksiQuery.isError && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-              <div className="text-sm text-stone-500">
-                Total Penjualan {semuaTanggal ? '(semua)' : 'Hari Ini'}
+            <div className="card p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                  <IconKasir className="h-5 w-5" />
+                </span>
+                <span className="text-sm font-medium text-stone-500">
+                  Total Penjualan {semuaTanggal ? '(semua)' : 'Hari Ini'}
+                </span>
               </div>
-              <div className="mt-1 text-2xl font-bold text-emerald-700">
+              <div className="mt-2 text-2xl font-bold text-emerald-700">
                 {formatRupiah(ringkasan.totalPenjualan)}
               </div>
               <div className="mt-1 text-xs text-stone-500">
@@ -103,11 +120,16 @@ export default function LaporanPage() {
               </div>
             </div>
             {isOwner && (
-              <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-                <div className="text-sm text-stone-500">
-                  Estimasi Laba Kotor
+              <div className="card p-4 sm:p-5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                    <IconLaporan className="h-5 w-5" />
+                  </span>
+                  <span className="text-sm font-medium text-stone-500">
+                    Estimasi Laba Kotor
+                  </span>
                 </div>
-                <div className="mt-1 text-2xl font-bold text-emerald-700">
+                <div className="mt-2 text-2xl font-bold text-emerald-700">
                   {formatRupiah(ringkasan.labaKotor)}
                 </div>
                 <div className="mt-1 text-xs text-stone-500">
@@ -117,11 +139,16 @@ export default function LaporanPage() {
                 </div>
               </div>
             )}
-            <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-              <div className="text-sm text-stone-500">
-                Rata-rata per Transaksi
+            <div className="card p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-stone-600">
+                  <IconProduk className="h-5 w-5" />
+                </span>
+                <span className="text-sm font-medium text-stone-500">
+                  Rata-rata per Transaksi
+                </span>
               </div>
-              <div className="mt-1 text-2xl font-bold">
+              <div className="mt-2 text-2xl font-bold">
                 {formatRupiah(
                   ringkasan.jumlahTransaksi > 0
                     ? Math.round(
@@ -136,24 +163,24 @@ export default function LaporanPage() {
             </div>
           </div>
 
-          <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+          <div className="card mt-4 p-4 sm:p-5">
             <h2 className="text-lg font-bold">Top 5 Produk Terlaris</h2>
             {ringkasan.top5.length === 0 ? (
               <p className="mt-2 text-sm text-stone-500">
                 Belum ada penjualan pada periode ini.
               </p>
             ) : (
-              <ol className="mt-2 space-y-2">
+              <ol className="mt-3 space-y-3">
                 {ringkasan.top5.map((p, i) => (
                   <li
                     key={p.nama}
                     className="flex items-center justify-between gap-2 text-sm"
                   >
-                    <span>
-                      <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
                         {i + 1}
                       </span>
-                      <span className="font-medium">{p.nama}</span>
+                      <span className="truncate font-medium">{p.nama}</span>
                     </span>
                     <span className="shrink-0 text-stone-600">
                       {p.qty} terjual · {formatRupiah(p.omzet)}
@@ -164,76 +191,86 @@ export default function LaporanPage() {
             )}
           </div>
 
-          <div className="mt-4 rounded-xl border border-stone-200 bg-white shadow-sm">
-            <h2 className="border-b px-4 py-3 text-lg font-bold">
+          <div className="card mt-4">
+            <h2 className="border-b border-stone-100 px-4 py-4 text-lg font-bold sm:px-5">
               Riwayat Transaksi
             </h2>
             {transaksi.length === 0 ? (
-              <p className="px-4 py-3 text-sm text-stone-500">
+              <p className="px-4 py-6 text-center text-sm text-stone-500 sm:px-5">
                 Belum ada transaksi pada periode ini.
               </p>
             ) : (
               <ul className="divide-y divide-stone-100">
-                {transaksi.map((t) => (
-                  <li key={t.id}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setDetailId(detailId === t.id ? null : t.id)
-                      }
-                      className="flex w-full flex-wrap items-center justify-between gap-2 px-4 py-3 text-left hover:bg-stone-50"
-                    >
-                      <span>
-                        <span className="font-medium">
-                          #{t.id.slice(0, 8).toUpperCase()}
-                        </span>{' '}
-                        <span className="text-sm text-stone-500">
-                          {formatTanggal(t.created_at)} ·{' '}
-                          {labelMetode(t.metode_bayar)}
+                {transaksi.map((t) => {
+                  const terbuka = detailId === t.id
+                  return (
+                    <li key={t.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDetailId(terbuka ? null : t.id)
+                        }
+                        className="flex min-h-16 w-full flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-left transition-colors hover:bg-stone-50 sm:px-5"
+                      >
+                        <span className="min-w-0">
+                          <span className="font-medium">
+                            #{t.id.slice(0, 8).toUpperCase()}
+                          </span>{' '}
+                          <span className="text-sm text-stone-500">
+                            {formatTanggal(t.created_at)} ·{' '}
+                            {labelMetode(t.metode_bayar)}
+                          </span>
                         </span>
-                      </span>
-                      <span className="font-bold">
-                        {formatRupiah(t.total)}
-                      </span>
-                    </button>
-                    {detailId === t.id && (
-                      <div className="bg-stone-50 px-4 py-3 text-sm">
-                        <ul className="space-y-1">
-                          {(t.item_transaksi ?? []).map((it) => (
-                            <li
-                              key={it.id}
-                              className="flex justify-between gap-2"
-                            >
-                              <span>
-                                {it.produk?.nama ?? 'Produk dihapus'} —{' '}
-                                {it.qty} x {formatRupiah(it.harga_jual)}
-                              </span>
-                              <span className="font-medium">
-                                {formatRupiah(it.subtotal)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                        <dl className="mt-2 space-y-0.5 border-t border-dashed border-stone-300 pt-2">
-                          <div className="flex justify-between">
-                            <dt>Total</dt>
-                            <dd className="font-bold">
-                              {formatRupiah(t.total)}
-                            </dd>
-                          </div>
-                          <div className="flex justify-between">
-                            <dt>Dibayar ({labelMetode(t.metode_bayar)})</dt>
-                            <dd>{formatRupiah(t.dibayar)}</dd>
-                          </div>
-                          <div className="flex justify-between">
-                            <dt>Kembalian</dt>
-                            <dd>{formatRupiah(t.kembalian)}</dd>
-                          </div>
-                        </dl>
-                      </div>
-                    )}
-                  </li>
-                ))}
+                        <span className="flex shrink-0 items-center gap-2">
+                          <span className="font-bold">
+                            {formatRupiah(t.total)}
+                          </span>
+                          <IconChevron
+                            className={`h-4 w-4 text-stone-400 transition-transform ${
+                              terbuka ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </span>
+                      </button>
+                      {terbuka && (
+                        <div className="bg-stone-50 px-4 py-3.5 text-sm sm:px-5">
+                          <ul className="space-y-1.5">
+                            {(t.item_transaksi ?? []).map((it) => (
+                              <li
+                                key={it.id}
+                                className="flex justify-between gap-2"
+                              >
+                                <span className="min-w-0">
+                                  {it.produk?.nama ?? 'Produk dihapus'} —{' '}
+                                  {it.qty} x {formatRupiah(it.harga_jual)}
+                                </span>
+                                <span className="shrink-0 font-medium">
+                                  {formatRupiah(it.subtotal)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                          <dl className="mt-2.5 space-y-1 border-t border-dashed border-stone-300 pt-2.5">
+                            <div className="flex justify-between">
+                              <dt>Total</dt>
+                              <dd className="font-bold">
+                                {formatRupiah(t.total)}
+                              </dd>
+                            </div>
+                            <div className="flex justify-between">
+                              <dt>Dibayar ({labelMetode(t.metode_bayar)})</dt>
+                              <dd>{formatRupiah(t.dibayar)}</dd>
+                            </div>
+                            <div className="flex justify-between">
+                              <dt>Kembalian</dt>
+                              <dd>{formatRupiah(t.kembalian)}</dd>
+                            </div>
+                          </dl>
+                        </div>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>

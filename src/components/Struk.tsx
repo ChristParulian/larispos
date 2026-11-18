@@ -80,14 +80,14 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
               href={linkWhatsApp(teks)}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-green-700"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-green-700"
             >
               Kirim via WhatsApp
             </a>
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex-1 rounded-lg bg-stone-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-stone-900"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-stone-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-stone-900"
             >
               Simpan / Cetak PDF
             </button>
@@ -96,14 +96,14 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
             <button
               type="button"
               onClick={onTransaksiBaru}
-              className="flex-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               Transaksi Baru
             </button>
             <button
               type="button"
               onClick={onTutup}
-              className="flex-1 rounded-lg border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-100"
             >
               Tutup
             </button>

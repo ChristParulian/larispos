@@ -1,5 +1,43 @@
 @import "tailwindcss";
 
+/* Komponen bersama — dipakai semua halaman agar tampilannya
+   konsisten: mobile-first, target sentuh minimal ~44px. */
+@layer components {
+  .card {
+    @apply rounded-2xl border border-stone-200 bg-white shadow-sm;
+  }
+
+  .input {
+    @apply min-h-11 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base outline-none transition placeholder:text-stone-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-stone-700;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition hover:bg-stone-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-danger-outline {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-300 bg-white px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .icon-btn {
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-300 bg-white text-stone-700 transition hover:bg-stone-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 /* Struk digital: saat print / simpan PDF, hanya area struk yang
    tercetak — navigasi dan tombol disembunyikan. */
 @media print {
