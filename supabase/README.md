@@ -8,21 +8,21 @@ Checkout hanya lewat fungsi `buat_transaksi()` di database.
 
 | File | Isi |
 |---|---|
-| `001_free_core.sql` | **Core Gratis (wajib).** Tabel `profiles` (peran owner/kasir), `kategori`, `produk` (harga beli, harga jual, stok), `transaksi`, `item_transaksi`, `log_stok`. RLS aktif di semua tabel. Fungsi atomik `buat_transaksi()` + grant demo sementara untuk `anon`. |
-| `002_seed_12_produk.sql` | **Seed Gratis.** 12 produk warung realistis di 4 kategori (Sembako, Minuman, Makanan Ringan, Perawatan & Rumah Tangga), masing-masing dengan harga beli, harga jual, dan stok awal. Idempotent (aman dijalankan ulang). |
-| `003_pro_addon.sql` | **Pro-only.** Tabel `pelanggan`, `piutang`, `pembayaran_hutang` + trigger cicilan otomatis + view ringkasan piutang + perpanjangan `buat_transaksi()` untuk pembayaran Bon. **Jangan masukkan ke repo publik Gratis.** |
-| `004_tahap2_auth.sql` | **Tahap 2 (Gratis).** Login + peran: trigger profil otomatis saat signup (akun pertama = owner, sisanya kasir), penjaga peran & harga beli, RLS baca hanya untuk pengguna login, dan pencabutan grant `anon` ke `buat_transaksi()`. Jalankan SETELAH frontend Tahap 2 (dengan halaman login) tayang. |
+| `001_free_core.sql` | **Core (wajib).** Tabel `profiles` (peran owner/kasir), `kategori`, `produk` (harga beli, harga jual, stok), `transaksi`, `item_transaksi`, `log_stok`. RLS aktif di semua tabel. Fungsi atomik `buat_transaksi()` + grant demo sementara untuk `anon`. |
+| `002_seed_12_produk.sql` | **Seed.** 12 produk warung realistis di 4 kategori (Sembako, Minuman, Makanan Ringan, Perawatan & Rumah Tangga), masing-masing dengan harga beli, harga jual, dan stok awal. Idempotent (aman dijalankan ulang). |
+| `003_pro_addon.sql` | **Pro-only.** Tabel `pelanggan`, `piutang`, `pembayaran_hutang` + trigger cicilan otomatis + view ringkasan piutang + perpanjangan `buat_transaksi()` untuk pembayaran Bon. **Jangan masukkan ke repo publik ini.** |
+| `004_tahap2_auth.sql` | **Tahap 2.** Login + peran: trigger profil otomatis saat signup (akun pertama = owner, sisanya kasir), penjaga peran & harga beli, RLS baca hanya untuk pengguna login, dan pencabutan grant `anon` ke `buat_transaksi()`. Jalankan SETELAH frontend Tahap 2 (dengan halaman login) tayang. |
 
 ## Urutan menjalankan
 
 Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 
-1. `001_free_core.sql` — dulu, di project Gratis **dan** project Pro.
+1. `001_free_core.sql` — dulu, di project utama **dan** project Pro.
 2. `002_seed_12_produk.sql` — setelah 001.
-3. `004_tahap2_auth.sql` — setelah frontend Tahap 2 (dengan halaman login) tayang, di project Gratis **dan** project Pro.
+3. `004_tahap2_auth.sql` — setelah frontend Tahap 2 (dengan halaman login) tayang, di project utama **dan** project Pro.
 4. `003_pro_addon.sql` — **hanya di project Pro**, setelah 001 + 002 (urutan terhadap 004 bebas).
 
-Project Gratis dan Pro adalah project Supabase yang berbeda, dengan URL
+Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing — jangan tertukar.
 
 ## Yang masih perlu project Supabase nyata untuk diuji
@@ -37,7 +37,7 @@ nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
    berkurang, `log_stok` terisi, dan total dihitung dari harga database
    (coba kirim harga palsu dari klien — harus diabaikan).
 3. Uji penolakan: stok kurang, keranjang kosong, uang tunai kurang,
-   metode `bon` di project Gratis (harus ditolak), produk tidak ada —
+   metode `bon` di project utama (harus ditolak), produk tidak ada —
    dan pastikan tidak ada data setengah jadi yang tertinggal.
 4. Uji RLS: `anon` tidak bisa INSERT langsung ke `transaksi` /
    `item_transaksi` / `log_stok`; `anon` tidak bisa membaca tabel Pro.
@@ -75,7 +75,7 @@ nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
   tanda restock (sesuai aturan offline spec).
 - `transaksi.metode_bayar` sudah mengizinkan `'bon'` sejak 001, supaya
   migrasi Pro tidak perlu `ALTER TABLE` core — yang menolak Bon di
-  Gratis adalah fungsinya, bukan constraint tabel.
+  core adalah fungsinya, bukan constraint tabel.
 - Pembayaran hutang tidak bisa di-`UPDATE` (harus hapus lalu catat
   ulang); hapus pembayaran otomatis mengembalikan sisa hutang.
 - View `v_piutang_pelanggan` memakai `security_invoker = true`

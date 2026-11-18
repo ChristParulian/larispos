@@ -6,7 +6,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.28.0"
   },
-  "description": "LarisPOS \u2014 Warung POS Gratis (MIT). Kasir warung kelontong berbasis Supabase + React, di-hosting di Vercel.",
+  "description": "LarisPOS — Warung POS open source (MIT). Kasir warung kelontong berbasis Supabase + React, di-hosting di Vercel.",
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.0.0",

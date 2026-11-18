@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Warung POS — 002_seed_12_produk.sql
--- Data awal versi GRATIS: 12 produk warung kelontong yang realistis,
+-- Data awal: 12 produk warung kelontong yang realistis,
 -- tersebar di 4 kategori. Dijalankan SETELAH 001_free_core.sql.
 --
 -- Harga dalam Rupiah (kolom bigint, tanpa desimal). Harga beli

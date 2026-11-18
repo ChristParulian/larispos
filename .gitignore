@@ -20,7 +20,7 @@ pnpm-debug.log*
 .env.*.local
 .env.pro
 
-# Pro-only — JANGAN masuk repo publik Gratis (lihat supabase/README.md).
+# Pro-only — JANGAN masuk repo publik ini (lihat supabase/README.md).
 # 003 berisi modul bon/piutang Pro; file tetap ada di disk untuk setup Pro.
 supabase/003_pro_addon.sql
 

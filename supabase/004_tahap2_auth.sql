@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Warung POS — 004_tahap2_auth.sql
--- Tahap 2: login + peran owner/kasir (versi GRATIS, repo publik).
+-- Tahap 2: login + peran owner/kasir (repo publik).
 --
 -- PENTING — URUTAN PENERAPAN: jalankan file ini SETELAH frontend
 -- Tahap 2 (dengan halaman login) sudah tayang di Vercel. Migrasi ini

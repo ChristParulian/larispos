@@ -1,15 +1,14 @@
-# LarisPOS — Warung POS Gratis
+# LarisPOS — Sistem Kasir Warung Kelontong
 
-Sistem kasir (Point of Sale) gratis untuk warung kelontong — lisensi MIT,
-repo publik. Frontend **React + Vite + TypeScript + Tailwind CSS**,
-backend **Supabase saja** (tanpa Express), di-hosting di **Vercel**.
+Sistem kasir (Point of Sale) open source untuk warung kelontong —
+lisensi MIT, repo publik. Frontend **React + Vite + TypeScript +
+Tailwind CSS**, backend **Supabase saja** (tanpa Express), di-hosting
+di **Vercel**.
 
-Versi Gratis ini adalah core yang stabil dan benar-benar bisa dipakai
-jualan sehari-hari: kasir, produk & stok, dan laporan harian. Fitur Pro
-(bon / piutang, PWA offline, laporan mendalam + Apriori) ditambahkan
-nanti sebagai modul di atas core yang sama — bukan di repo ini.
+Project open source yang benar-benar bisa dipakai jualan sehari-hari:
+kasir, produk & stok, dan laporan harian.
 
-## Fitur (Gratis)
+## Fitur
 
 - **Kasir** — cari produk berdasarkan nama, keranjang dengan qty +/−,
   total & kembalian jelas di layar, bayar **Tunai** atau **QRIS**.
@@ -30,8 +29,8 @@ nanti sebagai modul di atas core yang sama — bukan di repo ini.
 - **Mode demo** — tanpa Supabase pun aplikasi tetap jalan dengan 12
   produk seed lokal, jelas berlabel "Mode demo — data lokal".
 
-Yang **tidak** ada di Gratis (Pro nanti): bon / hutang-piutang, PWA &
-mode offline, printer thermal, Apriori.
+Di luar cakupan saat ini: bon / hutang-piutang, PWA & mode offline,
+printer thermal, dan analisis keranjang belanja (Apriori).
 
 ## Cara menjalankan (lokal)
 
@@ -53,8 +52,8 @@ demo** (12 produk seed, transaksi tersimpan di browser saja).
    - `004_tahap2_auth.sql` — login + peran, cabut akses anon.
      Jalankan setelah aplikasi dengan halaman login tayang.
    
-   > `003_pro_addon.sql` adalah migrasi **Pro-only** dan tidak boleh
-   > masuk repo publik Gratis.
+   > `003_pro_addon.sql` adalah migrasi modul Pro dan tidak termasuk
+   > di repo ini.
 3. Salin `.env.example` menjadi `.env`, isi dari **Project Settings → API**:
    - `VITE_SUPABASE_URL` — Project URL
    - `VITE_SUPABASE_ANON_KEY` — anon / publishable key
@@ -70,7 +69,7 @@ Detail skema, urutan migrasi, dan checklist pengujian ada di
   Output directory: `dist`.
 - Tambahkan environment variables di Vercel:
   `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY` dari project
-  Supabase versi Gratis.
+  Supabase-mu.
 - `vercel.json` sudah berisi rewrite semua rute ke `/index.html`
   agar refresh di `/kasir` / `/laporan` tidak 404.
 
@@ -101,9 +100,9 @@ Detail skema, urutan migrasi, dan checklist pengujian ada di
 larispos/
 ├── src/
 │   ├── components/   Layout, Struk (struk digital)
-│   ├── lib/          supabase client, api, mode demo, format, struk
-│   └── pages/        KasirPage, ProdukPage, LaporanPage
-├── supabase/         Migrasi SQL (001 core, 002 seed, 003 Pro-only)
+│   ├── lib/          supabase client, api, auth, mode demo, format, struk
+│   └── pages/        KasirPage, ProdukPage, LaporanPage, LoginPage, PenggunaPage
+├── supabase/         Migrasi SQL (001 core, 002 seed, 004 auth)
 ├── vercel.json       SPA rewrite
 └── .env.example      Template environment variables
 ```

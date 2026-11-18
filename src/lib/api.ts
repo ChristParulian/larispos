@@ -187,7 +187,7 @@ export interface CheckoutItem {
  * Checkout via fungsi database buat_transaksi().
  * Signature SQL: buat_transaksi(p_items jsonb, p_metode_bayar text,
  * p_dibayar bigint, p_pelanggan_id uuid, p_allow_minus boolean).
- * Gratis hanya memakai p_items, p_metode_bayar, p_dibayar.
+ * Core hanya memakai p_items, p_metode_bayar, p_dibayar.
  */
 export async function checkout(
   items: CheckoutItem[],

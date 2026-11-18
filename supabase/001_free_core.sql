@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Warung POS — 001_free_core.sql
--- Skema inti versi GRATIS (MIT, repo publik).
+-- Skema inti (MIT, repo publik).
 --
 -- Sesuai spesifikasi beku (warung-pos-spec-gratis-pro.pdf):
 --   * Backend Supabase saja, tanpa Express.
@@ -28,13 +28,13 @@ END;
 $$;
 
 -- =====================================================================
--- TABEL CORE GRATIS
+-- TABEL CORE
 -- =====================================================================
 
 -- Peran pengguna. Satu baris per akun Supabase Auth.
 -- role 'owner' melihat semua data (termasuk harga beli & laba);
 -- role 'kasir' fokus berjualan. Penyembunyian harga beli dari kasir
--- baru ditegakkan di Pro; di Gratis peran ini disiapkan di skema.
+-- ditegakkan di UI + trigger sejak Tahap 2 (004).
 CREATE TABLE public.profiles (
   id uuid PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,
   nama text,
@@ -69,7 +69,7 @@ CREATE TABLE public.transaksi (
   -- NULL saat demo tanpa login; terisi auth.uid() setelah login aktif.
   kasir_id uuid REFERENCES public.profiles (id) ON DELETE SET NULL,
   -- 'bon' sudah diizinkan di CHECK sejak awal agar migrasi Pro tidak
-  -- perlu ALTER TABLE core. Fungsi buat_transaksi() versi Gratis
+  -- perlu ALTER TABLE core. Fungsi buat_transaksi() di core
   -- tetap MENOLAK 'bon'; baru versi Pro yang menerimanya.
   metode_bayar text NOT NULL
     CHECK (metode_bayar IN ('tunai', 'qris', 'bon')),
@@ -171,14 +171,13 @@ CREATE POLICY "owner ubah semua profil"
 -- kategori & produk: siapa pun (termasuk demo anon) boleh MEMBACA,
 -- karena halaman kasir harus jalan tanpa login di Tahap 1.
 -- CATATAN DEMO: SELECT anon pada produk ikut mengekspos harga_beli.
--- Itu sesuai spec Gratis (harga beli memang ada di Gratis), dan
--- penyembunyian harga_beli dari kasir baru ditegakkan di Pro.
+-- Akses anon ini dicabut di 004 (Tahap 2) begitu halaman login tayang.
 CREATE POLICY "semua baca kategori"
   ON public.kategori FOR SELECT USING (true);
 CREATE POLICY "semua baca produk"
   ON public.produk FOR SELECT USING (true);
--- Tulis kategori/produk hanya untuk pengguna login. Di Gratis belum
--- ada pemisahan owner/kasir di UI; pengetatan peran dilakukan di Pro.
+-- Tulis kategori/produk hanya untuk pengguna login. Pemisahan
+-- owner/kasir di UI + trigger ditegakkan sejak Tahap 2 (004).
 CREATE POLICY "pengguna login kelola kategori"
   ON public.kategori FOR ALL TO authenticated
   USING (true) WITH CHECK (true);
@@ -215,18 +214,18 @@ CREATE POLICY "demo baca log stok"
 --
 -- Parameter:
 --   p_items         jsonb array: [{"produk_id": "...", "qty": 2}, ...]
---   p_metode_bayar  'tunai' | 'qris' di Gratis ('bon' ditolak di sini,
+--   p_metode_bayar  'tunai' | 'qris' di core ('bon' ditolak di sini,
 --                   baru diterima setelah migrasi Pro 003).
 --   p_dibayar       uang tunai dari pembeli (diabaikan untuk QRIS:
 --                   otomatis = total, kembalian 0).
---   p_pelanggan_id  hanya dipakai Pro (Bon). Di Gratis harus NULL.
+--   p_pelanggan_id  hanya dipakai Pro (Bon). Di core harus NULL.
 --   p_allow_minus   false di kasir online (stok kurang = transaksi
 --                   ditolak). true HANYA untuk sinkronisasi antrean
 --                   offline Pro: transaksi tidak pernah gagal saat
 --                   sync, stok boleh menjadi minus + tanda restock.
 --
 -- Mengembalikan jsonb: {transaksi_id, total, dibayar, kembalian,
--- metode_bayar, piutang_id (null di Gratis)}.
+-- metode_bayar, piutang_id (null di core)}.
 -- =====================================================================
 CREATE OR REPLACE FUNCTION public.buat_transaksi(
   p_items jsonb,
@@ -252,9 +251,9 @@ DECLARE
   v_stok integer;
   v_stok_sesudah integer;
 BEGIN
-  -- 1. Validasi metode bayar (Gratis: hanya Tunai dan QRIS).
+  -- 1. Validasi metode bayar (core: hanya Tunai dan QRIS).
   IF p_metode_bayar NOT IN ('tunai', 'qris') THEN
-    RAISE EXCEPTION 'Metode bayar "%" tidak tersedia di versi Gratis (Bon hanya di Pro).',
+    RAISE EXCEPTION 'Metode bayar "%" tidak tersedia di core (Bon hanya di modul Pro).',
       p_metode_bayar;
   END IF;
   IF p_pelanggan_id IS NOT NULL THEN

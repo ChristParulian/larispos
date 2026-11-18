@@ -1,4 +1,4 @@
-// Halaman Laporan (Gratis): total penjualan harian, estimasi laba
+// Halaman Laporan: total penjualan harian, estimasi laba
 // kotor dari selisih harga jual − harga beli (snapshot di item),
 // Top 5 produk terlaris, dan riwayat transaksi dengan detail.
 

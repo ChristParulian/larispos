@@ -57,7 +57,7 @@ export default function Layout() {
             )}
           </nav>
           <span className="rounded-full bg-emerald-800 px-2.5 py-1 text-xs font-medium">
-            Gratis
+            Open Source
           </span>
           {!isDemoMode && user && (
             <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export default function Layout() {
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-stone-500 no-print">
-        LarisPOS — kasir warung kelontong, versi Gratis (MIT).
+        LarisPOS — kasir warung kelontong, open source (MIT).
       </footer>
     </div>
   )
