@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './lib/auth'
 import { isDemoMode } from './lib/supabase'
 import Layout from './components/Layout'
+import DashboardPage from './pages/DashboardPage'
 import KasirPage from './pages/KasirPage'
 import ProdukPage from './pages/ProdukPage'
 import TambahProdukPage from './pages/TambahProdukPage'
@@ -38,7 +39,15 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/kasir" replace />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ButuhLogin>
+                <DashboardPage />
+              </ButuhLogin>
+            }
+          />
           <Route
             path="/kasir"
             element={
@@ -89,7 +98,7 @@ export default function App() {
               </ButuhLogin>
             }
           />
-          <Route path="*" element={<Navigate to="/kasir" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>
     </AuthProvider>

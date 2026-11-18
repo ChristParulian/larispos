@@ -29,6 +29,29 @@ function Base({
   )
 }
 
+/** Dashboard — grid 2x2. */
+export function IconDashboard(props: IconProps) {
+  return (
+    <Base {...props}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </Base>
+  )
+}
+
+/** Peringatan — segitiga. */
+export function IconPeringatan(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M12 3.5 22 20H2L12 3.5z" />
+      <path d="M12 10v4" />
+      <path d="M12 17h.01" />
+    </Base>
+  )
+}
+
 /** Kasir — uang kertas. */
 export function IconKasir(props: IconProps) {
   return (

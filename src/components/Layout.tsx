@@ -4,6 +4,7 @@ import { isDemoMode } from '../lib/supabase'
 import { demoReset } from '../lib/demo'
 import { useAuth } from '../lib/auth'
 import {
+  IconDashboard,
   IconKasir,
   IconLaporan,
   IconPengguna,
@@ -17,6 +18,7 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
+  { to: '/dashboard', label: 'Dashboard', Icon: IconDashboard },
   { to: '/kasir', label: 'Kasir', Icon: IconKasir },
   { to: '/produk', label: 'Produk', Icon: IconProduk },
   { to: '/laporan', label: 'Laporan', Icon: IconLaporan },
@@ -81,7 +83,7 @@ export default function Layout() {
     <div className="min-h-screen bg-stone-100 text-stone-900">
       <header className="sticky top-0 z-40 bg-emerald-700 text-white shadow-md no-print">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <NavLink to="/kasir" className="text-xl font-bold tracking-tight">
+          <NavLink to="/dashboard" className="text-xl font-bold tracking-tight">
             LarisPOS
           </NavLink>
           {/* Navigasi atas hanya di layar sedang ke atas;
@@ -169,7 +171,7 @@ export default function Layout() {
       >
         <div
           className={`grid pb-[env(safe-area-inset-bottom)] ${
-            tampilPengguna ? 'grid-cols-4' : 'grid-cols-3'
+            tampilPengguna ? 'grid-cols-5' : 'grid-cols-4'
           }`}
         >
           {NAV.map((item) => (
