@@ -29,7 +29,7 @@ function KhususOwner({ children }: { children: ReactNode }) {
   if (loading) {
     return <p className="p-8 text-center text-stone-600">Memuat…</p>
   }
-  if (!isOwner) return <Navigate to="/kasir" replace />
+  if (!isOwner) return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 

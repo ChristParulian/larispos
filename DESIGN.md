@@ -60,9 +60,10 @@ teks sekunder memakai `stone-600` (7,09:1 di atas kertas), bukan
   mengambang (bar total HP, bottom sheet, modal struk).
 - **Tombol primer** (`.btn-primary`): hijau pinus solid, `rounded-lg`
   (bukan pil). Alasan: tegas dan konsisten dengan sudut kartu.
-- **Navigasi bawah HP**: item aktif ditandai garis amber di atas dan
-  warna pinus, bukan pil berwarna. Alasan: penanda yang tenang dan
-  tidak berteriak.
+- **Navigasi bawah (semua ukuran layar)**: satu-satunya navigasi,
+  item aktif ditandai garis amber di atas dan warna pinus, bukan
+  pil berwarna. Alasan: penanda yang tenang dan tidak berteriak,
+  dan kasir tidak perlu belajar dua pola navigasi.
 - **Mark merek** (`BrandMark` di `icons.tsx`): toko kelontong satu
   warna, atap tenda bergelombang. Alasan: satu satunya motif
   identitas yang berulang, membuat desain ini milik LarisPOS.
@@ -80,6 +81,7 @@ hubung.
 ## Perilaku
 
 - Mobile-first: pengguna warung kebanyakan memakai HP. Target sentuh
-  minimal 44px, bottom nav di HP, navigasi atas di layar besar.
+  minimal 44px. Menu bawah (footer) adalah satu-satunya navigasi
+  di semua ukuran layar; tidak ada navigasi atas.
 - Setiap tampilan data punya tiga kondisi: kosong, memuat, dan error
   (R-27). Tidak ada tombol atau tautan yang tidak berfungsi (R-26).

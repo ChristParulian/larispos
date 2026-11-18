@@ -31,16 +31,8 @@ const NAV_PENGGUNA: NavItem = {
   Icon: IconPengguna,
 }
 
-function linkDesktop({ isActive }: { isActive: boolean }) {
-  return `rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-    isActive
-      ? 'bg-pinus-800 text-white'
-      : 'text-pinus-100/75 hover:bg-pinus-800/60 hover:text-white'
-  }`
-}
-
-/** Satu tab di menu bawah (HP): ikon + label, tab aktif ditandai
-    garis amber di atas dan warna pinus, tanpa pil berwarna. */
+/** Satu tab di menu bawah: ikon + label, tab aktif ditandai garis
+    amber di atas dan warna pinus, tanpa pil berwarna. */
 function BottomNavItem({ item }: { item: NavItem }) {
   return (
     <NavLink
@@ -91,21 +83,9 @@ export default function Layout() {
               LarisPOS
             </span>
           </NavLink>
-          {/* Navigasi atas hanya di layar sedang ke atas;
-              di HP navigasi pindah ke menu bawah. */}
-          <nav className="hidden flex-1 gap-1 md:flex">
-            {NAV.map((item) => (
-              <NavLink key={item.to} to={item.to} className={linkDesktop}>
-                {item.label}
-              </NavLink>
-            ))}
-            {tampilPengguna && (
-              <NavLink to={NAV_PENGGUNA.to} className={linkDesktop}>
-                {NAV_PENGGUNA.label}
-              </NavLink>
-            )}
-          </nav>
-          <div className="ml-auto flex items-center gap-2 md:ml-0">
+          {/* Header hanya berisi merek dan akun; semua navigasi
+              ada di menu bawah, di semua ukuran layar. */}
+          <div className="ml-auto flex items-center gap-2">
             {!isDemoMode && user && (
               <div className="flex items-center gap-2">
                 <span className="hidden rounded-md border border-pinus-700 bg-pinus-800 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-pinus-100 sm:block">
@@ -154,22 +134,24 @@ export default function Layout() {
         </div>
       )}
 
-      {/* Padding bawah ekstra di HP agar menu bawah tidak menutupi konten. */}
-      <main className="mx-auto max-w-6xl px-4 py-4 pb-28 sm:py-6 md:pb-6">
+      {/* Padding bawah ekstra agar menu bawah tidak menutupi konten,
+          di semua ukuran layar. */}
+      <main className="mx-auto max-w-6xl px-4 py-4 pb-28 sm:py-6">
         <Outlet />
       </main>
 
-      <footer className="mx-auto hidden max-w-6xl px-4 pb-6 text-center text-xs text-stone-600 no-print md:block">
+      <footer className="mx-auto hidden max-w-6xl px-4 pb-24 text-center text-xs text-stone-600 no-print md:block">
         LarisPOS, kasir warung kelontong, open source (MIT).
       </footer>
 
-      {/* Menu bawah (HP saja): navigasi utama dalam jangkauan jempol. */}
+      {/* Menu bawah: satu-satunya navigasi, di semua ukuran layar.
+          Tab dibatasi lebar konten agar tidak melebar di layar besar. */}
       <nav
         aria-label="Navigasi utama"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-white no-print md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-white no-print"
       >
         <div
-          className={`grid pb-[env(safe-area-inset-bottom)] ${
+          className={`mx-auto grid max-w-6xl pb-[env(safe-area-inset-bottom)] ${
             tampilPengguna ? 'grid-cols-5' : 'grid-cols-4'
           }`}
         >

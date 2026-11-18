@@ -26,7 +26,7 @@ export default function LoginPage() {
     return <p className="p-8 text-center text-stone-600">Memuat…</p>
   }
   if (user) {
-    return <Navigate to="/kasir" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -54,7 +54,7 @@ export default function LoginPage() {
         if (err) {
           setError(err)
         } else {
-          navigate('/kasir', { replace: true })
+          navigate('/dashboard', { replace: true })
         }
       } else {
         const { needsConfirmation, error: err } = await signUp(
@@ -70,7 +70,7 @@ export default function LoginPage() {
           )
           setMode('masuk')
         } else {
-          navigate('/kasir', { replace: true })
+          navigate('/dashboard', { replace: true })
         }
       }
     } finally {
