@@ -20,13 +20,13 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
       <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-lg bg-white shadow-xl sm:rounded-lg">
-        {/* Area struk — satu-satunya yang tercetak. */}
+        {/* Area struk, satu-satunya yang tercetak. */}
         <div className="print-area px-6 py-6">
           <div className="text-center">
-            <h2 className="text-lg font-bold">LARISPOS — WARUNG</h2>
-            <p className="text-sm text-stone-500">Struk Belanja</p>
-            <p className="text-sm text-stone-500">{formatTanggal(tanggalIso)}</p>
-            <p className="text-sm text-stone-500">
+            <h2 className="text-lg font-bold">LARISPOS - WARUNG</h2>
+            <p className="text-sm text-stone-600">Struk Belanja</p>
+            <p className="text-sm text-stone-600">{formatTanggal(tanggalIso)}</p>
+            <p className="text-sm text-stone-600">
               No. {hasil.transaksi_id.slice(0, 8).toUpperCase()}
             </p>
           </div>
@@ -42,7 +42,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
                     {formatRupiah(it.qty * it.produk.harga_jual)}
                   </span>
                 </div>
-                <div className="text-stone-500">
+                <div className="text-stone-600">
                   {it.qty} {it.produk.satuan} x{' '}
                   {formatRupiah(it.produk.harga_jual)}
                 </div>
@@ -69,7 +69,7 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
             </div>
           </dl>
 
-          <p className="mt-4 text-center text-sm text-stone-500">
+          <p className="mt-4 text-center text-sm text-stone-600">
             Terima kasih sudah belanja!
           </p>
         </div>

@@ -40,7 +40,7 @@ function linkDesktop({ isActive }: { isActive: boolean }) {
 }
 
 /** Satu tab di menu bawah (HP): ikon + label, tab aktif ditandai
-    garis amber di atas dan warna pinus — tanpa pil berwarna. */
+    garis amber di atas dan warna pinus, tanpa pil berwarna. */
 function BottomNavItem({ item }: { item: NavItem }) {
   return (
     <NavLink
@@ -53,14 +53,14 @@ function BottomNavItem({ item }: { item: NavItem }) {
             <span className="absolute left-1/2 top-0 h-[3px] w-8 -translate-x-1/2 rounded-b bg-aksen-500" />
           )}
           <item.Icon
-            className={`h-6 w-6 ${isActive ? 'text-pinus-700' : 'text-stone-400'}`}
+            className={`h-6 w-6 ${isActive ? 'text-pinus-700' : 'text-stone-600'}`}
             strokeWidth={isActive ? 2.1 : 1.8}
           />
           <span
             className={
               isActive
                 ? 'font-bold text-pinus-700'
-                : 'font-medium text-stone-400'
+                : 'font-medium text-stone-600'
             }
           >
             {item.label}
@@ -126,7 +126,7 @@ export default function Layout() {
 
       {isDemoMode && (
         <div className="bg-aksen-100 px-4 py-2 text-center text-sm text-aksen-800 no-print">
-          <strong>Mode demo — data lokal.</strong> Supabase belum
+          <strong>Mode demo, data lokal.</strong> Supabase belum
           dikonfigurasi, jadi transaksi hanya tersimpan di browser ini.
           Isi <code className="rounded bg-aksen-200 px-1">.env</code> dengan{' '}
           <code className="rounded bg-aksen-200 px-1">VITE_SUPABASE_URL</code>{' '}
@@ -159,8 +159,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="mx-auto hidden max-w-6xl px-4 pb-6 text-center text-xs text-stone-400 no-print md:block">
-        LarisPOS — kasir warung kelontong, open source (MIT).
+      <footer className="mx-auto hidden max-w-6xl px-4 pb-6 text-center text-xs text-stone-600 no-print md:block">
+        LarisPOS, kasir warung kelontong, open source (MIT).
       </footer>
 
       {/* Menu bawah (HP saja): navigasi utama dalam jangkauan jempol. */}

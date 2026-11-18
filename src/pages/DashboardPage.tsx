@@ -1,7 +1,7 @@
 // Halaman Dashboard: ringkasan penjualan hari ini, jalan pintas,
 // stok menipis, produk terlaris, transaksi terakhir, dan penjualan
 // 7 hari terakhir. Data dari api yang sama dengan LaporanPage.
-// Estimasi laba hanya untuk owner — kasir tidak melihat angka laba.
+// Estimasi laba hanya untuk owner, kasir tidak melihat angka laba.
 
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -182,7 +182,7 @@ export default function DashboardPage() {
         <p className="eyebrow mt-1.5">{tanggalPanjang()}</p>
       </div>
 
-      {memuat && <p className="text-stone-500">Memuat dashboard…</p>}
+      {memuat && <p className="text-stone-600">Memuat dashboard…</p>}
       {galat && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           Gagal memuat dashboard:{' '}
@@ -192,19 +192,19 @@ export default function DashboardPage() {
 
       {!memuat && !galat && (
         <>
-          {/* Angka utama hari ini — satu-satunya yang besar di halaman. */}
+          {/* Angka utama hari ini, satu-satunya yang besar di halaman. */}
           <section aria-label="Penjualan hari ini">
             <p className="eyebrow">Penjualan hari ini</p>
             <p className="mt-2 text-5xl font-extrabold tracking-tighter sm:text-6xl">
               {formatRupiah(ringkasanHariIni.total)}
             </p>
-            <p className="mt-2 text-sm text-stone-500">
+            <p className="mt-2 text-sm text-stone-600">
               {ringkasanHariIni.jumlah === 0
                 ? 'Belum ada transaksi hari ini.'
                 : `${ringkasanHariIni.jumlah} transaksi · rata-rata ${formatRupiah(ringkasanHariIni.rataRata)} per transaksi`}
             </p>
             {isOwner && (
-              <p className="mt-1 text-sm text-stone-500">
+              <p className="mt-1 text-sm text-stone-600">
                 Estimasi laba kotor hari ini:{' '}
                 <span className="font-semibold text-stone-700">
                   {formatRupiah(ringkasanHariIni.labaKotor)}
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
               {stokTipis.length === 0 ? (
-                <p className="mt-3 text-sm text-stone-500">
+                <p className="mt-3 text-sm text-stone-600">
                   Semua stok aman. Tidak ada produk dengan stok 5 atau kurang.
                 </p>
               ) : (
@@ -259,7 +259,7 @@ export default function DashboardPage() {
                           <span className="block truncate font-medium">
                             {p.nama}
                           </span>
-                          <span className="text-xs text-stone-500">
+                          <span className="text-xs text-stone-600">
                             {p.kategori?.nama ?? 'Tanpa kategori'}
                           </span>
                         </span>
@@ -278,8 +278,8 @@ export default function DashboardPage() {
                 </ul>
               )}
               {stokTipis.length > 8 && (
-                <p className="mt-2 text-sm text-stone-500">
-                  Dan {stokTipis.length - 8} produk lagi — lihat di halaman
+                <p className="mt-2 text-sm text-stone-600">
+                  Dan {stokTipis.length - 8} produk lagi, lihat di halaman
                   Produk.
                 </p>
               )}
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
               {top5.length === 0 ? (
-                <p className="mt-3 text-sm text-stone-500">
+                <p className="mt-3 text-sm text-stone-600">
                   Belum ada penjualan.
                 </p>
               ) : (
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
               {transaksiTerakhir.length === 0 ? (
-                <p className="mt-3 text-sm text-stone-500">
+                <p className="mt-3 text-sm text-stone-600">
                   Belum ada transaksi.
                 </p>
               ) : (
@@ -350,7 +350,7 @@ export default function DashboardPage() {
                             {formatJam(t.created_at)} ·{' '}
                             {labelMetode(t.metode_bayar)}
                           </span>
-                          <span className="text-xs text-stone-500">
+                          <span className="text-xs text-stone-600">
                             {(t.item_transaksi ?? []).length} item
                           </span>
                         </span>
@@ -364,13 +364,13 @@ export default function DashboardPage() {
               )}
             </section>
 
-            {/* Penjualan 7 hari terakhir — batang CSS, tanpa pustaka grafik. */}
+            {/* Penjualan 7 hari terakhir, batang CSS, tanpa pustaka grafik. */}
             <section className="card p-4 sm:p-5">
               <h2 className="text-base font-bold">
                 Penjualan 7 hari terakhir
               </h2>
               {tujuhHari.totalMinggu === 0 ? (
-                <p className="mt-3 text-sm text-stone-500">
+                <p className="mt-3 text-sm text-stone-600">
                   Belum ada penjualan dalam 7 hari terakhir.
                 </p>
               ) : (
@@ -390,7 +390,7 @@ export default function DashboardPage() {
                           key={h.tanggal}
                           className="flex min-w-0 flex-1 flex-col"
                         >
-                          <span className="h-4 text-center text-[11px] leading-none text-stone-500">
+                          <span className="h-4 text-center text-[11px] leading-none text-stone-600">
                             {h.total > 0 ? formatSingkat(h.total) : ''}
                           </span>
                           <div className="flex h-28 items-end">
@@ -408,7 +408,7 @@ export default function DashboardPage() {
                             className={`mt-1 text-center text-xs ${
                               h.hariIni
                                 ? 'font-bold text-stone-900'
-                                : 'text-stone-500'
+                                : 'text-stone-600'
                             }`}
                           >
                             {h.label}
@@ -417,7 +417,7 @@ export default function DashboardPage() {
                       )
                     })}
                   </div>
-                  <p className="mt-3 text-sm text-stone-500">
+                  <p className="mt-3 text-sm text-stone-600">
                     Total 7 hari:{' '}
                     <span className="font-semibold text-stone-700">
                       {formatRupiah(tujuhHari.totalMinggu)}

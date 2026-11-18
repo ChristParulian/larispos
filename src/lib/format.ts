@@ -1,6 +1,6 @@
 /** Format angka menjadi Rupiah, contoh: Rp65.000 */
 export function formatRupiah(nilai: number | null | undefined): string {
-  if (nilai === null || nilai === undefined) return '—'
+  if (nilai === null || nilai === undefined) return '-'
   return 'Rp' + nilai.toLocaleString('id-ID')
 }
 

@@ -1,4 +1,4 @@
-# Warung POS — SQL Supabase
+# Warung POS: SQL Supabase
 
 Migrasi SQL untuk Warung POS, sesuai spesifikasi beku
 `warung-pos-spec-gratis-pro.pdf`. Backend Supabase saja, tanpa Express.
@@ -17,27 +17,27 @@ Checkout hanya lewat fungsi `buat_transaksi()` di database.
 
 Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 
-1. `001_free_core.sql` — dulu, di project utama **dan** project Pro.
-2. `002_seed_12_produk.sql` — setelah 001.
-3. `004_tahap2_auth.sql` — setelah frontend Tahap 2 (dengan halaman login) tayang, di project utama **dan** project Pro.
-4. `003_pro_addon.sql` — **hanya di project Pro**, setelah 001 + 002 (urutan terhadap 004 bebas).
+1. `001_free_core.sql`: dulu, di project utama **dan** project Pro.
+2. `002_seed_12_produk.sql`: setelah 001.
+3. `004_tahap2_auth.sql`: setelah frontend Tahap 2 (dengan halaman login) tayang, di project utama **dan** project Pro.
+4. `003_pro_addon.sql`: **hanya di project Pro**, setelah 001 + 002 (urutan terhadap 004 bebas).
 
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
-dan anon key masing-masing — jangan tertukar.
+dan anon key masing-masing: jangan tertukar.
 
 ## Yang masih perlu project Supabase nyata untuk diuji
 
 File-file ini ditulis dari spesifikasi dan **belum pernah dijalankan**
 (spec sendiri menyatakan schema & seed belum pernah diuji di Supabase
-nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
+nyata: pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
 
 1. Jalankan 001 → 002 di SQL Editor, pastikan tanpa error.
 2. Panggil `buat_transaksi()` sebagai `anon` (demo tanpa login) dan
    sebagai user login; pastikan transaksi + item tersimpan, stok
    berkurang, `log_stok` terisi, dan total dihitung dari harga database
-   (coba kirim harga palsu dari klien — harus diabaikan).
+   (coba kirim harga palsu dari klien: harus diabaikan).
 3. Uji penolakan: stok kurang, keranjang kosong, uang tunai kurang,
-   metode `bon` di project utama (harus ditolak), produk tidak ada —
+   metode `bon` di project utama (harus ditolak), produk tidak ada,
    dan pastikan tidak ada data setengah jadi yang tertinggal.
 4. Uji RLS: `anon` tidak bisa INSERT langsung ke `transaksi` /
    `item_transaksi` / `log_stok`; `anon` tidak bisa membaca tabel Pro.
@@ -51,7 +51,7 @@ nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
    berikutnya kasir; kasir tidak bisa mengubah harga beli maupun
    mengangkat dirinya menjadi owner.
 
-## Aturan keamanan kunci (dari spec — jangan dilanggar)
+## Aturan keamanan kunci (dari spec: jangan dilanggar)
 
 - **Anon key** boleh ada di frontend/Vercel, karena semua akses data
   dibatasi RLS.
@@ -65,7 +65,7 @@ nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
 - `buat_transaksi()` memakai `SECURITY DEFINER` + `FOR UPDATE` pada
   baris produk: harga dihitung ulang dari database, dan dua kasir tidak
   bisa menjual stok terakhir secara bersamaan. Semua langkah dalam satu
-  transaksi — gagal di satu titik, semuanya batal.
+  transaksi: gagal di satu titik, semuanya batal.
 - `item_transaksi` menyimpan snapshot `harga_jual` **dan** `harga_beli`
   saat transaksi, supaya laporan laba kasar historis tidak rusak bila
   harga berubah kemudian.
@@ -74,7 +74,7 @@ nyata — pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
   agar transaksi tidak pernah gagal saat sync dan stok boleh minus +
   tanda restock (sesuai aturan offline spec).
 - `transaksi.metode_bayar` sudah mengizinkan `'bon'` sejak 001, supaya
-  migrasi Pro tidak perlu `ALTER TABLE` core — yang menolak Bon di
+  migrasi Pro tidak perlu `ALTER TABLE` core: yang menolak Bon di
   core adalah fungsinya, bukan constraint tabel.
 - Pembayaran hutang tidak bisa di-`UPDATE` (harus hapus lalu catat
   ulang); hapus pembayaran otomatis mengembalikan sisa hutang.

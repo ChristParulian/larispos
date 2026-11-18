@@ -2,7 +2,7 @@
 // - Mode online: Supabase (tabel + RPC buat_transaksi di 001_free_core.sql).
 // - Mode demo: data lokal di src/lib/demo.ts.
 //
-// Checkout SELALU lewat RPC buat_transaksi() saat online — harga dan
+// Checkout SELALU lewat RPC buat_transaksi() saat online, harga dan
 // total dihitung ulang di database, tidak pernah dipercaya dari browser.
 // Tidak ada INSERT langsung ke transaksi / item_transaksi / log_stok
 // (ditolak RLS, sesuai desain skema).
@@ -64,7 +64,7 @@ export async function fetchProduk(): Promise<Produk[]> {
 /**
  * Simpan (tambah/ubah) produk. Bila includeHargaBeli false (kasir),
  * kolom harga_beli DIHILANGKAN dari payload agar nilainya tidak
- * tertimpa null — trigger jaga_harga_beli (004) juga menolak
+ * tertimpa null, trigger jaga_harga_beli (004) juga menolak
  * perubahan harga beli oleh kasir.
  */
 export async function saveProduk(

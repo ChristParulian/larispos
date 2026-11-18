@@ -1,8 +1,8 @@
 -- =====================================================================
--- Warung POS — 004_tahap2_auth.sql
+-- Warung POS, 004_tahap2_auth.sql
 -- Tahap 2: login + peran owner/kasir (repo publik).
 --
--- PENTING — URUTAN PENERAPAN: jalankan file ini SETELAH frontend
+-- PENTING, URUTAN PENERAPAN: jalankan file ini SETELAH frontend
 -- Tahap 2 (dengan halaman login) sudah tayang di Vercel. Migrasi ini
 -- mencabut akses anon: tanpa login, kasir/laporan tidak bisa dipakai.
 -- Menjalankannya sebelum frontend login tayang akan mematikan demo.
@@ -21,7 +21,7 @@
 --   4. RLS: baca kategori/produk/transaksi/item/log hanya untuk
 --      pengguna login (akses anon Tahap 1 dicabut); pembuatan profil
 --      hanya lewat trigger (policy INSERT profil dihapus).
---   5. REVOKE EXECUTE buat_transaksi() FROM anon — mencabut grant
+--   5. REVOKE EXECUTE buat_transaksi() FROM anon, mencabut grant
 --      sementara Tahap 1 (lihat 001). Checkout hanya untuk pengguna
 --      login.
 --
@@ -159,7 +159,7 @@ CREATE TRIGGER trg_produk_jaga_harga_beli
   FOR EACH ROW EXECUTE FUNCTION public.jaga_harga_beli();
 
 -- ---------------------------------------------------------------------
--- 4. RLS: cabut akses baca anon (Tahap 1) — hanya pengguna login.
+-- 4. RLS: cabut akses baca anon (Tahap 1), hanya pengguna login.
 -- ---------------------------------------------------------------------
 DROP POLICY IF EXISTS "semua baca kategori" ON public.kategori;
 CREATE POLICY "pengguna login baca kategori"
@@ -189,7 +189,7 @@ DROP POLICY IF EXISTS "pengguna buat profil sendiri" ON public.profiles;
 -- ---------------------------------------------------------------------
 -- 5. Cabut grant anon ke buat_transaksi() (grant sementara Tahap 1).
 -- Postgres memberikan EXECUTE ke PUBLIC secara default saat fungsi
--- dibuat — dan anon termasuk PUBLIC — jadi mencabut dari anon saja
+-- dibuat, dan anon termasuk PUBLIC, jadi mencabut dari anon saja
 -- TIDAK cukup; PUBLIC harus dicabut juga. Grant eksplisit ke
 -- authenticated (dari 001) tetap berlaku.
 -- ---------------------------------------------------------------------

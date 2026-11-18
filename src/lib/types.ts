@@ -59,7 +59,7 @@ export interface LogStok {
   produk?: { nama: string } | null
 }
 
-/** Hasil kembalian fungsi buat_transaksi() — lihat 001_free_core.sql. */
+/** Hasil kembalian fungsi buat_transaksi(), lihat 001_free_core.sql. */
 export interface CheckoutResult {
   transaksi_id: string
   total: number

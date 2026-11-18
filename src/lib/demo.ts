@@ -27,7 +27,7 @@ export const DEMO_KATEGORI: Kategori[] = [
 const SEED: Array<
   Omit<Produk, 'id' | 'kategori_id' | 'kategori'> & { kategori: string }
 > = [
-  // Sembako (5) — sama dengan 002_seed_12_produk.sql
+  // Sembako (5), sama dengan 002_seed_12_produk.sql
   { kategori: 'Sembako', nama: 'Beras Premium 5 kg', satuan: 'karung', harga_beli: 58000, harga_jual: 65000, stok: 20 },
   { kategori: 'Sembako', nama: 'Minyak Goreng 1 Liter', satuan: 'botol', harga_beli: 17500, harga_jual: 20000, stok: 24 },
   { kategori: 'Sembako', nama: 'Gula Pasir 1 kg', satuan: 'kg', harga_beli: 15500, harga_jual: 17500, stok: 30 },
@@ -74,7 +74,7 @@ function save(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value))
   } catch {
-    // Penyimpanan penuh / privat — demo tetap jalan di memori sesi ini.
+    // Penyimpanan penuh / privat, demo tetap jalan di memori sesi ini.
   }
 }
 

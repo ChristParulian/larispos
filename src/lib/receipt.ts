@@ -1,5 +1,5 @@
 // Struk digital: teks untuk WhatsApp + data untuk tampilan / cetak PDF.
-// Printer thermal tidak dipakai (spec) — struk tampil di layar,
+// Printer thermal tidak dipakai (spec), struk tampil di layar,
 // dibagikan lewat WhatsApp, atau disimpan sebagai PDF lewat print browser.
 
 import type { CartItem, CheckoutResult } from './types'
@@ -18,7 +18,7 @@ export function teksStruk(
     )
     .join('\n')
   return [
-    'LARISPOS — WARUNG',
+    'LARISPOS - WARUNG',
     'Struk Belanja',
     formatTanggal(tanggalIso),
     `No. ${hasil.transaksi_id.slice(0, 8).toUpperCase()}`,

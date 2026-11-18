@@ -120,7 +120,7 @@ export default function TambahProdukPage() {
         </Link>
         <div>
           <h1 className="judul-halaman">{judul}</h1>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-stone-600">
             {isEdit
               ? 'Ubah detail produk, lalu simpan.'
               : 'Isi detail produk baru untuk dijual di kasir.'}
@@ -129,7 +129,7 @@ export default function TambahProdukPage() {
       </div>
 
       {isEdit && produkQuery.isLoading && (
-        <p className="text-stone-500">Memuat produk…</p>
+        <p className="text-stone-600">Memuat produk…</p>
       )}
       {isEdit && produkQuery.isError && (
         <div className="card p-5">
@@ -147,7 +147,7 @@ export default function TambahProdukPage() {
       {isEdit && produkQuery.data && !produkEdit && (
         <div className="card p-5">
           <p className="font-medium">Produk tidak ditemukan.</p>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-sm text-stone-600">
             Produk ini mungkin sudah dihapus.
           </p>
           <Link to="/produk" className="btn-secondary mt-4">

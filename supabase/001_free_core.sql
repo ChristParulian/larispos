@@ -1,5 +1,5 @@
 -- =====================================================================
--- Warung POS — 001_free_core.sql
+-- Warung POS, 001_free_core.sql
 -- Skema inti (MIT, repo publik).
 --
 -- Sesuai spesifikasi beku (warung-pos-spec-gratis-pro.pdf):
@@ -140,7 +140,7 @@ AS $$
 $$;
 
 -- =====================================================================
--- ROW LEVEL SECURITY — aktif di SEMUA tabel core.
+-- ROW LEVEL SECURITY, aktif di SEMUA tabel core.
 -- =====================================================================
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.kategori ENABLE ROW LEVEL SECURITY;
@@ -188,11 +188,11 @@ CREATE POLICY "pengguna login kelola produk"
 -- transaksi, item_transaksi, log_stok: TIDAK ADA policy INSERT /
 -- UPDATE / DELETE. Penulisan langsung lewat API DITOLAK; satu-satunya
 -- jalan masuk adalah fungsi buat_transaksi() (SECURITY DEFINER,
--- melewati RLS) — jadi stok dan total tidak bisa dimanipulasi dari
+-- melewati RLS), jadi stok dan total tidak bisa dimanipulasi dari
 -- browser.
 -- DEMO SEMENTARA (Tahap 1): anon boleh SELECT riwayat agar halaman
 -- Kasir/Laporan bisa dicoba tanpa login. CABUT di Tahap 2 bersamaan
--- dengan pencabutan grant anon ke buat_transaksi() — lihat catatan
+-- dengan pencabutan grant anon ke buat_transaksi(), lihat catatan
 -- di bawah fungsi.
 CREATE POLICY "demo baca transaksi"
   ON public.transaksi FOR SELECT USING (true);
@@ -202,15 +202,15 @@ CREATE POLICY "demo baca log stok"
   ON public.log_stok FOR SELECT USING (true);
 
 -- =====================================================================
--- FUNGSI CHECKOUT ATOMIK — buat_transaksi()
+-- FUNGSI CHECKOUT ATOMIK, buat_transaksi()
 -- =====================================================================
 -- Satu-satunya cara membuat transaksi. Semua langkah berjalan dalam
 -- satu transaksi database: bila satu langkah gagal (mis. stok kurang),
--- SEMUA dibatalkan — tidak ada transaksi setengah jadi.
+-- SEMUA dibatalkan, tidak ada transaksi setengah jadi.
 --
 -- Input dari browser HANYA: daftar {produk_id, qty}, metode bayar,
 -- dan uang dibayar. Harga satuan, subtotal, dan total DIHITUNG ULANG
--- dari tabel produk — nilai apa pun yang dikirim browser diabaikan.
+-- dari tabel produk, nilai apa pun yang dikirim browser diabaikan.
 --
 -- Parameter:
 --   p_items         jsonb array: [{"produk_id": "...", "qty": 2}, ...]
@@ -288,7 +288,7 @@ BEGIN
 
   -- 4. Kunci baris produk (FOR UPDATE) agar dua kasir tidak menjual
   --    stok terakhir secara bersamaan, lalu hitung total dari harga
-  --    DI DATABASE — bukan dari browser.
+  --    DI DATABASE, bukan dari browser.
   FOR v_row IN SELECT produk_id, qty FROM _bt_items LOOP
     SELECT p.nama, p.harga_jual, p.harga_beli, p.stok
       INTO v_nama, v_harga_jual, v_harga_beli, v_stok
@@ -370,7 +370,7 @@ $$;
 -- Tahap 2 roadmap."
 --
 -- CABUT di Tahap 2 dengan menjalankan 004_tahap2_auth.sql (mencabut
--- dari anon DAN PUBLIC — Postgres memberi EXECUTE ke PUBLIC secara
+-- dari anon DAN PUBLIC, Postgres memberi EXECUTE ke PUBLIC secara
 -- default, jadi mencabut dari anon saja tidak cukup) dan pada saat
 -- yang sama mengganti policy SELECT "demo baca ..." di atas menjadi
 -- TO authenticated.

@@ -29,7 +29,7 @@ function Base({
   )
 }
 
-/** Dashboard — grid 2x2. */
+/** Dashboard, grid 2x2. */
 export function IconDashboard(props: IconProps) {
   return (
     <Base {...props}>
@@ -41,7 +41,7 @@ export function IconDashboard(props: IconProps) {
   )
 }
 
-/** Peringatan — segitiga. */
+/** Peringatan, segitiga. */
 export function IconPeringatan(props: IconProps) {
   return (
     <Base {...props}>
@@ -52,7 +52,7 @@ export function IconPeringatan(props: IconProps) {
   )
 }
 
-/** Kasir — uang kertas. */
+/** Kasir, uang kertas. */
 export function IconKasir(props: IconProps) {
   return (
     <Base {...props}>
@@ -63,7 +63,7 @@ export function IconKasir(props: IconProps) {
   )
 }
 
-/** Produk — kubus / kotak barang. */
+/** Produk, kubus / kotak barang. */
 export function IconProduk(props: IconProps) {
   return (
     <Base {...props}>
@@ -74,7 +74,7 @@ export function IconProduk(props: IconProps) {
   )
 }
 
-/** Laporan — diagram batang. */
+/** Laporan, diagram batang. */
 export function IconLaporan(props: IconProps) {
   return (
     <Base {...props}>
@@ -86,7 +86,7 @@ export function IconLaporan(props: IconProps) {
   )
 }
 
-/** Pengguna — dua orang. */
+/** Pengguna, dua orang. */
 export function IconPengguna(props: IconProps) {
   return (
     <Base {...props}>
@@ -98,7 +98,7 @@ export function IconPengguna(props: IconProps) {
   )
 }
 
-/** Keranjang belanja — tas. */
+/** Keranjang belanja, tas. */
 export function IconKeranjang(props: IconProps) {
   return (
     <Base {...props}>
@@ -155,9 +155,9 @@ export function IconChevron(props: IconProps) {
   )
 }
 
-/** Mark merek LarisPOS — toko kelontong: atap tenda bergelombang,
+/** Mark merek LarisPOS, toko kelontong: atap tenda bergelombang,
     badan toko, dan pintu yang terbuka ke bawah. Satu warna
-    (currentColor), diisi penuh — bukan ikon garis. */
+    (currentColor), diisi penuh, bukan ikon garis. */
 export function BrandMark({ className = 'h-6 w-6' }: { className?: string }) {
   return (
     <svg

@@ -1,5 +1,5 @@
 // Halaman Kasir: cari produk, keranjang, bayar Tunai / QRIS.
-// Checkout lewat RPC buat_transaksi() — harga & total dihitung ulang
+// Checkout lewat RPC buat_transaksi(), harga & total dihitung ulang
 // di database. Setelah bayar, struk digital ditampilkan.
 // Di HP, keranjang dibuka sebagai panel bawah (bottom sheet) lewat
 // bar total yang menempel di atas menu bawah; di layar besar
@@ -35,7 +35,7 @@ interface CartPanelProps {
   onBayar: () => void
 }
 
-/** Isi keranjang + pembayaran — dipakai panel samping (desktop)
+/** Isi keranjang + pembayaran, dipakai panel samping (desktop)
     dan panel bawah (HP) dengan state yang sama. */
 function CartPanel(props: CartPanelProps) {
   const {
@@ -58,7 +58,7 @@ function CartPanel(props: CartPanelProps) {
   return (
     <div>
       {keranjang.length === 0 ? (
-        <p className="mt-1 text-sm text-stone-500">
+        <p className="mt-1 text-sm text-stone-600">
           Keranjang masih kosong. Ketuk produk untuk menambahkan.
         </p>
       ) : (
@@ -69,7 +69,7 @@ function CartPanel(props: CartPanelProps) {
                 <div className="truncate text-sm font-medium">
                   {it.produk.nama}
                 </div>
-                <div className="text-xs text-stone-500">
+                <div className="text-xs text-stone-600">
                   {formatRupiah(it.produk.harga_jual)} / {it.produk.satuan}
                 </div>
               </div>
@@ -183,7 +183,7 @@ function CartPanel(props: CartPanelProps) {
         </div>
       ) : (
         <p className="mt-4 rounded-lg bg-kertas-gelap px-3 py-2.5 text-sm text-stone-600">
-          QRIS: pembeli membayar tepat sebesar total — tidak ada kembalian.
+          QRIS: pembeli membayar tepat sebesar total, tidak ada kembalian.
           Pastikan pembayaran QRIS sudah masuk sebelum menekan Bayar.
         </p>
       )}
@@ -367,7 +367,7 @@ export default function KasirPage() {
           )}
         </div>
         <div className="relative mb-3">
-          <IconSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
+          <IconSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-600" />
           <input
             type="search"
             value={cari}
@@ -377,7 +377,7 @@ export default function KasirPage() {
           />
         </div>
         {produkQuery.isLoading && (
-          <p className="text-stone-500">Memuat produk…</p>
+          <p className="text-stone-600">Memuat produk…</p>
         )}
         {produkQuery.isError && (
           <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -395,7 +395,7 @@ export default function KasirPage() {
                 ? `Tidak ada produk yang cocok dengan “${cari}”.`
                 : 'Belum ada produk.'}
             </p>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1 text-sm text-stone-600">
               {cari.trim()
                 ? 'Coba kata kunci lain.'
                 : 'Tambahkan produk dulu di menu Produk.'}
@@ -414,7 +414,7 @@ export default function KasirPage() {
               <div className="break-words font-semibold leading-snug">
                 {p.nama}
               </div>
-              <div className="mt-1 text-xs text-stone-500">
+              <div className="mt-1 text-xs text-stone-600">
                 {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
               </div>
               <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
@@ -423,15 +423,15 @@ export default function KasirPage() {
               <div
                 className={`mt-1.5 inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ${
                   p.stok <= 0
-                    ? 'bg-kertas-gelap text-stone-500'
+                    ? 'bg-kertas-gelap text-stone-600'
                     : p.stok <= 5
                       ? 'bg-red-100 text-red-700'
                       : 'bg-kertas-gelap text-stone-600'
                 }`}
               >
                 Stok {p.stok}
-                {p.stok <= 5 && p.stok > 0 ? ' — hampir habis' : ''}
-                {p.stok <= 0 ? ' — habis' : ''}
+                {p.stok <= 5 && p.stok > 0 ? ', hampir habis' : ''}
+                {p.stok <= 0 ? ', habis' : ''}
               </div>
             </button>
           ))}
@@ -443,7 +443,7 @@ export default function KasirPage() {
         )}
       </section>
 
-      {/* Keranjang & pembayaran — panel samping (layar sedang ke atas) */}
+      {/* Keranjang & pembayaran, panel samping (layar sedang ke atas) */}
       <aside className="hidden h-fit md:block lg:sticky lg:top-24">
         <div className="card p-4 sm:p-5">
           <h2 className="text-lg font-bold">Keranjang</h2>
@@ -486,7 +486,7 @@ export default function KasirPage() {
                 type="button"
                 aria-label="Tutup keranjang"
                 onClick={() => setKeranjangTerbuka(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-md text-stone-500 hover:bg-kertas-gelap"
+                className="flex h-10 w-10 items-center justify-center rounded-md text-stone-600 hover:bg-kertas-gelap"
               >
                 <IconTutup className="h-5 w-5" />
               </button>

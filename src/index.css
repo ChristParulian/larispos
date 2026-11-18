@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Identitas visual LarisPOS — "warung modern": kertas hangat,
+/* Identitas visual LarisPOS, "warung modern": kertas hangat,
    hijau pinus gelap, aksen amber hemat. Sengaja BUKAN palet
    default Tailwind: tidak ada emerald, gradien, atau kaca. */
 @theme {
@@ -13,7 +13,7 @@
   --color-garis: #e7ddcd;
   --color-tinta: #1c1917;
 
-  /* Hijau pinus — warna utama (jangkar: #1b4332). */
+  /* Hijau pinus, warna utama (jangkar: #1b4332). */
   --color-pinus-50: #eef5f0;
   --color-pinus-100: #d9e9de;
   --color-pinus-200: #b5d3c2;
@@ -26,7 +26,7 @@
   --color-pinus-900: #112c21;
   --color-pinus-950: #0a1f16;
 
-  /* Amber hangat — aksen, dipakai hemat (sorotan, penanda). */
+  /* Amber hangat, aksen, dipakai hemat (sorotan, penanda). */
   --color-aksen-100: #fbebd3;
   --color-aksen-200: #f5d9a8;
   --color-aksen-300: #edbe6e;
@@ -49,12 +49,46 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* R-39: setiap kontrol menunjukkan bisa dipakai; yang nonaktif
+     menunjukkan tidak bisa dipakai. */
+  a[href],
+  button,
+  summary,
+  select,
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  /* R-32: indikator fokus yang jelas untuk tautan dan tombol
+     (kolom isian sudah punya ring sendiri di .input). */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-pinus-700);
+    outline-offset: 2px;
+  }
+
   ::selection {
     background: var(--color-pinus-100);
   }
 }
 
-/* Komponen bersama — dipakai semua halaman agar tampilannya
+/* R-39: hentikan gerak non-esensial bila pengguna memintanya. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Komponen bersama, dipakai semua halaman agar tampilannya
    konsisten: mobile-first, target sentuh minimal ~44px.
    Kartu datar (tanpa bayangan), sudut rounded-lg, garis hangat. */
 @layer components {
@@ -63,7 +97,7 @@
   }
 
   .input {
-    @apply min-h-11 w-full rounded-lg border border-garis bg-white px-4 py-3 text-base outline-none transition placeholder:text-stone-400 focus:border-pinus-700 focus:ring-2 focus:ring-pinus-100;
+    @apply min-h-11 w-full rounded-lg border border-garis bg-white px-4 py-3 text-base outline-none transition placeholder:text-stone-500 focus:border-pinus-700 focus:ring-2 focus:ring-pinus-100;
   }
 
   .label {
@@ -93,7 +127,7 @@
 
   /* Eyebrow: label kecil uppercase di atas judul atau angka section. */
   .eyebrow {
-    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500;
+    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-stone-600;
   }
 
   /* Tautan dalam konten: hijau pinus, tebal. */
@@ -103,7 +137,7 @@
 }
 
 /* Struk digital: saat print / simpan PDF, hanya area struk yang
-   tercetak — navigasi dan tombol disembunyikan. */
+   tercetak, navigasi dan tombol disembunyikan. */
 @media print {
   body {
     background: #fff !important;

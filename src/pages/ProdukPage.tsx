@@ -83,7 +83,7 @@ export default function ProdukPage() {
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="judul-halaman">Produk &amp; Stok</h1>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-stone-600">
             {produkQuery.data
               ? `${produkTampil.length} dari ${produkQuery.data.length} produk`
               : 'Kelola daftar produk warung.'}
@@ -130,7 +130,7 @@ export default function ProdukPage() {
         <>
           <div className="mb-4 flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
-              <IconSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
+              <IconSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-600" />
               <input
                 type="search"
                 value={cari}
@@ -159,7 +159,7 @@ export default function ProdukPage() {
           </div>
 
           {produkQuery.isLoading && (
-            <p className="text-stone-500">Memuat produk…</p>
+            <p className="text-stone-600">Memuat produk…</p>
           )}
           {produkQuery.isError && (
             <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -177,7 +177,7 @@ export default function ProdukPage() {
                   ? 'Tidak ada produk yang cocok.'
                   : 'Belum ada produk.'}
               </p>
-              <p className="mt-1 text-sm text-stone-500">
+              <p className="mt-1 text-sm text-stone-600">
                 {sedangFilter
                   ? 'Coba kata kunci atau kategori lain.'
                   : 'Tambahkan produk pertama agar bisa dijual di kasir.'}
@@ -197,18 +197,18 @@ export default function ProdukPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-kertas text-left">
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Produk</th>
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Kategori</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Produk</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Kategori</th>
                     {isOwner && (
-                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">
+                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
                         Harga Beli
                       </th>
                     )}
-                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
                       Harga Jual
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">Stok</th>
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Aksi</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">Stok</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,23 +219,23 @@ export default function ProdukPage() {
                     >
                       <td className="px-4 py-3">
                         <div className="font-medium">{p.nama}</div>
-                        <div className="text-xs text-stone-500">
+                        <div className="text-xs text-stone-600">
                           per {p.satuan}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-stone-600">
-                        {p.kategori?.nama ?? '—'}
+                        {p.kategori?.nama ?? '-'}
                       </td>
                       {isOwner && (
                         <td className="px-4 py-3 text-right">
                           {formatRupiah(p.harga_beli)}
                         </td>
                       )}
-                      <td className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500">
+                      <td className="px-4 py-3 text-right font-semibold tabular-nums">
                         {formatRupiah(p.harga_jual)}
                       </td>
                       <td
-                        className={`px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-500 ${
+                        className={`px-4 py-3 text-right font-semibold tabular-nums ${
                           p.stok <= 5 ? 'text-red-600' : ''
                         }`}
                       >
@@ -273,7 +273,7 @@ export default function ProdukPage() {
                     <div className="break-words font-semibold leading-snug">
                       {p.nama}
                     </div>
-                    <div className="mt-0.5 text-xs text-stone-500">
+                    <div className="mt-0.5 text-xs text-stone-600">
                       {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export default function ProdukPage() {
                 </div>
                 <div className="mt-3 flex items-baseline justify-between gap-2 text-sm">
                   {isOwner ? (
-                    <span className="text-stone-500">
+                    <span className="text-stone-600">
                       Beli {formatRupiah(p.harga_beli)}
                     </span>
                   ) : (
@@ -324,13 +324,13 @@ export default function ProdukPage() {
         <div className="card">
           <div className="border-b px-4 py-4 sm:px-5">
             <h2 className="font-bold">Log Pergerakan Stok</h2>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-stone-600">
               100 perubahan stok terakhir. Penjualan mengurangi stok (negatif),
               restock / koreksi menambah (positif).
             </p>
           </div>
           {logQuery.isLoading && (
-            <p className="px-4 py-4 text-stone-500 sm:px-5">
+            <p className="px-4 py-4 text-stone-600 sm:px-5">
               Memuat log stok…
             </p>
           )}
@@ -343,7 +343,7 @@ export default function ProdukPage() {
             </p>
           )}
           {logQuery.data && logQuery.data.length === 0 && (
-            <p className="px-4 py-4 text-stone-500 sm:px-5">
+            <p className="px-4 py-4 text-stone-600 sm:px-5">
               Belum ada pergerakan stok.
             </p>
           )}
@@ -357,7 +357,7 @@ export default function ProdukPage() {
                   <div className="break-words font-medium">
                     {l.produk?.nama ?? 'Produk dihapus'}
                   </div>
-                  <div className="text-xs text-stone-500">
+                  <div className="text-xs text-stone-600">
                     {formatTanggal(l.created_at)} · {l.alasan}
                   </div>
                 </div>
@@ -369,7 +369,7 @@ export default function ProdukPage() {
                   >
                     {l.perubahan > 0 ? `+${l.perubahan}` : l.perubahan}
                   </span>
-                  <div className="text-xs text-stone-500">
+                  <div className="text-xs text-stone-600">
                     {l.stok_sebelum} → {l.stok_sesudah}
                   </div>
                 </div>

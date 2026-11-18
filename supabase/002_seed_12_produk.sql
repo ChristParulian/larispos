@@ -1,5 +1,5 @@
 -- =====================================================================
--- Warung POS — 002_seed_12_produk.sql
+-- Warung POS, 002_seed_12_produk.sql
 -- Data awal: 12 produk warung kelontong yang realistis,
 -- tersebar di 4 kategori. Dijalankan SETELAH 001_free_core.sql.
 --

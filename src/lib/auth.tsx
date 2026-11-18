@@ -2,7 +2,7 @@
 //
 // - Mode online: login email/kata sandi via Supabase Auth. Setelah
 //   login, profil (nama + role owner/kasir) dibaca dari tabel
-//   profiles — dibuat otomatis oleh trigger saat signup (004).
+//   profiles, dibuat otomatis oleh trigger saat signup (004).
 // - Mode demo (tanpa Supabase): tidak ada login; pengguna dianggap
 //   owner agar semua fitur demo tetap bisa dicoba.
 //
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfil(p)
     } catch {
       // Profil gagal dibaca (mis. gangguan jaringan): peran dianggap
-      // bukan owner sampai berhasil dibaca — default aman.
+      // bukan owner sampai berhasil dibaca, default aman.
       setProfil(null)
     }
   }, [])

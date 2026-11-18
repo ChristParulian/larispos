@@ -16,7 +16,7 @@ function ButuhLogin({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
   if (isDemoMode) return <>{children}</>
   if (loading) {
-    return <p className="p-8 text-center text-stone-500">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">Memuat…</p>
   }
   if (!user) return <Navigate to="/login" replace />
   return <>{children}</>
@@ -27,7 +27,7 @@ function KhususOwner({ children }: { children: ReactNode }) {
   const { isOwner, loading } = useAuth()
   if (isDemoMode) return <>{children}</>
   if (loading) {
-    return <p className="p-8 text-center text-stone-500">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">Memuat…</p>
   }
   if (!isOwner) return <Navigate to="/kasir" replace />
   return <>{children}</>

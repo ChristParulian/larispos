@@ -81,7 +81,7 @@ export default function PenggunaPage() {
     <div>
       <div className="mb-4">
         <h1 className="judul-halaman">Pengguna</h1>
-        <p className="mt-1 text-sm text-stone-500">
+        <p className="mt-1 text-sm text-stone-600">
           Owner bisa melihat harga beli, laba, dan mengatur peran. Kasir
           fokus berjualan. Akun baru yang mendaftar otomatis menjadi
           Kasir.
@@ -100,7 +100,7 @@ export default function PenggunaPage() {
       )}
 
       {profilQuery.isLoading && (
-        <p className="text-stone-500">Memuat pengguna…</p>
+        <p className="text-stone-600">Memuat pengguna…</p>
       )}
       {profilQuery.isError && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -112,7 +112,7 @@ export default function PenggunaPage() {
       )}
 
       {profilQuery.data && profilQuery.data.length === 0 && (
-        <p className="text-stone-500">Belum ada pengguna terdaftar.</p>
+        <p className="text-stone-600">Belum ada pengguna terdaftar.</p>
       )}
 
       {profilQuery.data && profilQuery.data.length > 0 && (
@@ -122,10 +122,10 @@ export default function PenggunaPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-kertas text-left">
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Nama</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Peran</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Terdaftar</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-500">Aksi</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Nama</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Peran</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Terdaftar</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -145,7 +145,7 @@ export default function PenggunaPage() {
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-stone-500">
+                        <div className="text-xs text-stone-600">
                           #{p.id.slice(0, 8).toUpperCase()}
                         </div>
                       </td>
@@ -155,7 +155,7 @@ export default function PenggunaPage() {
                       </td>
                       <td className="px-4 py-3">
                         {iniSaya ? (
-                          <span className="text-xs text-stone-400">
+                          <span className="text-xs text-stone-600">
                             Peran sendiri tidak bisa diubah di sini.
                           </span>
                         ) : (
@@ -193,7 +193,7 @@ export default function PenggunaPage() {
                           </span>
                         )}
                       </div>
-                      <div className="mt-0.5 text-xs text-stone-500">
+                      <div className="mt-0.5 text-xs text-stone-600">
                         #{p.id.slice(0, 8).toUpperCase()} · Terdaftar{' '}
                         {formatTanggal(p.created_at)}
                       </div>
@@ -201,7 +201,7 @@ export default function PenggunaPage() {
                     {badgePeran(p.role)}
                   </div>
                   {iniSaya ? (
-                    <p className="mt-3 text-xs text-stone-400">
+                    <p className="mt-3 text-xs text-stone-600">
                       Peran sendiri tidak bisa diubah di sini.
                     </p>
                   ) : (

@@ -23,7 +23,7 @@ export default function LoginPage() {
   const [sibuk, setSibuk] = useState(false)
 
   if (loading) {
-    return <p className="p-8 text-center text-stone-500">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">Memuat…</p>
   }
   if (user) {
     return <Navigate to="/kasir" replace />
@@ -88,8 +88,8 @@ export default function LoginPage() {
           <div className="mt-3 text-3xl font-extrabold tracking-tight">
             Laris<span className="text-aksen-600">POS</span>
           </div>
-          <p className="mt-1 text-sm text-stone-500">
-            Kasir warung kelontong — masuk untuk mulai berjualan.
+          <p className="mt-1 text-sm text-stone-600">
+            Kasir warung kelontong, masuk untuk mulai berjualan.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export default function LoginPage() {
               <span className="label">
                 Kata sandi *{' '}
                 {mode === 'daftar' && (
-                  <span className="font-normal text-stone-500">
+                  <span className="font-normal text-stone-600">
                     (minimal 6 karakter)
                   </span>
                 )}
@@ -189,18 +189,18 @@ export default function LoginPage() {
           </form>
 
           {mode === 'daftar' && (
-            <p className="mt-4 text-xs leading-relaxed text-stone-500">
+            <p className="mt-4 text-xs leading-relaxed text-stone-600">
               Akun pertama yang mendaftar otomatis menjadi{' '}
               <strong>Owner</strong> (bisa melihat harga beli, laba, dan
               mengatur pengguna). Akun berikutnya menjadi{' '}
-              <strong>Kasir</strong> — fokus berjualan, tanpa akses harga beli
+              <strong>Kasir</strong>, fokus berjualan, tanpa akses harga beli
               dan laba.
             </p>
           )}
         </div>
 
-        <p className="mt-4 text-center text-xs text-stone-400">
-          LarisPOS — kasir warung kelontong, open source (MIT).
+        <p className="mt-4 text-center text-xs text-stone-600">
+          LarisPOS, kasir warung kelontong, open source (MIT).
         </p>
       </div>
     </div>

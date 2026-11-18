@@ -56,7 +56,7 @@ export default function LaporanPage() {
     <div>
       <div className="mb-4">
         <h1 className="judul-halaman">Laporan</h1>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-stone-600">
           Ringkasan penjualan dan riwayat transaksi.
         </p>
       </div>
@@ -84,7 +84,7 @@ export default function LaporanPage() {
       </div>
 
       {transaksiQuery.isLoading && (
-        <p className="text-stone-500">Memuat laporan…</p>
+        <p className="text-stone-600">Memuat laporan…</p>
       )}
       {transaksiQuery.isError && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -105,7 +105,7 @@ export default function LaporanPage() {
               <div className="mt-2 text-[28px] font-extrabold leading-none tracking-tight">
                 {formatRupiah(ringkasan.totalPenjualan)}
               </div>
-              <div className="mt-1 text-xs text-stone-500">
+              <div className="mt-1 text-xs text-stone-600">
                 {ringkasan.jumlahTransaksi} transaksi
               </div>
             </div>
@@ -115,9 +115,9 @@ export default function LaporanPage() {
                 <div className="mt-2 text-[28px] font-extrabold leading-none tracking-tight">
                   {formatRupiah(ringkasan.labaKotor)}
                 </div>
-                <div className="mt-1 text-xs text-stone-500">
+                <div className="mt-1 text-xs text-stone-600">
                   {ringkasan.adaHargaBeliKosong
-                    ? 'Sebagian item tanpa harga beli — tidak dihitung dalam laba.'
+                    ? 'Sebagian item tanpa harga beli, tidak dihitung dalam laba.'
                     : 'Selisih harga jual − harga beli per item terjual.'}
                 </div>
               </div>
@@ -133,7 +133,7 @@ export default function LaporanPage() {
                     : 0,
                 )}
               </div>
-              <div className="mt-1 text-xs text-stone-500">
+              <div className="mt-1 text-xs text-stone-600">
                 Total penjualan ÷ jumlah transaksi.
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function LaporanPage() {
           <div className="card mt-4 p-4 sm:p-5">
             <h2 className="text-lg font-bold">Top 5 Produk Terlaris</h2>
             {ringkasan.top5.length === 0 ? (
-              <p className="mt-2 text-sm text-stone-500">
+              <p className="mt-2 text-sm text-stone-600">
                 Belum ada penjualan pada periode ini.
               </p>
             ) : (
@@ -172,7 +172,7 @@ export default function LaporanPage() {
               Riwayat Transaksi
             </h2>
             {transaksi.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-stone-500 sm:px-5">
+              <p className="px-4 py-6 text-center text-sm text-stone-600 sm:px-5">
                 Belum ada transaksi pada periode ini.
               </p>
             ) : (
@@ -192,7 +192,7 @@ export default function LaporanPage() {
                           <span className="font-medium">
                             #{t.id.slice(0, 8).toUpperCase()}
                           </span>{' '}
-                          <span className="text-sm text-stone-500">
+                          <span className="text-sm text-stone-600">
                             {formatTanggal(t.created_at)} ·{' '}
                             {labelMetode(t.metode_bayar)}
                           </span>
@@ -202,7 +202,7 @@ export default function LaporanPage() {
                             {formatRupiah(t.total)}
                           </span>
                           <IconChevron
-                            className={`h-4 w-4 text-stone-400 transition-transform ${
+                            className={`h-4 w-4 text-stone-600 transition-transform ${
                               terbuka ? 'rotate-180' : ''
                             }`}
                           />
@@ -217,7 +217,7 @@ export default function LaporanPage() {
                                 className="flex justify-between gap-2"
                               >
                                 <span className="min-w-0">
-                                  {it.produk?.nama ?? 'Produk dihapus'} —{' '}
+                                  {it.produk?.nama ?? 'Produk dihapus'},{' '}
                                   {it.qty} x {formatRupiah(it.harga_jual)}
                                 </span>
                                 <span className="shrink-0 font-medium">
