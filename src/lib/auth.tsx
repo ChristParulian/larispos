@@ -41,6 +41,8 @@ export interface AuthState {
     nama: string,
   ) => Promise<{ needsConfirmation: boolean; error: string | null }>
   signOut: () => Promise<void>
+  /** Baca ulang profil akun yang login (mis. setelah ubah nama). */
+  muatUlangProfil: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -169,6 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.clear()
   }, [queryClient])
 
+  const muatUlangProfil = useCallback(async () => {
+    await muatProfil(user)
+  }, [muatProfil, user])
+
   const peran: Peran | null = profil?.role ?? null
 
   const value = useMemo<AuthState>(
@@ -181,8 +187,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       signOut,
+      muatUlangProfil,
     }),
-    [user, profil, peran, loading, signIn, signUp, signOut],
+    [user, profil, peran, loading, signIn, signUp, signOut, muatUlangProfil],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
@@ -192,4 +199,78 @@ export function useAuth(): AuthState {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth harus dipakai di dalam <AuthProvider>.')
   return ctx
+}
+
+/**
+ * Ubah email akun sendiri. Supabase mengirim tautan konfirmasi ke
+ * email baru; email baru berlaku setelah tautan itu diklik, lalu
+ * trigger 012 menyalinnya ke profiles.email.
+ */
+export async function ubahEmailSendiri(
+  emailBaru: string,
+): Promise<string | null> {
+  if (!supabase) return 'Supabase belum dikonfigurasi.'
+  const { error } = await supabase.auth.updateUser({ email: emailBaru })
+  if (error) {
+    if (/already registered|already exists/i.test(error.message)) {
+      return 'Email ini sudah dipakai akun lain.'
+    }
+    return terjemahkanError(error.message)
+  }
+  return null
+}
+
+/**
+ * Ubah kata sandi akun sendiri. Kata sandi saat ini diverifikasi
+ * dulu (masuk ulang), supaya orang yang memegang sesi terbuka
+ * tidak bisa mengganti kata sandi begitu saja.
+ */
+export async function ubahKataSandiSendiri(
+  email: string,
+  sandiLama: string,
+  sandiBaru: string,
+): Promise<string | null> {
+  if (!supabase) return 'Supabase belum dikonfigurasi.'
+  if (sandiBaru.length < 8) return 'Kata sandi baru minimal 8 karakter.'
+  const { error: errMasuk } = await supabase.auth.signInWithPassword({
+    email,
+    password: sandiLama,
+  })
+  if (errMasuk) return 'Kata sandi saat ini salah.'
+  const { error } = await supabase.auth.updateUser({ password: sandiBaru })
+  if (error) return terjemahkanError(error.message)
+  return null
+}
+
+/**
+ * Kirim email berisi tautan atur ulang kata sandi ke alamat yang
+ * diberikan. Dipakai halaman Masuk ("Lupa kata sandi") dan owner
+ * untuk membantu pengguna lain. Tautan mengarah ke
+ * /atur-ulang-sandi, tempat pengguna membuat kata sandi barunya
+ * sendiri; owner tidak pernah melihat atau mengatur kata sandi
+ * orang lain.
+ */
+export async function kirimLinkAturUlangSandi(
+  email: string,
+): Promise<string | null> {
+  if (!supabase) return 'Supabase belum dikonfigurasi.'
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/atur-ulang-sandi`,
+  })
+  if (error) return terjemahkanError(error.message)
+  return null
+}
+
+/**
+ * Atur kata sandi baru dari tautan pemulihan (halaman
+ * /atur-ulang-sandi). Dipanggil saat sesi pemulihan aktif.
+ */
+export async function aturUlangSandiBaru(
+  sandiBaru: string,
+): Promise<string | null> {
+  if (!supabase) return 'Supabase belum dikonfigurasi.'
+  if (sandiBaru.length < 8) return 'Kata sandi baru minimal 8 karakter.'
+  const { error } = await supabase.auth.updateUser({ password: sandiBaru })
+  if (error) return terjemahkanError(error.message)
+  return null
 }

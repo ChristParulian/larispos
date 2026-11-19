@@ -1,23 +1,49 @@
 // Halaman Pengguna (khusus Owner, Tahap 2): daftar akun yang
-// terdaftar beserta perannya, dan ubah peran owner/kasir.
+// terdaftar beserta perannya, dan kelola akun: ubah nama, ubah
+// peran, ubah email dan kata sandi sendiri, serta kirim tautan
+// atur ulang kata sandi untuk pengguna lain.
+//
 // Aturan ditegakkan database (004): hanya owner yang boleh mengubah
-// peran, dan owner terakhir tidak boleh diturunkan. Email tiap akun
-// disimpan di profiles sejak migrasi 011, supaya owner mengenali
-// akun lewat emailnya, bukan potongan ID.
+// peran, dan owner terakhir tidak boleh diturunkan. Email dan kata
+// sandi mengikuti praktik aman Supabase Auth: email hanya bisa
+// diubah pemilik akun sendiri lewat tautan konfirmasi (disalin ke
+// profiles lewat trigger 012), kata sandi sendiri diubah setelah
+// verifikasi kata sandi saat ini, dan kata sandi orang lain hanya
+// bisa diatur ulang lewat tautan ke emailnya, owner tidak pernah
+// melihat atau mengatur kata sandi orang lain.
 
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchSemuaProfil, ubahPeranProfil } from '../lib/api'
-import { useAuth } from '../lib/auth'
+import {
+  fetchSemuaProfil,
+  ubahNamaProfil,
+  ubahPeranProfil,
+} from '../lib/api'
+import {
+  kirimLinkAturUlangSandi,
+  ubahEmailSendiri,
+  ubahKataSandiSendiri,
+  useAuth,
+} from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
-import { IconSearch } from '../components/icons'
+import { IconChevron, IconSearch } from '../components/icons'
 import type { Peran, Profil } from '../lib/types'
 
+type AksiSibuk = 'email' | 'sandi' | 'reset' | null
+
 export default function PenggunaPage() {
-  const { user } = useAuth()
+  const { user, muatUlangProfil } = useAuth()
   const queryClient = useQueryClient()
   const [cari, setCari] = useState('')
+  const [detailId, setDetailId] = useState<string | null>(null)
+  const [namaEdit, setNamaEdit] = useState('')
+  const [emailBaru, setEmailBaru] = useState('')
+  const [sandiLama, setSandiLama] = useState('')
+  const [sandiBaru, setSandiBaru] = useState('')
+  const [sandiBaruUlang, setSandiBaruUlang] = useState('')
+  const [lihatSandi, setLihatSandi] = useState(false)
+  const [sibukAksi, setSibukAksi] = useState<AksiSibuk>(null)
   const [error, setError] = useState<string | null>(null)
   const [pesan, setPesan] = useState<string | null>(null)
 
@@ -42,6 +68,20 @@ export default function PenggunaPage() {
     },
   })
 
+  const namaMutation = useMutation({
+    mutationFn: ({ id, nama }: { id: string; nama: string }) =>
+      ubahNamaProfil(id, nama),
+    onSuccess: (_d, v) => {
+      void queryClient.invalidateQueries({ queryKey: ['profil-semua'] })
+      if (v.id === user?.id) void muatUlangProfil()
+      setPesan(`Nama diubah menjadi ${v.nama}.`)
+      setError(null)
+    },
+    onError: (err: unknown) => {
+      setError(err instanceof Error ? err.message : 'Gagal mengubah nama.')
+    },
+  })
+
   // Daftar terfilter: cari berdasarkan nama atau email.
   const profilTampil = useMemo(() => {
     const semua = profilQuery.data ?? []
@@ -59,6 +99,18 @@ export default function PenggunaPage() {
   ).length
   const jumlahKasir = (profilQuery.data ?? []).length - jumlahOwner
 
+  function alihkanDetail(p: Profil) {
+    const buka = detailId !== p.id
+    setDetailId(buka ? p.id : null)
+    if (buka) {
+      setNamaEdit(p.nama ?? '')
+      setEmailBaru('')
+      setSandiLama('')
+      setSandiBaru('')
+      setSandiBaruUlang('')
+    }
+  }
+
   function konfirmasiUbah(p: Profil) {
     const target: Peran = p.role === 'owner' ? 'kasir' : 'owner'
     const nama = p.nama ?? p.email ?? 'pengguna ini'
@@ -69,6 +121,85 @@ export default function PenggunaPage() {
     ) {
       ubahMutation.mutate({ id: p.id, role: target, nama })
     }
+  }
+
+  async function simpanEmail(p: Profil) {
+    const baru = emailBaru.trim()
+    if (!baru) {
+      setError('Email baru wajib diisi.')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(baru)) {
+      setError('Format email tidak valid.')
+      return
+    }
+    if (baru.toLowerCase() === (p.email ?? '').toLowerCase()) {
+      setError('Email baru sama dengan email saat ini.')
+      return
+    }
+    setSibukAksi('email')
+    setError(null)
+    setPesan(null)
+    const err = await ubahEmailSendiri(baru)
+    setSibukAksi(null)
+    if (err) {
+      setError(err)
+      return
+    }
+    setPesan(
+      `Link konfirmasi dikirim ke ${baru}. Email berubah setelah kamu membuka link itu.`,
+    )
+    setEmailBaru('')
+  }
+
+  async function simpanSandi() {
+    if (!sandiLama || !sandiBaru || !sandiBaruUlang) {
+      setError('Semua kolom kata sandi wajib diisi.')
+      return
+    }
+    if (sandiBaru.length < 8) {
+      setError('Kata sandi baru minimal 8 karakter.')
+      return
+    }
+    if (sandiBaru !== sandiBaruUlang) {
+      setError('Konfirmasi kata sandi baru tidak cocok.')
+      return
+    }
+    const email = user?.email
+    if (!email) {
+      setError('Email akun tidak ditemukan. Masuk ulang lalu coba lagi.')
+      return
+    }
+    setSibukAksi('sandi')
+    setError(null)
+    setPesan(null)
+    const err = await ubahKataSandiSendiri(email, sandiLama, sandiBaru)
+    setSibukAksi(null)
+    if (err) {
+      setError(err)
+      return
+    }
+    setPesan('Kata sandi diubah.')
+    setSandiLama('')
+    setSandiBaru('')
+    setSandiBaruUlang('')
+  }
+
+  async function kirimReset(p: Profil) {
+    if (!p.email) {
+      setError('Pengguna ini tidak punya email.')
+      return
+    }
+    setSibukAksi('reset')
+    setError(null)
+    setPesan(null)
+    const err = await kirimLinkAturUlangSandi(p.email)
+    setSibukAksi(null)
+    if (err) {
+      setError(err)
+      return
+    }
+    setPesan(`Link atur ulang kata sandi dikirim ke ${p.email}.`)
   }
 
   function badgePeran(role: Peran) {
@@ -104,7 +235,8 @@ export default function PenggunaPage() {
         <p className="mt-1 text-sm text-stone-600">
           Owner bisa melihat harga beli, laba, dan mengatur peran. Kasir
           fokus berjualan. Akun baru yang mendaftar otomatis menjadi
-          Kasir.
+          Kasir. Ketuk salah satu pengguna untuk mengubah nama, peran,
+          email, atau kata sandi.
         </p>
         {profilQuery.data && (
           <p className="mt-2 text-sm">
@@ -174,43 +306,213 @@ export default function PenggunaPage() {
           <ul className="divide-y divide-garis">
             {profilTampil.map((p) => {
               const iniSaya = p.id === user?.id
+              const terbuka = detailId === p.id
               return (
-                <li
-                  key={p.id}
-                  className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
-                >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="break-words font-medium">
-                        {p.nama ?? 'Tanpa nama'}
-                      </span>
-                      {iniSaya && (
-                        <span className="rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
-                          Kamu
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => alihkanDetail(p)}
+                    aria-expanded={terbuka}
+                    className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left sm:px-5"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="break-words font-medium">
+                          {p.nama ?? 'Tanpa nama'}
                         </span>
+                        {iniSaya && (
+                          <span className="rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
+                            Kamu
+                          </span>
+                        )}
+                        {badgePeran(p.role)}
+                      </div>
+                      <div className="mt-0.5 break-words text-sm text-stone-600">
+                        {p.email ?? 'Tanpa email'}
+                      </div>
+                      <div className="text-xs text-stone-600">
+                        Terdaftar {formatTanggal(p.created_at)}
+                      </div>
+                    </div>
+                    <IconChevron
+                      className={`h-5 w-5 shrink-0 text-stone-600 transition-transform ${
+                        terbuka ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {terbuka && (
+                    <div className="space-y-5 border-t border-dashed border-garis px-4 py-4 sm:px-5">
+                      <div>
+                        <span className="label">Nama</span>
+                        <div className="flex gap-2">
+                          <input
+                            className="input"
+                            value={namaEdit}
+                            onChange={(e) => setNamaEdit(e.target.value)}
+                            placeholder="Nama pengguna"
+                            autoComplete="name"
+                          />
+                          <button
+                            type="button"
+                            disabled={
+                              namaMutation.isPending ||
+                              !namaEdit.trim() ||
+                              namaEdit.trim() === (p.nama ?? '')
+                            }
+                            onClick={() =>
+                              namaMutation.mutate({
+                                id: p.id,
+                                nama: namaEdit.trim(),
+                              })
+                            }
+                            className="btn-secondary min-h-11 shrink-0 px-4"
+                          >
+                            Simpan
+                          </button>
+                        </div>
+                      </div>
+
+                      {iniSaya ? (
+                        <>
+                          <div className="border-t border-dashed border-garis pt-5">
+                            <span className="label">Email</span>
+                            <p className="text-sm text-stone-600">
+                              Email saat ini:{' '}
+                              {p.email ?? 'Tanpa email'}
+                            </p>
+                            <div className="mt-2 flex gap-2">
+                              <input
+                                type="email"
+                                className="input"
+                                value={emailBaru}
+                                onChange={(e) =>
+                                  setEmailBaru(e.target.value)
+                                }
+                                placeholder="Email baru"
+                                autoComplete="email"
+                              />
+                              <button
+                                type="button"
+                                disabled={sibukAksi === 'email'}
+                                onClick={() => void simpanEmail(p)}
+                                className="btn-secondary min-h-11 shrink-0 px-4"
+                              >
+                                Ubah email
+                              </button>
+                            </div>
+                            <p className="mt-1.5 text-xs text-stone-600">
+                              Link konfirmasi dikirim ke email baru. Email
+                              berubah setelah kamu membuka link itu.
+                            </p>
+                          </div>
+
+                          <div className="border-t border-dashed border-garis pt-5">
+                            <div className="flex items-center justify-between">
+                              <span className="label">Kata sandi</span>
+                              <button
+                                type="button"
+                                onClick={() => setLihatSandi((v) => !v)}
+                                className="min-h-11 px-2 text-xs font-bold text-pinus-700"
+                              >
+                                {lihatSandi ? 'Sembunyikan' : 'Lihat'}
+                              </button>
+                            </div>
+                            <div className="space-y-2">
+                              <input
+                                type={lihatSandi ? 'text' : 'password'}
+                                className="input"
+                                value={sandiLama}
+                                onChange={(e) =>
+                                  setSandiLama(e.target.value)
+                                }
+                                placeholder="Kata sandi saat ini"
+                                autoComplete="current-password"
+                              />
+                              <input
+                                type={lihatSandi ? 'text' : 'password'}
+                                className="input"
+                                value={sandiBaru}
+                                onChange={(e) =>
+                                  setSandiBaru(e.target.value)
+                                }
+                                placeholder="Kata sandi baru (minimal 8 karakter)"
+                                autoComplete="new-password"
+                              />
+                              <input
+                                type={lihatSandi ? 'text' : 'password'}
+                                className="input"
+                                value={sandiBaruUlang}
+                                onChange={(e) =>
+                                  setSandiBaruUlang(e.target.value)
+                                }
+                                placeholder="Ulangi kata sandi baru"
+                                autoComplete="new-password"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              disabled={sibukAksi === 'sandi'}
+                              onClick={() => void simpanSandi()}
+                              className="btn-secondary mt-2 min-h-11 w-full sm:w-auto"
+                            >
+                              Ubah kata sandi
+                            </button>
+                          </div>
+
+                          <p className="border-t border-dashed border-garis pt-5 text-xs text-stone-600">
+                            Peran sendiri tidak bisa diubah di sini.
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="border-t border-dashed border-garis pt-5">
+                            <span className="label">Peran</span>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {badgePeran(p.role)}
+                              <button
+                                type="button"
+                                disabled={ubahMutation.isPending}
+                                onClick={() => konfirmasiUbah(p)}
+                                className="btn-secondary min-h-11 px-4"
+                              >
+                                {p.role === 'owner'
+                                  ? 'Jadikan Kasir'
+                                  : 'Jadikan Owner'}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="border-t border-dashed border-garis pt-5">
+                            <span className="label">Email</span>
+                            <p className="text-sm text-stone-600">
+                              Email hanya bisa diubah oleh pemilik akun
+                              dari akunnya sendiri.
+                            </p>
+                          </div>
+
+                          <div className="border-t border-dashed border-garis pt-5">
+                            <span className="label">Kata sandi</span>
+                            <p className="text-sm text-stone-600">
+                              Kata sandi tidak bisa dilihat atau diubah
+                              langsung. Kirim link atur ulang ke email
+                              pengguna, dan dia mengatur kata sandi
+                              barunya sendiri.
+                            </p>
+                            <button
+                              type="button"
+                              disabled={
+                                sibukAksi === 'reset' || !p.email
+                              }
+                              onClick={() => void kirimReset(p)}
+                              className="btn-secondary mt-2 min-h-11 w-full sm:w-auto"
+                            >
+                              Kirim link atur ulang kata sandi
+                            </button>
+                          </div>
+                        </>
                       )}
-                      {badgePeran(p.role)}
                     </div>
-                    <div className="mt-0.5 break-words text-sm text-stone-600">
-                      {p.email ?? 'Tanpa email'}
-                    </div>
-                    <div className="text-xs text-stone-600">
-                      Terdaftar {formatTanggal(p.created_at)}
-                    </div>
-                  </div>
-                  {iniSaya ? (
-                    <p className="text-xs text-stone-600 sm:shrink-0 sm:text-right">
-                      Peran sendiri tidak bisa diubah di sini.
-                    </p>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={ubahMutation.isPending}
-                      onClick={() => konfirmasiUbah(p)}
-                      className="btn-secondary min-h-11 w-full py-2 sm:w-auto sm:shrink-0"
-                    >
-                      {p.role === 'owner' ? 'Jadikan Kasir' : 'Jadikan Owner'}
-                    </button>
                   )}
                 </li>
               )

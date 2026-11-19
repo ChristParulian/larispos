@@ -9,6 +9,7 @@ import ProdukPage from './pages/ProdukPage'
 import TambahProdukPage from './pages/TambahProdukPage'
 import LaporanPage from './pages/LaporanPage'
 import LoginPage from './pages/LoginPage'
+import AturUlangSandiPage from './pages/AturUlangSandiPage'
 import PenggunaPage from './pages/PenggunaPage'
 import UbahTransaksiPage from './pages/UbahTransaksiPage'
 
@@ -39,6 +40,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/atur-ulang-sandi" element={<AturUlangSandiPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route

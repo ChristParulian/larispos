@@ -315,6 +315,20 @@ export async function ubahPeranProfil(id: string, role: Peran): Promise<void> {
 }
 
 /**
+ * Ubah nama tampilan pengguna. Pengguna boleh mengubah namanya
+ * sendiri; owner boleh mengubah nama siapa pun (ditegakkan RLS
+ * di 001). Nama di profiles adalah sumber kebenaran aplikasi.
+ */
+export async function ubahNamaProfil(id: string, nama: string): Promise<void> {
+  if (isDemoMode) return
+  const { error } = await requireSupabase()
+    .from('profiles')
+    .update({ nama })
+    .eq('id', id)
+  if (error) throw error
+}
+
+/**
  * Batalkan transaksi via fungsi database batalkan_transaksi()
  * (007). Stok dikembalikan dan transaksi ditandai 'dibatalkan',
  * bukan dihapus, supaya riwayat tetap utuh.

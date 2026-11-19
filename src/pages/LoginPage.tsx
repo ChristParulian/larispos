@@ -2,14 +2,15 @@
 // Akun pertama yang mendaftar otomatis menjadi Owner, akun
 // berikutnya menjadi Kasir (trigger di 004_tahap2_auth.sql).
 // Bila konfirmasi email aktif di project Supabase, pendaftar harus
-// mengklik tautan di email sebelum bisa masuk.
+// mengklik tautan di email sebelum bisa masuk. Mode "lupa" mengirim
+// tautan atur ulang kata sandi ke email pengguna.
 
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../lib/auth'
+import { kirimLinkAturUlangSandi, useAuth } from '../lib/auth'
 import { BrandMark } from '../components/icons'
 
-type Mode = 'masuk' | 'daftar'
+type Mode = 'masuk' | 'daftar' | 'lupa'
 
 export default function LoginPage() {
   const { user, loading, signIn, signUp } = useAuth()
@@ -33,6 +34,26 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     setInfo(null)
+    if (mode === 'lupa') {
+      if (!email.trim()) {
+        setError('Email wajib diisi.')
+        return
+      }
+      setSibuk(true)
+      try {
+        const err = await kirimLinkAturUlangSandi(email.trim())
+        if (err) {
+          setError(err)
+        } else {
+          setInfo(
+            'Kalau email ini terdaftar, link atur ulang kata sandi sudah dikirim. Periksa kotak masukmu.',
+          )
+        }
+      } finally {
+        setSibuk(false)
+      }
+      return
+    }
     if (!email.trim() || !password) {
       setError('Email dan kata sandi wajib diisi.')
       return
@@ -94,31 +115,41 @@ export default function LoginPage() {
         </div>
 
         <div className="card p-5 sm:p-6">
-          <div className="mb-5 flex gap-2 rounded-lg bg-kertas-gelap p-1">
-            {(
-              [
-                { mode: 'masuk', label: 'Masuk' },
-                { mode: 'daftar', label: 'Daftar' },
-              ] as const
-            ).map((t) => (
-              <button
-                key={t.mode}
-                type="button"
-                onClick={() => {
-                  setMode(t.mode)
-                  setError(null)
-                  setInfo(null)
-                }}
-                className={`min-h-11 flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
-                  mode === t.mode
-                    ? 'bg-pinus-800 text-white'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          {mode === 'lupa' ? (
+            <div className="mb-5">
+              <h1 className="text-lg font-bold">Lupa kata sandi</h1>
+              <p className="mt-1 text-sm text-stone-600">
+                Masukkan email akunmu. Kami kirim link untuk membuat kata
+                sandi baru.
+              </p>
+            </div>
+          ) : (
+            <div className="mb-5 flex gap-2 rounded-lg bg-kertas-gelap p-1">
+              {(
+                [
+                  { mode: 'masuk', label: 'Masuk' },
+                  { mode: 'daftar', label: 'Daftar' },
+                ] as const
+              ).map((t) => (
+                <button
+                  key={t.mode}
+                  type="button"
+                  onClick={() => {
+                    setMode(t.mode)
+                    setError(null)
+                    setInfo(null)
+                  }}
+                  className={`min-h-11 flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
+                    mode === t.mode
+                      ? 'bg-pinus-800 text-white'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {error && (
             <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -155,26 +186,28 @@ export default function LoginPage() {
                 autoComplete="email"
               />
             </label>
-            <label className="block">
-              <span className="label">
-                Kata sandi *{' '}
-                {mode === 'daftar' && (
-                  <span className="font-normal text-stone-600">
-                    (minimal 6 karakter)
-                  </span>
-                )}
-              </span>
-              <input
-                className="input"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete={
-                  mode === 'masuk' ? 'current-password' : 'new-password'
-                }
-              />
-            </label>
+            {mode !== 'lupa' && (
+              <label className="block">
+                <span className="label">
+                  Kata sandi *{' '}
+                  {mode === 'daftar' && (
+                    <span className="font-normal text-stone-600">
+                      (minimal 6 karakter)
+                    </span>
+                  )}
+                </span>
+                <input
+                  className="input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete={
+                    mode === 'masuk' ? 'current-password' : 'new-password'
+                  }
+                />
+              </label>
+            )}
             <button
               type="submit"
               disabled={sibuk}
@@ -184,9 +217,38 @@ export default function LoginPage() {
                 ? 'Memproses…'
                 : mode === 'masuk'
                   ? 'Masuk'
-                  : 'Buat Akun'}
+                  : mode === 'daftar'
+                    ? 'Buat Akun'
+                    : 'Kirim link atur ulang'}
             </button>
           </form>
+
+          {mode === 'masuk' && (
+            <button
+              type="button"
+              onClick={() => {
+                setMode('lupa')
+                setError(null)
+                setInfo(null)
+              }}
+              className="mt-4 min-h-11 w-full text-center text-sm font-bold text-pinus-700"
+            >
+              Lupa kata sandi?
+            </button>
+          )}
+          {mode === 'lupa' && (
+            <button
+              type="button"
+              onClick={() => {
+                setMode('masuk')
+                setError(null)
+                setInfo(null)
+              }}
+              className="mt-4 min-h-11 w-full text-center text-sm font-bold text-pinus-700"
+            >
+              Kembali masuk
+            </button>
+          )}
 
           {mode === 'daftar' && (
             <p className="mt-4 text-xs leading-relaxed text-stone-600">
