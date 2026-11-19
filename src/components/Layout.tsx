@@ -64,9 +64,13 @@ function BottomNavItem({ item }: { item: NavItem }) {
 }
 
 export default function Layout() {
-  const { user, isOwner, signOut } = useAuth()
+  const { user, profil, isOwner, signOut } = useAuth()
   const navigate = useNavigate()
   const tampilPengguna = isOwner && !isDemoMode
+  // Header menampilkan nama depan pengguna, bukan perannya.
+  const namaDepan = (profil?.nama ?? user?.email?.split('@')[0] ?? '').split(
+    ' ',
+  )[0]
 
   async function handleKeluar() {
     await signOut()
@@ -89,7 +93,7 @@ export default function Layout() {
             {!isDemoMode && user && (
               <div className="flex items-center gap-2">
                 <span className="hidden rounded-md border border-pinus-700 bg-pinus-800 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-pinus-100 sm:block">
-                  {isOwner ? 'Owner' : 'Kasir'}
+                  {namaDepan}
                 </span>
                 <NavLink
                   to="/profil-saya"

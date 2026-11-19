@@ -223,9 +223,11 @@ export default function DashboardPage() {
             <Link to="/kasir" className="btn-primary flex-1">
               <IconKasir className="h-5 w-5" /> Mulai Jualan
             </Link>
-            <Link to="/produk/tambah" className="btn-secondary flex-1">
-              <IconPlus className="h-5 w-5" /> Tambah Produk
-            </Link>
+            {isOwner && (
+              <Link to="/produk/tambah" className="btn-secondary flex-1">
+                <IconPlus className="h-5 w-5" /> Tambah Produk
+              </Link>
+            )}
             <Link to="/laporan" className="btn-secondary flex-1">
               <IconLaporan className="h-5 w-5" /> Lihat Laporan
             </Link>
