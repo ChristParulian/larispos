@@ -38,6 +38,18 @@ interface CartPanelProps {
   onBayar: () => void
 }
 
+/** Nominal tombol uang cepat: pecahan 10/20/50/100 ribu yang
+    cukup membayar total, jadi kasir tidak perlu mengetuk nominal
+    yang ujungnya kurang. Kalau total di atas 100 ribu, tawarkan
+    pembulatan ke atas (kelipatan 50 ribu dan 100 ribu). */
+function saranBayar(total: number): number[] {
+  const pecahan = [10000, 20000, 50000, 100000].filter((n) => n >= total)
+  if (pecahan.length > 0) return pecahan
+  const ke50 = Math.ceil(total / 50000) * 50000
+  const ke100 = Math.ceil(total / 100000) * 100000
+  return ke50 === ke100 ? [ke100] : [ke50, ke100]
+}
+
 /** Isi keranjang + pembayaran, dipakai panel samping (desktop)
     dan panel bawah (HP) dengan state yang sama. */
 function CartPanel(props: CartPanelProps) {
@@ -164,12 +176,13 @@ function CartPanel(props: CartPanelProps) {
             </span>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
-            {[10000, 20000, 50000, 100000].map((n) => (
+            {saranBayar(total).map((n) => (
               <button
                 key={n}
                 type="button"
                 onClick={() => onDibayar(String(n))}
-                className="min-h-9 rounded-md border border-garis px-3 py-2 text-xs font-semibold hover:bg-kertas-gelap"
+                aria-label={`Bayar ${formatRupiah(n)}`}
+                className="min-h-11 rounded-lg border border-garis px-3 py-2 text-sm font-semibold hover:bg-kertas-gelap"
               >
                 {formatRupiah(n)}
               </button>
@@ -178,7 +191,7 @@ function CartPanel(props: CartPanelProps) {
               type="button"
               onClick={() => onDibayar(String(total))}
               disabled={total === 0}
-              className="min-h-9 rounded-md border border-aksen-600 px-3 py-2 text-xs font-bold text-aksen-700 hover:bg-aksen-100 disabled:opacity-50"
+              className="min-h-11 rounded-lg border border-aksen-600 px-3 py-2 text-sm font-bold text-aksen-700 hover:bg-aksen-100 disabled:opacity-50"
             >
               Uang pas
             </button>
