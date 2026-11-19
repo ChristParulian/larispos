@@ -1,19 +1,23 @@
 // Halaman Pengguna (khusus Owner, Tahap 2): daftar akun yang
 // terdaftar beserta perannya, dan ubah peran owner/kasir.
 // Aturan ditegakkan database (004): hanya owner yang boleh mengubah
-// peran, dan owner terakhir tidak boleh diturunkan.
+// peran, dan owner terakhir tidak boleh diturunkan. Email tiap akun
+// disimpan di profiles sejak migrasi 011, supaya owner mengenali
+// akun lewat emailnya, bukan potongan ID.
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchSemuaProfil, ubahPeranProfil } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
+import { IconSearch } from '../components/icons'
 import type { Peran, Profil } from '../lib/types'
 
 export default function PenggunaPage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const [cari, setCari] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [pesan, setPesan] = useState<string | null>(null)
 
@@ -24,12 +28,12 @@ export default function PenggunaPage() {
   })
 
   const ubahMutation = useMutation({
-    mutationFn: ({ id, role }: { id: string; role: Peran }) =>
+    mutationFn: ({ id, role }: { id: string; role: Peran; nama: string }) =>
       ubahPeranProfil(id, role),
     onSuccess: (_d, v) => {
       void queryClient.invalidateQueries({ queryKey: ['profil-semua'] })
       setPesan(
-        `Peran diubah menjadi ${v.role === 'owner' ? 'Owner' : 'Kasir'}.`,
+        `Peran ${v.nama} diubah menjadi ${v.role === 'owner' ? 'Owner' : 'Kasir'}.`,
       )
       setError(null)
     },
@@ -38,16 +42,32 @@ export default function PenggunaPage() {
     },
   })
 
+  // Daftar terfilter: cari berdasarkan nama atau email.
+  const profilTampil = useMemo(() => {
+    const semua = profilQuery.data ?? []
+    const q = cari.trim().toLowerCase()
+    if (!q) return semua
+    return semua.filter(
+      (p) =>
+        (p.nama ?? '').toLowerCase().includes(q) ||
+        (p.email ?? '').toLowerCase().includes(q),
+    )
+  }, [profilQuery.data, cari])
+
+  const jumlahOwner = (profilQuery.data ?? []).filter(
+    (p) => p.role === 'owner',
+  ).length
+  const jumlahKasir = (profilQuery.data ?? []).length - jumlahOwner
+
   function konfirmasiUbah(p: Profil) {
     const target: Peran = p.role === 'owner' ? 'kasir' : 'owner'
+    const nama = p.nama ?? p.email ?? 'pengguna ini'
     if (
       window.confirm(
-        `Ubah ${p.nama ?? 'pengguna ini'} menjadi ${
-          target === 'owner' ? 'Owner' : 'Kasir'
-        }?`,
+        `Ubah ${nama} menjadi ${target === 'owner' ? 'Owner' : 'Kasir'}?`,
       )
     ) {
-      ubahMutation.mutate({ id: p.id, role: target })
+      ubahMutation.mutate({ id: p.id, role: target, nama })
     }
   }
 
@@ -86,6 +106,27 @@ export default function PenggunaPage() {
           fokus berjualan. Akun baru yang mendaftar otomatis menjadi
           Kasir.
         </p>
+        {profilQuery.data && (
+          <p className="mt-2 text-sm">
+            <span className="font-semibold">
+              {profilQuery.data.length} pengguna
+            </span>
+            <span className="text-stone-600">
+              {' '}· {jumlahOwner} Owner · {jumlahKasir} Kasir
+            </span>
+          </p>
+        )}
+      </div>
+
+      <div className="relative mb-3">
+        <IconSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-600" />
+        <input
+          type="search"
+          value={cari}
+          onChange={(e) => setCari(e.target.value)}
+          placeholder="Cari nama atau email…"
+          className="input pl-11"
+        />
       </div>
 
       {pesan && (
@@ -115,93 +156,50 @@ export default function PenggunaPage() {
         <p className="text-stone-600">Belum ada pengguna terdaftar.</p>
       )}
 
-      {profilQuery.data && profilQuery.data.length > 0 && (
-        <>
-          {/* Tabel untuk layar besar, kartu untuk HP */}
-          <div className="card hidden overflow-x-auto md:block">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-kertas text-left">
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Nama</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Peran</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Terdaftar</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {profilQuery.data.map((p) => {
-                  const iniSaya = p.id === user?.id
-                  return (
-                    <tr
-                      key={p.id}
-                      className="border-b transition-colors last:border-0 hover:bg-kertas"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="font-medium">
-                          {p.nama ?? 'Tanpa nama'}
-                          {iniSaya && (
-                            <span className="ml-2 rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
-                              Kamu
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-stone-600">
-                          #{p.id.slice(0, 8).toUpperCase()}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">{badgePeran(p.role)}</td>
-                      <td className="px-4 py-3 text-stone-600">
-                        {formatTanggal(p.created_at)}
-                      </td>
-                      <td className="px-4 py-3">
-                        {iniSaya ? (
-                          <span className="text-xs text-stone-600">
-                            Peran sendiri tidak bisa diubah di sini.
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={ubahMutation.isPending}
-                            onClick={() => konfirmasiUbah(p)}
-                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap disabled:opacity-50"
-                          >
-                            {p.role === 'owner'
-                              ? 'Jadikan Kasir'
-                              : 'Jadikan Owner'}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+      {profilQuery.data &&
+        profilQuery.data.length > 0 &&
+        profilTampil.length === 0 && (
+          <div className="card px-6 py-10 text-center">
+            <p className="font-semibold">
+              Tidak ada pengguna yang cocok dengan “{cari}”.
+            </p>
+            <p className="mt-1 text-sm text-stone-600">
+              Coba kata kunci lain.
+            </p>
           </div>
+        )}
 
-          <div className="space-y-3 md:hidden">
-            {profilQuery.data.map((p) => {
+      {profilTampil.length > 0 && (
+        <div className="card">
+          <ul className="divide-y divide-garis">
+            {profilTampil.map((p) => {
               const iniSaya = p.id === user?.id
               return (
-                <div key={p.id} className="card p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="break-words font-semibold leading-snug">
+                <li
+                  key={p.id}
+                  className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="break-words font-medium">
                         {p.nama ?? 'Tanpa nama'}
-                        {iniSaya && (
-                          <span className="ml-2 rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
-                            Kamu
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-0.5 text-xs text-stone-600">
-                        #{p.id.slice(0, 8).toUpperCase()} · Terdaftar{' '}
-                        {formatTanggal(p.created_at)}
-                      </div>
+                      </span>
+                      {iniSaya && (
+                        <span className="rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
+                          Kamu
+                        </span>
+                      )}
+                      {badgePeran(p.role)}
                     </div>
-                    {badgePeran(p.role)}
+                    <div className="mt-0.5 break-words text-sm text-stone-600">
+                      {p.email ?? 'Tanpa email'}
+                    </div>
+                    <div className="text-xs text-stone-600">
+                      Terdaftar {formatTanggal(p.created_at)}
+                    </div>
                   </div>
                   {iniSaya ? (
-                    <p className="mt-3 text-xs text-stone-600">
+                    <p className="text-xs text-stone-600 sm:shrink-0 sm:text-right">
                       Peran sendiri tidak bisa diubah di sini.
                     </p>
                   ) : (
@@ -209,16 +207,16 @@ export default function PenggunaPage() {
                       type="button"
                       disabled={ubahMutation.isPending}
                       onClick={() => konfirmasiUbah(p)}
-                      className="btn-secondary mt-3 min-h-10 w-full py-2"
+                      className="btn-secondary min-h-11 w-full py-2 sm:w-auto sm:shrink-0"
                     >
                       {p.role === 'owner' ? 'Jadikan Kasir' : 'Jadikan Owner'}
                     </button>
                   )}
-                </div>
+                </li>
               )
             })}
-          </div>
-        </>
+          </ul>
+        </div>
       )}
     </div>
   )

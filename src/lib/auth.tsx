@@ -74,6 +74,7 @@ function terjemahkanError(pesan: string): string {
 const PROFIL_DEMO: Profil = {
   id: 'demo',
   nama: 'Demo',
+  email: null,
   role: 'owner',
   created_at: '',
 }

@@ -15,6 +15,7 @@ Checkout hanya lewat fungsi `buat_transaksi()` di database.
 | `006_satuan.sql` | **Core.** Tabel master `satuan` untuk daftar satuan produk (dikelola lewat CRUD di tab Satuan halaman Produk; form produk memilih dari daftar ini). Kolom `produk.satuan` tetap teks, bukan foreign key: hapus satuan tidak merusak produk lama, ubah nama memperbarui produk yang memakainya. Seed awal diambil dari satuan yang dipakai produk. |
 | `007_transaksi_batal.sql` | **Core.** Kolom `transaksi.status` (`selesai`/`dibatalkan`) + fungsi `batalkan_transaksi()`: membatalkan transaksi mengembalikan stok semua item dan mencatatnya di log stok, transaksi tetap tampil di riwayat tapi tidak dihitung di laporan. |
 | `009_ubah_transaksi.sql` | **Core.** Fungsi `ubah_transaksi()`: ubah item transaksi (stok lama dikembalikan, item baru diproses seperti checkout, total dihitung ulang, metode bayar tidak berubah). Di core, transaksi hanya bisa diubah dalam 24 jam setelah dibuat; Bon tidak bisa diubah di core. |
+| `011_tambah_email_profil.sql` | **Core.** Kolom `email` di tabel `profiles` + trigger signup ikut menyimpan email akun baru + backfill email akun lama dari `auth.users`. Halaman Pengguna memakai email untuk mengenali tiap akun. |
 
 ## Urutan menjalankan
 
@@ -27,6 +28,7 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 5. `006_satuan.sql`: setelah 001, di project utama **dan** project Pro. Seed awal diambil dari satuan yang dipakai produk.
 6. `007_transaksi_batal.sql`: setelah 001, di project utama **dan** project Pro.
 7. `009_ubah_transaksi.sql`: setelah 007, di project utama **dan** project Pro.
+8. `011_tambah_email_profil.sql`: setelah 004, di project utama **dan** project Pro.
 
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing: jangan tertukar.

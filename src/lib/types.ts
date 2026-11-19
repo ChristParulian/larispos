@@ -90,6 +90,7 @@ export type Peran = 'owner' | 'kasir'
 export interface Profil {
   id: string
   nama: string | null
+  email: string | null
   role: Peran
   created_at: string
 }

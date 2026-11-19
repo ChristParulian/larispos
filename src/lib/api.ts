@@ -286,7 +286,7 @@ export async function fetchProfil(userId: string): Promise<Profil | null> {
   if (isDemoMode) return null
   const { data, error } = await requireSupabase()
     .from('profiles')
-    .select('id, nama, role, created_at')
+    .select('id, nama, email, role, created_at')
     .eq('id', userId)
     .maybeSingle()
   if (error) throw error
@@ -298,7 +298,7 @@ export async function fetchSemuaProfil(): Promise<Profil[]> {
   if (isDemoMode) return []
   const { data, error } = await requireSupabase()
     .from('profiles')
-    .select('id, nama, role, created_at')
+    .select('id, nama, email, role, created_at')
     .order('created_at')
   if (error) throw error
   return (data ?? []) as Profil[]
