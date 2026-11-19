@@ -9,6 +9,7 @@
 
 import { isDemoMode, requireSupabase } from './supabase'
 import {
+  demoBatalkanTransaksi,
   demoCheckout,
   demoGetKategori,
   demoGetLogStok,
@@ -36,7 +37,7 @@ import type {
 
 const PRODUK_SELECT = 'id, kategori_id, nama, satuan, harga_beli, harga_jual, stok, kategori:kategori_id ( id, nama )'
 const TRANSAKSI_SELECT = `
-  id, created_at, metode_bayar, total, dibayar, kembalian,
+  id, created_at, metode_bayar, total, dibayar, kembalian, status,
   item_transaksi (
     id, transaksi_id, produk_id, qty, harga_jual, harga_beli, subtotal,
     produk:produk_id ( nama )
@@ -309,6 +310,22 @@ export async function ubahPeranProfil(id: string, role: Peran): Promise<void> {
     .from('profiles')
     .update({ role })
     .eq('id', id)
+  if (error) throw error
+}
+
+/**
+ * Batalkan transaksi via fungsi database batalkan_transaksi()
+ * (007). Stok dikembalikan dan transaksi ditandai 'dibatalkan',
+ * bukan dihapus, supaya riwayat tetap utuh.
+ */
+export async function batalkanTransaksi(id: string): Promise<void> {
+  if (isDemoMode) {
+    demoBatalkanTransaksi(id)
+    return
+  }
+  const { error } = await requireSupabase().rpc('batalkan_transaksi', {
+    p_transaksi_id: id,
+  })
   if (error) throw error
 }
 

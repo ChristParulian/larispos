@@ -99,7 +99,11 @@ export default function DashboardPage() {
   const ringkasanHariIni = useMemo(() => {
     let total = 0
     let labaKotor = 0
+    let jumlah = 0
     for (const t of transaksiHariIni) {
+      // Transaksi yang dibatalkan tidak dihitung.
+      if (t.status === 'dibatalkan') continue
+      jumlah++
       total += t.total
       for (const it of t.item_transaksi ?? []) {
         if (it.harga_beli !== null && it.harga_beli !== undefined) {
@@ -110,11 +114,8 @@ export default function DashboardPage() {
     return {
       total,
       labaKotor,
-      jumlah: transaksiHariIni.length,
-      rataRata:
-        transaksiHariIni.length > 0
-          ? Math.round(total / transaksiHariIni.length)
-          : 0,
+      jumlah,
+      rataRata: jumlah > 0 ? Math.round(total / jumlah) : 0,
     }
   }, [transaksiHariIni])
 
@@ -132,6 +133,7 @@ export default function DashboardPage() {
       { nama: string; qty: number; omzet: number }
     >()
     for (const t of semuaTransaksi) {
+      if (t.status === 'dibatalkan') continue
       for (const it of t.item_transaksi ?? []) {
         const nama = it.produk?.nama ?? 'Produk dihapus'
         const cur = perProduk.get(it.produk_id) ?? { nama, qty: 0, omzet: 0 }
@@ -159,6 +161,7 @@ export default function DashboardPage() {
     })
     const perTanggal = new Map(hari.map((h) => [h.tanggal, h]))
     for (const t of semuaTransaksi) {
+      if (t.status === 'dibatalkan') continue
       const h = perTanggal.get(tanggalLokalDariIso(t.created_at))
       if (h) h.total += t.total
     }
@@ -349,6 +352,11 @@ export default function DashboardPage() {
                           <span className="block truncate font-medium">
                             {formatJam(t.created_at)} ·{' '}
                             {labelMetode(t.metode_bayar)}
+                            {t.status === 'dibatalkan' && (
+                              <span className="ml-2 rounded-md bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
+                                Dibatalkan
+                              </span>
+                            )}
                           </span>
                           <span className="text-xs text-stone-600">
                             {(t.item_transaksi ?? []).length} item

@@ -43,6 +43,9 @@ export interface ItemTransaksi {
   produk?: { nama: string } | null
 }
 
+/** Status transaksi (lihat 007_transaksi_batal.sql). */
+export type StatusTransaksi = 'selesai' | 'dibatalkan'
+
 export interface Transaksi {
   id: string
   created_at: string
@@ -50,6 +53,7 @@ export interface Transaksi {
   total: number
   dibayar: number
   kembalian: number
+  status: StatusTransaksi
   item_transaksi?: ItemTransaksi[]
 }
 

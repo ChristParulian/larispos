@@ -1,10 +1,13 @@
 // Halaman Laporan: total penjualan harian, estimasi laba
 // kotor dari selisih harga jual − harga beli (snapshot di item),
 // Top 5 produk terlaris, dan riwayat transaksi dengan detail.
+// Transaksi yang dibatalkan tetap tampil di riwayat tapi tidak
+// dihitung di ringkasan maupun Top 5. Pembatalan hanya untuk owner.
 
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { fetchTransaksi } from '../lib/api'
+import { useLocation } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { batalkanTransaksi, fetchTransaksi } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal, labelMetode, tanggalHariIni } from '../lib/format'
 import { IconChevron } from '../components/icons'
@@ -12,9 +15,17 @@ import { IconChevron } from '../components/icons'
 export default function LaporanPage() {
   // Estimasi laba kotor hanya untuk owner (dihitung dari harga beli).
   const { isOwner } = useAuth()
+  const location = useLocation()
+  const queryClient = useQueryClient()
   const [tanggal, setTanggal] = useState(tanggalHariIni())
   const [semuaTanggal, setSemuaTanggal] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
+  // Pesan sukses dari halaman ubah transaksi (Pro) atau dari batal.
+  const [pesan, setPesan] = useState<string | null>(
+    () =>
+      (location.state as { pesan?: string } | null)?.pesan ?? null,
+  )
+  const [errorAksi, setErrorAksi] = useState<string | null>(null)
 
   const transaksiQuery = useQuery({
     queryKey: ['transaksi', semuaTanggal ? 'semua' : tanggal],
@@ -23,13 +34,46 @@ export default function LaporanPage() {
 
   const transaksi = transaksiQuery.data ?? []
 
+  const batalMutation = useMutation({
+    mutationFn: (id: string) => batalkanTransaksi(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['transaksi'] })
+      void queryClient.invalidateQueries({ queryKey: ['produk'] })
+      void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
+      setPesan('Transaksi berhasil dibatalkan. Stok sudah dikembalikan.')
+      setErrorAksi(null)
+      setDetailId(null)
+    },
+    onError: (err: unknown) => {
+      setErrorAksi(
+        err instanceof Error ? err.message : 'Gagal membatalkan transaksi.',
+      )
+    },
+  })
+
+  function konfirmasiBatal(id: string) {
+    if (
+      window.confirm(
+        'Batalkan transaksi ini? Stok semua item akan dikembalikan, dan transaksi tidak lagi dihitung di laporan.',
+      )
+    ) {
+      batalMutation.mutate(id)
+    }
+  }
+
   const ringkasan = useMemo(() => {
     let totalPenjualan = 0
     let labaKotor = 0
     let adaHargaBeliKosong = false
+    let jumlahDibatalkan = 0
     const perProduk = new Map<string, { nama: string; qty: number; omzet: number }>()
 
     for (const t of transaksi) {
+      // Transaksi yang dibatalkan tidak dihitung di ringkasan.
+      if (t.status === 'dibatalkan') {
+        jumlahDibatalkan++
+        continue
+      }
       totalPenjualan += t.total
       for (const it of t.item_transaksi ?? []) {
         if (it.harga_beli === null || it.harga_beli === undefined) {
@@ -49,7 +93,14 @@ export default function LaporanPage() {
       .sort((a, b) => b.qty - a.qty)
       .slice(0, 5)
 
-    return { totalPenjualan, labaKotor, adaHargaBeliKosong, top5, jumlahTransaksi: transaksi.length }
+    return {
+      totalPenjualan,
+      labaKotor,
+      adaHargaBeliKosong,
+      top5,
+      jumlahTransaksi: transaksi.length - jumlahDibatalkan,
+      jumlahDibatalkan,
+    }
   }, [transaksi])
 
   return (
@@ -83,6 +134,17 @@ export default function LaporanPage() {
         </label>
       </div>
 
+      {pesan && (
+        <p className="mb-3 rounded-lg bg-pinus-50 px-4 py-3 text-sm text-pinus-800">
+          {pesan}
+        </p>
+      )}
+      {errorAksi && (
+        <p className="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorAksi}
+        </p>
+      )}
+
       {transaksiQuery.isLoading && (
         <p className="text-stone-600">Memuat laporan…</p>
       )}
@@ -107,6 +169,8 @@ export default function LaporanPage() {
               </div>
               <div className="mt-1 text-xs text-stone-600">
                 {ringkasan.jumlahTransaksi} transaksi
+                {ringkasan.jumlahDibatalkan > 0 &&
+                  ` · ${ringkasan.jumlahDibatalkan} dibatalkan tidak dihitung`}
               </div>
             </div>
             {isOwner && (
@@ -196,6 +260,11 @@ export default function LaporanPage() {
                             {formatTanggal(t.created_at)} ·{' '}
                             {labelMetode(t.metode_bayar)}
                           </span>
+                          {t.status === 'dibatalkan' && (
+                            <span className="ml-2 rounded-md bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
+                              Dibatalkan
+                            </span>
+                          )}
                         </span>
                         <span className="flex shrink-0 items-center gap-2">
                           <span className="font-bold">
@@ -242,6 +311,20 @@ export default function LaporanPage() {
                               <dd>{formatRupiah(t.kembalian)}</dd>
                             </div>
                           </dl>
+                          {isOwner && t.status !== 'dibatalkan' && (
+                            <div className="mt-3 flex flex-wrap gap-2 border-t border-dashed border-garis pt-3">
+                              <button
+                                type="button"
+                                onClick={() => konfirmasiBatal(t.id)}
+                                disabled={batalMutation.isPending}
+                                className="btn-danger-outline min-h-10 py-2"
+                              >
+                                {batalMutation.isPending
+                                  ? 'Membatalkan…'
+                                  : 'Batalkan Transaksi'}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </li>

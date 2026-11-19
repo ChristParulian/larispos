@@ -207,7 +207,9 @@ export function demoGetProduk(): Produk[] {
 }
 
 export function demoGetTransaksi(): Transaksi[] {
-  return load<Transaksi[]>(KEY_TRANSAKSI) ?? []
+  const list = load<Transaksi[]>(KEY_TRANSAKSI) ?? []
+  // Data demo lama (sebelum ada status) dianggap selesai.
+  return list.map((t) => ({ ...t, status: t.status ?? 'selesai' }))
 }
 
 export function demoGetLogStok(): LogStok[] {
@@ -300,6 +302,7 @@ export function demoCheckout(
     total,
     dibayar,
     kembalian,
+    status: 'selesai',
     item_transaksi: itemDetail.map((d, i) => ({
       id: `${transaksiId}-item-${i}`,
       transaksi_id: transaksiId,
@@ -343,6 +346,153 @@ export function demoCheckout(
     metode_bayar: metode,
     piutang_id: null,
   }
+}
+
+/** Meniru batalkan_transaksi() untuk mode demo (stok kembali, log ditulis). */
+export function demoBatalkanTransaksi(id: string): void {
+  const list = demoGetTransaksi()
+  const idx = list.findIndex((t) => t.id === id)
+  if (idx === -1) throw new Error('Transaksi tidak ditemukan.')
+  if (list[idx].status === 'dibatalkan') {
+    throw new Error('Transaksi ini sudah dibatalkan.')
+  }
+  const now = new Date().toISOString()
+  const logs = demoGetLogStok()
+  const produkBaru = demoGetProduk().map((p) => {
+    const it = (list[idx].item_transaksi ?? []).find(
+      (x) => x.produk_id === p.id,
+    )
+    if (!it) return p
+    const stokSesudah = p.stok + it.qty
+    logs.unshift({
+      id: `${id}-log-batal-${p.id}-${Date.now()}`,
+      produk_id: p.id,
+      transaksi_id: id,
+      perubahan: it.qty,
+      stok_sebelum: p.stok,
+      stok_sesudah: stokSesudah,
+      alasan: 'batal transaksi',
+      created_at: now,
+      produk: { nama: p.nama },
+    })
+    return { ...p, stok: stokSesudah }
+  })
+  save(KEY_PRODUK, produkBaru)
+  save(KEY_LOG, logs)
+  list[idx] = { ...list[idx], status: 'dibatalkan' }
+  save(KEY_TRANSAKSI, list)
+}
+
+/** Meniru ubah_transaksi() (Pro) untuk mode demo. */
+export function demoUbahTransaksi(
+  id: string,
+  items: Array<{ produk_id: string; qty: number }>,
+  dibayarInput: number,
+): Transaksi {
+  const list = demoGetTransaksi()
+  const idx = list.findIndex((t) => t.id === id)
+  if (idx === -1) throw new Error('Transaksi tidak ditemukan.')
+  const lama = list[idx]
+  if (lama.status === 'dibatalkan') {
+    throw new Error('Transaksi yang sudah dibatalkan tidak bisa diubah.')
+  }
+  if (items.length === 0) throw new Error('Keranjang kosong.')
+  const now = new Date().toISOString()
+  const logs = demoGetLogStok()
+
+  // 1. Kembalikan stok item lama.
+  let produkList = demoGetProduk().map((p) => {
+    const it = (lama.item_transaksi ?? []).find((x) => x.produk_id === p.id)
+    if (!it) return p
+    const stokSesudah = p.stok + it.qty
+    logs.unshift({
+      id: `${id}-log-ubah-kembali-${p.id}-${Date.now()}`,
+      produk_id: p.id,
+      transaksi_id: id,
+      perubahan: it.qty,
+      stok_sebelum: p.stok,
+      stok_sesudah: stokSesudah,
+      alasan: 'ubah transaksi',
+      created_at: now,
+      produk: { nama: p.nama },
+    })
+    return { ...p, stok: stokSesudah }
+  })
+
+  // 2. Validasi + hitung item baru dari harga saat ini.
+  let total = 0
+  const itemDetail = items.map((it) => {
+    const p = produkList.find((x) => x.id === it.produk_id)
+    if (!p) throw new Error('Produk tidak ditemukan.')
+    if (it.qty <= 0) throw new Error('Jumlah (qty) harus lebih dari 0.')
+    if (p.stok < it.qty) {
+      throw new Error(
+        `Stok "${p.nama}" tidak cukup (sisa ${p.stok}, diminta ${it.qty}).`,
+      )
+    }
+    const subtotal = p.harga_jual * it.qty
+    total += subtotal
+    return { produk: p, qty: it.qty, subtotal }
+  })
+
+  // 3. Pembayaran (metode tidak berubah).
+  let dibayar = dibayarInput
+  let kembalian = 0
+  if (lama.metode_bayar === 'tunai') {
+    if (dibayar < total) {
+      throw new Error(
+        `Uang dibayar (Rp${dibayar.toLocaleString('id-ID')}) kurang dari total (Rp${total.toLocaleString('id-ID')}).`,
+      )
+    }
+    kembalian = dibayar - total
+  } else if (lama.metode_bayar === 'qris') {
+    dibayar = total
+    kembalian = 0
+  } else {
+    dibayar = 0
+    kembalian = 0
+  }
+
+  // 4. Kurangi stok item baru + tulis log.
+  produkList = produkList.map((p) => {
+    const d = itemDetail.find((x) => x.produk.id === p.id)
+    if (!d) return p
+    const stokSesudah = p.stok - d.qty
+    logs.unshift({
+      id: `${id}-log-ubah-ambil-${p.id}-${Date.now()}`,
+      produk_id: p.id,
+      transaksi_id: id,
+      perubahan: -d.qty,
+      stok_sebelum: p.stok,
+      stok_sesudah: stokSesudah,
+      alasan: 'ubah transaksi',
+      created_at: now,
+      produk: { nama: p.nama },
+    })
+    return { ...p, stok: stokSesudah }
+  })
+
+  const diubah: Transaksi = {
+    ...lama,
+    total,
+    dibayar,
+    kembalian,
+    item_transaksi: itemDetail.map((d, i) => ({
+      id: `${id}-item-ubah-${i}-${Date.now()}`,
+      transaksi_id: id,
+      produk_id: d.produk.id,
+      qty: d.qty,
+      harga_jual: d.produk.harga_jual,
+      harga_beli: d.produk.harga_beli,
+      subtotal: d.subtotal,
+      produk: { nama: d.produk.nama },
+    })),
+  }
+  save(KEY_PRODUK, produkList)
+  save(KEY_LOG, logs)
+  list[idx] = diubah
+  save(KEY_TRANSAKSI, list)
+  return diubah
 }
 
 /** Kembalikan data demo ke 12 produk seed awal (hapus transaksi demo). */
