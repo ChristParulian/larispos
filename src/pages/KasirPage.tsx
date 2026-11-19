@@ -1,13 +1,16 @@
 // Halaman Kasir: cari produk, keranjang, bayar Tunai / QRIS.
 // Checkout lewat RPC buat_transaksi(), harga & total dihitung ulang
 // di database. Setelah bayar, struk digital ditampilkan.
+// Cari produk lewat kata kunci atau filter kategori sekali ketuk.
+// Jumlah bisa diubah langsung di kartu produk (tombol kurang/tambah),
+// jadi kasir tidak perlu bolak-balik membuka keranjang.
 // Di HP, keranjang dibuka sebagai panel bawah (bottom sheet) lewat
 // bar total yang menempel di atas menu bawah; di layar besar
 // keranjang tampil sebagai panel samping.
 
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { checkout, fetchProduk } from '../lib/api'
+import { checkout, fetchKategori, fetchProduk } from '../lib/api'
 import type { CartItem, CheckoutResult, Produk } from '../lib/types'
 import { formatRupiah } from '../lib/format'
 import Struk from '../components/Struk'
@@ -223,6 +226,7 @@ function CartPanel(props: CartPanelProps) {
 export default function KasirPage() {
   const queryClient = useQueryClient()
   const [cari, setCari] = useState('')
+  const [kategoriId, setKategoriId] = useState<string | null>(null)
   const [keranjang, setKeranjang] = useState<CartItem[]>([])
   const [metode, setMetode] = useState<'tunai' | 'qris'>('tunai')
   const [dibayar, setDibayar] = useState('')
@@ -238,13 +242,36 @@ export default function KasirPage() {
     queryKey: ['produk'],
     queryFn: fetchProduk,
   })
+  const kategoriQuery = useQuery({
+    queryKey: ['kategori'],
+    queryFn: fetchKategori,
+  })
 
+  // Filter gabungan: kategori sekali ketuk + kata kunci.
   const produkList = useMemo(() => {
-    const semua = produkQuery.data ?? []
+    let tampil = produkQuery.data ?? []
+    if (kategoriId === 'tanpa-kategori') {
+      tampil = tampil.filter((p) => !p.kategori_id)
+    } else if (kategoriId) {
+      tampil = tampil.filter((p) => p.kategori_id === kategoriId)
+    }
     const q = cari.trim().toLowerCase()
-    if (!q) return semua
-    return semua.filter((p) => p.nama.toLowerCase().includes(q))
-  }, [produkQuery.data, cari])
+    if (q) tampil = tampil.filter((p) => p.nama.toLowerCase().includes(q))
+    return tampil
+  }, [produkQuery.data, kategoriId, cari])
+
+  // Jumlah tiap produk di keranjang, untuk stepper di kartu produk.
+  const qtyDiKeranjang = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const it of keranjang) map.set(it.produk.id, it.qty)
+    return map
+  }, [keranjang])
+
+  const kategoriList = kategoriQuery.data ?? []
+  const kategoriAktif = kategoriList.find((k) => k.id === kategoriId)
+  const adaTanpaKategori = (produkQuery.data ?? []).some(
+    (p) => !p.kategori_id,
+  )
 
   const total = keranjang.reduce(
     (sum, it) => sum + it.qty * it.produk.harga_jual,
@@ -376,6 +403,55 @@ export default function KasirPage() {
             className="input pl-11"
           />
         </div>
+        {kategoriList.length > 0 && (
+          <div
+            className="mb-3 flex flex-wrap rounded-lg bg-kertas-gelap p-1"
+            role="group"
+            aria-label="Filter kategori"
+          >
+            <button
+              type="button"
+              onClick={() => setKategoriId(null)}
+              aria-pressed={kategoriId === null}
+              className={`min-h-11 rounded-lg px-4 text-sm font-bold transition-colors ${
+                kategoriId === null
+                  ? 'bg-pinus-800 text-white'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              Semua
+            </button>
+            {kategoriList.map((k) => (
+              <button
+                key={k.id}
+                type="button"
+                onClick={() => setKategoriId(k.id)}
+                aria-pressed={kategoriId === k.id}
+                className={`min-h-11 rounded-lg px-4 text-sm font-bold transition-colors ${
+                  kategoriId === k.id
+                    ? 'bg-pinus-800 text-white'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                {k.nama}
+              </button>
+            ))}
+            {adaTanpaKategori && (
+              <button
+                type="button"
+                onClick={() => setKategoriId('tanpa-kategori')}
+                aria-pressed={kategoriId === 'tanpa-kategori'}
+                className={`min-h-11 rounded-lg px-4 text-sm font-bold transition-colors ${
+                  kategoriId === 'tanpa-kategori'
+                    ? 'bg-pinus-800 text-white'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                Tanpa kategori
+              </button>
+            )}
+          </div>
+        )}
         {produkQuery.isLoading && (
           <p className="text-stone-600">Memuat produk…</p>
         )}
@@ -393,48 +469,86 @@ export default function KasirPage() {
             <p className="mt-3 font-semibold">
               {cari.trim()
                 ? `Tidak ada produk yang cocok dengan “${cari}”.`
-                : 'Belum ada produk.'}
+                : kategoriId
+                  ? `Tidak ada produk di kategori “${kategoriAktif?.nama ?? 'Tanpa kategori'}”.`
+                  : 'Belum ada produk.'}
             </p>
             <p className="mt-1 text-sm text-stone-600">
               {cari.trim()
                 ? 'Coba kata kunci lain.'
-                : 'Tambahkan produk dulu di menu Produk.'}
+                : kategoriId
+                  ? 'Pilih kategori lain.'
+                  : 'Tambahkan produk dulu di menu Produk.'}
             </p>
           </div>
         )}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {produkList.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => tambahKeKeranjang(p)}
-              disabled={p.stok <= 0}
-              className="card min-w-0 p-3 text-left transition hover:border-pinus-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:p-4"
-            >
-              <div className="break-words font-semibold leading-snug">
-                {p.nama}
-              </div>
-              <div className="mt-1 text-xs text-stone-600">
-                {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
-              </div>
-              <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
-                {formatRupiah(p.harga_jual)}
-              </div>
+          {produkList.map((p) => {
+            const qty = qtyDiKeranjang.get(p.id) ?? 0
+            const habis = p.stok <= 0
+            return (
               <div
-                className={`mt-1.5 inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ${
-                  p.stok <= 0
-                    ? 'bg-kertas-gelap text-stone-600'
-                    : p.stok <= 5
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-kertas-gelap text-stone-600'
-                }`}
+                key={p.id}
+                className={`card flex min-w-0 flex-col p-3 transition hover:border-pinus-600 sm:p-4 ${
+                  qty > 0 ? 'border-pinus-600' : ''
+                } ${habis ? 'opacity-50' : ''}`}
               >
-                Stok {p.stok}
-                {p.stok <= 5 && p.stok > 0 ? ', hampir habis' : ''}
-                {p.stok <= 0 ? ', habis' : ''}
+                <button
+                  type="button"
+                  onClick={() => tambahKeKeranjang(p)}
+                  disabled={habis}
+                  aria-label={`Tambah ${p.nama} ke keranjang`}
+                  className="min-w-0 flex-1 text-left disabled:cursor-not-allowed"
+                >
+                  <div className="break-words font-semibold leading-snug">
+                    {p.nama}
+                  </div>
+                  <div className="mt-1 text-xs text-stone-600">
+                    {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
+                  </div>
+                  <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
+                    {formatRupiah(p.harga_jual)}
+                  </div>
+                  <div
+                    className={`mt-1.5 inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ${
+                      habis
+                        ? 'bg-kertas-gelap text-stone-600'
+                        : p.stok <= 5
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-kertas-gelap text-stone-600'
+                    }`}
+                  >
+                    Stok {p.stok}
+                    {p.stok <= 5 && p.stok > 0 ? ', hampir habis' : ''}
+                    {habis ? ', habis' : ''}
+                  </div>
+                </button>
+                {qty > 0 && (
+                  <div className="mt-3 flex items-center gap-1 border-t border-dashed border-garis pt-3">
+                    <button
+                      type="button"
+                      aria-label={`Kurangi ${p.nama}`}
+                      onClick={() => ubahQty(p.id, -1)}
+                      className="flex h-11 flex-1 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
+                    >
+                      −
+                    </button>
+                    <span className="w-8 text-center text-base font-bold">
+                      {qty}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={`Tambah ${p.nama}`}
+                      onClick={() => tambahKeKeranjang(p)}
+                      className="flex h-11 flex-1 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
               </div>
-            </button>
-          ))}
+            )
+          })}
         </div>
         {error && (
           <p className="mt-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 md:hidden">
