@@ -2,10 +2,12 @@
 // kotor dari selisih harga jual − harga beli (snapshot di item),
 // Top 5 produk terlaris, dan riwayat transaksi dengan detail.
 // Transaksi yang dibatalkan tetap tampil di riwayat tapi tidak
-// dihitung di ringkasan maupun Top 5. Pembatalan hanya untuk owner.
+// dihitung di ringkasan maupun Top 5. Pembatalan dan pengubahan
+// hanya untuk owner. Ubah hanya bisa dalam 24 jam setelah transaksi
+// dibuat (ditegakkan juga di database, lihat 009).
 
 import { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { batalkanTransaksi, fetchTransaksi } from '../lib/api'
 import { useAuth } from '../lib/auth'
@@ -313,6 +315,20 @@ export default function LaporanPage() {
                           </dl>
                           {isOwner && t.status !== 'dibatalkan' && (
                             <div className="mt-3 flex flex-wrap gap-2 border-t border-dashed border-garis pt-3">
+                              {Date.now() - new Date(t.created_at).getTime() <
+                              24 * 60 * 60 * 1000 ? (
+                                <Link
+                                  to={`/transaksi/ubah/${t.id}`}
+                                  className="btn-secondary min-h-10 py-2"
+                                >
+                                  Ubah Transaksi
+                                </Link>
+                              ) : (
+                                <p className="w-full text-sm text-stone-600">
+                                  Transaksi ini sudah lebih dari 24 jam,
+                                  tidak bisa diubah lagi.
+                                </p>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => konfirmasiBatal(t.id)}

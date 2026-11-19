@@ -22,6 +22,7 @@ import {
   demoSaveKategori,
   demoSaveProduk,
   demoSaveSatuan,
+  demoUbahTransaksi,
 } from './demo'
 import type {
   CheckoutResult,
@@ -325,6 +326,44 @@ export async function batalkanTransaksi(id: string): Promise<void> {
   }
   const { error } = await requireSupabase().rpc('batalkan_transaksi', {
     p_transaksi_id: id,
+  })
+  if (error) throw error
+}
+
+/** Satu transaksi + itemnya, untuk halaman ubah transaksi. */
+export async function fetchTransaksiById(id: string): Promise<Transaksi | null> {
+  if (isDemoMode) {
+    return demoGetTransaksi().find((t) => t.id === id) ?? null
+  }
+  const { data, error } = await requireSupabase()
+    .from('transaksi')
+    .select(TRANSAKSI_SELECT)
+    .eq('id', id)
+    .maybeSingle()
+  if (error) throw error
+  return data as unknown as Transaksi | null
+}
+
+/**
+ * Ubah transaksi via fungsi database ubah_transaksi() (009).
+ * Item lama dikembalikan ke stok, item baru diproses seperti
+ * checkout (harga dihitung ulang dari database), total dihitung
+ * ulang. Metode bayar tidak berubah. Di core, transaksi hanya
+ * bisa diubah dalam 24 jam setelah dibuat.
+ */
+export async function ubahTransaksi(
+  id: string,
+  items: CheckoutItem[],
+  dibayar: number,
+): Promise<void> {
+  if (isDemoMode) {
+    demoUbahTransaksi(id, items, dibayar)
+    return
+  }
+  const { error } = await requireSupabase().rpc('ubah_transaksi', {
+    p_transaksi_id: id,
+    p_items: items,
+    p_dibayar: dibayar,
   })
   if (error) throw error
 }

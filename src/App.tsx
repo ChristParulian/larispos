@@ -10,6 +10,7 @@ import TambahProdukPage from './pages/TambahProdukPage'
 import LaporanPage from './pages/LaporanPage'
 import LoginPage from './pages/LoginPage'
 import PenggunaPage from './pages/PenggunaPage'
+import UbahTransaksiPage from './pages/UbahTransaksiPage'
 
 /** Rute yang butuh login. Mode demo (tanpa Supabase) bebas lewat. */
 function ButuhLogin({ children }: { children: ReactNode }) {
@@ -85,6 +86,16 @@ export default function App() {
             element={
               <ButuhLogin>
                 <LaporanPage />
+              </ButuhLogin>
+            }
+          />
+          <Route
+            path="/transaksi/ubah/:id"
+            element={
+              <ButuhLogin>
+                <KhususOwner>
+                  <UbahTransaksiPage />
+                </KhususOwner>
               </ButuhLogin>
             }
           />
