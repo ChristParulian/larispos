@@ -9,12 +9,14 @@
 
 import { isDemoMode, requireSupabase } from './supabase'
 import {
-  DEMO_KATEGORI,
   demoCheckout,
+  demoGetKategori,
   demoGetLogStok,
   demoGetProduk,
   demoGetTransaksi,
+  demoHapusKategori,
   demoHapusProduk,
+  demoSaveKategori,
   demoSaveProduk,
 } from './demo'
 import type {
@@ -42,13 +44,70 @@ const LOG_SELECT = `
 `
 
 export async function fetchKategori(): Promise<Kategori[]> {
-  if (isDemoMode) return DEMO_KATEGORI
+  if (isDemoMode) return demoGetKategori()
   const { data, error } = await requireSupabase()
     .from('kategori')
     .select('id, nama')
     .order('nama')
   if (error) throw error
   return (data ?? []) as Kategori[]
+}
+
+/** Pesan duplikat yang ramah untuk pelanggaran UNIQUE nama kategori. */
+function kategoriError(error: unknown, nama: string): Error {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code: unknown }).code === '23505'
+  ) {
+    return new Error(`Kategori "${nama}" sudah ada.`)
+  }
+  return error instanceof Error ? error : new Error('Gagal menyimpan kategori.')
+}
+
+/** Simpan (tambah/ubah) kategori. Nama unik, ditegakkan database. */
+export async function saveKategori(
+  nama: string,
+  id?: string,
+): Promise<Kategori> {
+  const namaBersih = nama.trim()
+  if (!namaBersih) throw new Error('Nama kategori tidak boleh kosong.')
+  if (isDemoMode) return demoSaveKategori(namaBersih, id)
+  const sb = requireSupabase()
+  if (id) {
+    const { data, error } = await sb
+      .from('kategori')
+      .update({ nama: namaBersih })
+      .eq('id', id)
+      .select('id, nama')
+      .single()
+    if (error) throw kategoriError(error, namaBersih)
+    return data as Kategori
+  }
+  const { data, error } = await sb
+    .from('kategori')
+    .insert({ nama: namaBersih })
+    .select('id, nama')
+    .single()
+  if (error) throw kategoriError(error, namaBersih)
+  return data as Kategori
+}
+
+/**
+ * Hapus kategori. Produk di dalamnya tidak ikut terhapus, kategorinya
+ * menjadi kosong (ON DELETE SET NULL di skema).
+ */
+export async function hapusKategori(id: string): Promise<void> {
+  if (isDemoMode) {
+    demoHapusKategori(id)
+    return
+  }
+  const { error } = await requireSupabase()
+    .from('kategori')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }
 
 export async function fetchProduk(): Promise<Produk[]> {

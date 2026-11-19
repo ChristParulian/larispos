@@ -1,7 +1,8 @@
-// Halaman Produk & Stok (hanya daftar): cari + filter kategori,
-// hapus produk yang belum pernah terjual, dan riwayat pergerakan
-// stok (log_stok). Tambah / ubah produk lewat halaman sendiri
-// (/produk/tambah dan /produk/ubah/:id).
+// Halaman Produk & Stok: daftar produk (cari + filter kategori,
+// hapus produk yang belum pernah terjual), kelola kategori
+// (tambah / ubah / hapus), dan riwayat pergerakan stok (log_stok).
+// Tambah / ubah produk lewat halaman sendiri (/produk/tambah dan
+// /produk/ubah/:id).
 
 import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -10,13 +11,15 @@ import {
   fetchKategori,
   fetchLogStok,
   fetchProduk,
+  hapusKategori,
   hapusProduk,
+  saveKategori,
 } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal } from '../lib/format'
 import { IconPlus, IconProduk, IconSearch } from '../components/icons'
 
-type Tab = 'produk' | 'log'
+type Tab = 'produk' | 'kategori' | 'log'
 
 export default function ProdukPage() {
   // Harga beli hanya terlihat oleh owner (Tahap 2).
@@ -27,6 +30,10 @@ export default function ProdukPage() {
   const [cari, setCari] = useState('')
   const [filterKategori, setFilterKategori] = useState('')
   const [error, setError] = useState<string | null>(null)
+  // Form kategori: tambah baru dan ubah sebaris (satu dalam satu waktu).
+  const [namaBaru, setNamaBaru] = useState('')
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editNama, setEditNama] = useState('')
   // Pesan sukses dari halaman tambah/ubah produk (location state).
   const [pesan, setPesan] = useState<string | null>(
     () =>
@@ -76,6 +83,67 @@ export default function ProdukPage() {
     }
   }
 
+  // Jumlah produk per kategori, untuk tab Kategori.
+  const jumlahProduk = useMemo(() => {
+    const hitung = new Map<string, number>()
+    for (const p of produkQuery.data ?? []) {
+      if (!p.kategori_id) continue
+      hitung.set(p.kategori_id, (hitung.get(p.kategori_id) ?? 0) + 1)
+    }
+    return hitung
+  }, [produkQuery.data])
+
+  const simpanKategoriMutation = useMutation({
+    mutationFn: (input: { nama: string; id?: string }) =>
+      saveKategori(input.nama, input.id),
+    onSuccess: (_data, input) => {
+      void queryClient.invalidateQueries({ queryKey: ['kategori'] })
+      void queryClient.invalidateQueries({ queryKey: ['produk'] })
+      setPesan(
+        input.id
+          ? 'Kategori berhasil diubah.'
+          : 'Kategori berhasil ditambahkan.',
+      )
+      setError(null)
+      setNamaBaru('')
+      setEditId(null)
+      setEditNama('')
+    },
+    onError: (err: unknown) => {
+      setError(
+        err instanceof Error ? err.message : 'Gagal menyimpan kategori.',
+      )
+    },
+  })
+
+  const hapusKategoriMutation = useMutation({
+    mutationFn: (id: string) => hapusKategori(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['kategori'] })
+      void queryClient.invalidateQueries({ queryKey: ['produk'] })
+      setPesan('Kategori berhasil dihapus.')
+      setError(null)
+    },
+    onError: (err: unknown) => {
+      setError(
+        err instanceof Error ? err.message : 'Gagal menghapus kategori.',
+      )
+    },
+  })
+
+  function konfirmasiHapusKategori(id: string, nama: string) {
+    const jumlah = jumlahProduk.get(id) ?? 0
+    const peringatan =
+      jumlah > 0
+        ? ` ${jumlah} produk di dalamnya akan menjadi tanpa kategori.`
+        : ''
+    if (
+      window.confirm(`Hapus kategori "${nama}"?${peringatan}`)
+    ) {
+      hapusKategoriMutation.mutate(id)
+    }
+  }
+
   const sedangFilter = cari.trim() !== '' || filterKategori !== ''
 
   return (
@@ -100,6 +168,17 @@ export default function ProdukPage() {
             }`}
           >
             Daftar Produk
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('kategori')}
+            className={`min-h-10 rounded-lg px-4 text-sm font-bold transition-colors ${
+              tab === 'kategori'
+                ? 'bg-pinus-800 text-white'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            Kategori
           </button>
           <button
             type="button"
@@ -318,6 +397,151 @@ export default function ProdukPage() {
             ))}
           </div>
         </>
+      )}
+
+      {tab === 'kategori' && (
+        <div className="card">
+          <div className="border-b px-4 py-4 sm:px-5">
+            <h2 className="font-bold">Kategori Produk</h2>
+            <p className="text-sm text-stone-600">
+              Kelompokkan produk agar mudah dicari di kasir dan difilter di
+              daftar produk. Nama kategori tidak boleh sama.
+            </p>
+          </div>
+          <form
+            className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:px-5"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!namaBaru.trim()) return
+              simpanKategoriMutation.mutate({ nama: namaBaru })
+            }}
+          >
+            <input
+              type="text"
+              value={namaBaru}
+              onChange={(e) => setNamaBaru(e.target.value)}
+              placeholder="Nama kategori baru"
+              aria-label="Nama kategori baru"
+              className="input flex-1"
+            />
+            <button
+              type="submit"
+              disabled={
+                !namaBaru.trim() || simpanKategoriMutation.isPending
+              }
+              className="btn-primary sm:w-auto"
+            >
+              <IconPlus className="h-5 w-5" strokeWidth={2.2} />
+              Tambah Kategori
+            </button>
+          </form>
+          {kategoriQuery.isLoading && (
+            <p className="px-4 py-4 text-stone-600 sm:px-5">
+              Memuat kategori…
+            </p>
+          )}
+          {kategoriQuery.isError && (
+            <p className="px-4 py-4 text-sm text-red-700 sm:px-5">
+              Gagal memuat kategori:{' '}
+              {kategoriQuery.error instanceof Error
+                ? kategoriQuery.error.message
+                : 'terjadi kesalahan.'}
+            </p>
+          )}
+          {kategoriQuery.data && kategoriQuery.data.length === 0 && (
+            <p className="px-4 py-4 text-stone-600 sm:px-5">
+              Belum ada kategori. Tambahkan kategori pertama di atas agar
+              produk bisa dikelompokkan.
+            </p>
+          )}
+          <ul className="divide-y divide-garis">
+            {(kategoriQuery.data ?? []).map((k) => {
+              const jumlah = jumlahProduk.get(k.id) ?? 0
+              const sedangUbah = editId === k.id
+              return (
+                <li
+                  key={k.id}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-sm sm:px-5"
+                >
+                  {sedangUbah ? (
+                    <form
+                      className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        if (!editNama.trim()) return
+                        simpanKategoriMutation.mutate({
+                          nama: editNama,
+                          id: k.id,
+                        })
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={editNama}
+                        onChange={(e) => setEditNama(e.target.value)}
+                        aria-label="Nama kategori"
+                        className="input min-w-40 flex-1"
+                      />
+                      <button
+                        type="submit"
+                        disabled={
+                          !editNama.trim() ||
+                          simpanKategoriMutation.isPending
+                        }
+                        className="inline-flex min-h-9 items-center rounded-lg bg-pinus-700 px-3 text-xs font-bold text-white hover:bg-pinus-800 disabled:opacity-50"
+                      >
+                        Simpan
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditId(null)
+                          setEditNama('')
+                        }}
+                        className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                      >
+                        Batal
+                      </button>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="min-w-0">
+                        <div className="break-words font-medium">{k.nama}</div>
+                        <div className="text-xs text-stone-600">
+                          {jumlah === 0
+                            ? 'Belum ada produk'
+                            : `${jumlah} produk`}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditId(k.id)
+                            setEditNama(k.nama)
+                            setError(null)
+                          }}
+                          className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                        >
+                          Ubah
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            konfirmasiHapusKategori(k.id, k.nama)
+                          }
+                          className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       )}
 
       {tab === 'log' && (

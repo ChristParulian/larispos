@@ -16,6 +16,7 @@ import type {
 const KEY_PRODUK = 'larispos-demo-produk'
 const KEY_TRANSAKSI = 'larispos-demo-transaksi'
 const KEY_LOG = 'larispos-demo-log-stok'
+const KEY_KATEGORI = 'larispos-demo-kategori'
 
 export const DEMO_KATEGORI: Kategori[] = [
   { id: 'demo-kat-sembako', nama: 'Sembako' },
@@ -45,9 +46,56 @@ const SEED: Array<
   { kategori: 'Perawatan & Rumah Tangga', nama: 'Deterjen Bubuk 800 g', satuan: 'bungkus', harga_beli: 14000, harga_jual: 17000, stok: 18 },
 ]
 
+/** Daftar kategori demo, tersimpan di localStorage agar CRUD bertahan. */
+export function demoGetKategori(): Kategori[] {
+  const saved = load<Kategori[]>(KEY_KATEGORI)
+  if (saved) return saved
+  save(KEY_KATEGORI, DEMO_KATEGORI)
+  return [...DEMO_KATEGORI]
+}
+
+export function demoSaveKategori(nama: string, id?: string): Kategori {
+  const namaBersih = nama.trim()
+  if (!namaBersih) throw new Error('Nama kategori tidak boleh kosong.')
+  const list = demoGetKategori()
+  if (
+    list.some(
+      (k) =>
+        k.nama.toLowerCase() === namaBersih.toLowerCase() && k.id !== id,
+    )
+  ) {
+    throw new Error(`Kategori "${namaBersih}" sudah ada.`)
+  }
+  if (id) {
+    const idx = list.findIndex((k) => k.id === id)
+    if (idx === -1) throw new Error('Kategori tidak ditemukan.')
+    list[idx] = { ...list[idx], nama: namaBersih }
+    save(KEY_KATEGORI, list)
+    return list[idx]
+  }
+  const baru: Kategori = { id: `demo-kat-${Date.now()}`, nama: namaBersih }
+  list.push(baru)
+  save(KEY_KATEGORI, list)
+  return baru
+}
+
+export function demoHapusKategori(id: string): void {
+  save(
+    KEY_KATEGORI,
+    demoGetKategori().filter((k) => k.id !== id),
+  )
+  // Meniru ON DELETE SET NULL: produk kehilangan kategorinya.
+  save(
+    KEY_PRODUK,
+    demoGetProduk().map((p) =>
+      p.kategori_id === id ? { ...p, kategori_id: null } : p,
+    ),
+  )
+}
+
 function seedProduk(): Produk[] {
   return SEED.map((p, i) => {
-    const kat = DEMO_KATEGORI.find((k) => k.nama === p.kategori) ?? null
+    const kat = demoGetKategori().find((k) => k.nama === p.kategori) ?? null
     return {
       id: `demo-produk-${i + 1}`,
       kategori_id: kat ? kat.id : null,
@@ -79,10 +127,10 @@ function save(key: string, value: unknown): void {
 }
 
 function withKategori(list: Produk[]): Produk[] {
+  const kategori = demoGetKategori()
   return list.map((p) => ({
     ...p,
-    kategori:
-      DEMO_KATEGORI.find((k) => k.id === p.kategori_id) ?? null,
+    kategori: kategori.find((k) => k.id === p.kategori_id) ?? null,
   }))
 }
 
@@ -238,4 +286,5 @@ export function demoReset(): void {
   localStorage.removeItem(KEY_PRODUK)
   localStorage.removeItem(KEY_TRANSAKSI)
   localStorage.removeItem(KEY_LOG)
+  localStorage.removeItem(KEY_KATEGORI)
 }
