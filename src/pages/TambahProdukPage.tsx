@@ -207,7 +207,7 @@ export default function TambahProdukPage() {
             </label>
             {isOwner && (
               <label className="block">
-                <span className="label">Harga beli (boleh kosong)</span>
+                <span className="label">Harga beli (opsional)</span>
                 <input
                   className="input"
                   type="number"
