@@ -9,10 +9,11 @@
 // keranjang tampil sebagai panel samping.
 
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { checkout, fetchKategori, fetchProduk } from '../lib/api'
 import type { CartItem, CheckoutResult, Produk } from '../lib/types'
-import { formatRupiah } from '../lib/format'
+import { formatRupiah, labelMetode } from '../lib/format'
 import Struk from '../components/Struk'
 import {
   IconKeranjang,
@@ -69,12 +70,13 @@ function CartPanel(props: CartPanelProps) {
     bayarPending,
     onBayar,
   } = props
+  const { t } = useTranslation()
 
   return (
     <div>
       {keranjang.length === 0 ? (
         <p className="mt-1 text-sm text-stone-600">
-          Keranjang masih kosong. Ketuk produk untuk menambahkan.
+          {t('kasir.keranjangKosong')}
         </p>
       ) : (
         <ul className="mt-3 space-y-3">
@@ -91,7 +93,7 @@ function CartPanel(props: CartPanelProps) {
               <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
-                  aria-label={`Kurangi ${it.produk.nama}`}
+                  aria-label={t('kasir.kurangiProduk', { nama: it.produk.nama })}
                   onClick={() => onUbahQty(it.produk.id, -1)}
                   className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                 >
@@ -102,7 +104,7 @@ function CartPanel(props: CartPanelProps) {
                 </span>
                 <button
                   type="button"
-                  aria-label={`Tambah ${it.produk.nama}`}
+                  aria-label={t('kasir.tambahProduk', { nama: it.produk.nama })}
                   onClick={() => onUbahQty(it.produk.id, 1)}
                   className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                 >
@@ -119,7 +121,7 @@ function CartPanel(props: CartPanelProps) {
 
       <div className="mt-4 border-t border-dashed border-garis pt-3">
         <div className="flex justify-between text-lg">
-          <span className="font-semibold">Total</span>
+          <span className="font-semibold">{t('umum.total')}</span>
           <span className="font-bold text-pinus-700">
             {formatRupiah(total)}
           </span>
@@ -127,12 +129,12 @@ function CartPanel(props: CartPanelProps) {
       </div>
 
       <div className="mt-4">
-        <span className="text-sm font-medium">Metode bayar</span>
+        <span className="text-sm font-medium">{t('kasir.metodeBayar')}</span>
         <div className="mt-1.5 grid grid-cols-2 gap-2">
           {(
             [
-              { value: 'tunai', label: 'Tunai' },
-              { value: 'qris', label: 'QRIS' },
+              { value: 'tunai', label: labelMetode('tunai') },
+              { value: 'qris', label: labelMetode('qris') },
             ] as const
           ).map((m) => (
             <button
@@ -154,7 +156,7 @@ function CartPanel(props: CartPanelProps) {
       {metode === 'tunai' ? (
         <div className="mt-4">
           <label htmlFor="dibayar" className="text-sm font-medium">
-            Uang dibayar
+            {t('kasir.uangDibayar')}
           </label>
           <input
             id="dibayar"
@@ -166,12 +168,12 @@ function CartPanel(props: CartPanelProps) {
             className="input mt-1.5 text-lg font-semibold"
           />
           <div className="mt-2 flex justify-between text-base">
-            <span>Kembalian</span>
+            <span>{t('struk.kembalian')}</span>
             <span
               className={`font-bold ${uangKurang ? 'text-red-600' : 'text-pinus-700'}`}
             >
               {uangKurang
-                ? `Kurang ${formatRupiah(total - dibayarNum)}`
+                ? t('kasir.kurang', { jumlah: formatRupiah(total - dibayarNum) })
                 : formatRupiah(kembalian)}
             </span>
           </div>
@@ -181,7 +183,7 @@ function CartPanel(props: CartPanelProps) {
                 key={n}
                 type="button"
                 onClick={() => onDibayar(String(n))}
-                aria-label={`Bayar ${formatRupiah(n)}`}
+                aria-label={t('kasir.bayarNominal', { jumlah: formatRupiah(n) })}
                 className="min-h-11 rounded-lg border border-garis px-3 py-2 text-sm font-semibold hover:bg-kertas-gelap"
               >
                 {formatRupiah(n)}
@@ -193,14 +195,13 @@ function CartPanel(props: CartPanelProps) {
               disabled={total === 0}
               className="min-h-11 rounded-lg border border-aksen-600 px-3 py-2 text-sm font-bold text-aksen-700 hover:bg-aksen-100 disabled:opacity-50"
             >
-              Uang pas
+              {t('kasir.uangPas')}
             </button>
           </div>
         </div>
       ) : (
         <p className="mt-4 rounded-lg bg-kertas-gelap px-3 py-2.5 text-sm text-stone-600">
-          QRIS: pembeli membayar tepat sebesar total, tidak ada kembalian.
-          Pastikan pembayaran QRIS sudah masuk sebelum menekan Bayar.
+          {t('kasir.catatanQris')}
         </p>
       )}
 
@@ -217,7 +218,7 @@ function CartPanel(props: CartPanelProps) {
           disabled={keranjang.length === 0}
           className="btn-secondary flex-none px-4"
         >
-          Kosongkan
+          {t('kasir.kosongkan')}
         </button>
         <button
           type="button"
@@ -229,7 +230,7 @@ function CartPanel(props: CartPanelProps) {
           }
           className="btn-primary min-h-12 flex-1 text-base"
         >
-          {bayarPending ? 'Memproses…' : 'Bayar'}
+          {bayarPending ? t('kasir.memproses') : t('kasir.bayar')}
         </button>
       </div>
     </div>
@@ -237,6 +238,7 @@ function CartPanel(props: CartPanelProps) {
 }
 
 export default function KasirPage() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [cari, setCari] = useState('')
   const [kategoriId, setKategoriId] = useState<string | null>(null)
@@ -296,7 +298,7 @@ export default function KasirPage() {
 
   function tambahKeKeranjang(p: Produk) {
     if (p.stok <= 0) {
-      setError(`Stok "${p.nama}" habis.`)
+      setError(t('kasir.stokHabis', { nama: p.nama }))
       return
     }
     setError(null)
@@ -304,7 +306,7 @@ export default function KasirPage() {
       const ada = prev.find((it) => it.produk.id === p.id)
       if (ada) {
         if (ada.qty + 1 > p.stok) {
-          setError(`Stok "${p.nama}" hanya tersisa ${p.stok}.`)
+          setError(t('kasir.stokTersisa', { nama: p.nama, stok: p.stok }))
           return prev
         }
         return prev.map((it) =>
@@ -323,7 +325,12 @@ export default function KasirPage() {
           if (it.produk.id !== produkId) return it
           const qtyBaru = it.qty + delta
           if (qtyBaru > it.produk.stok) {
-            setError(`Stok "${it.produk.nama}" hanya tersisa ${it.produk.stok}.`)
+            setError(
+              t('kasir.stokTersisa', {
+                nama: it.produk.nama,
+                stok: it.produk.stok,
+              }),
+            )
             return it
           }
           return { ...it, qty: qtyBaru }
@@ -363,7 +370,7 @@ export default function KasirPage() {
       setError(
         err instanceof Error
           ? err.message
-          : 'Pembayaran gagal. Coba lagi.',
+          : t('kasir.pembayaranGagal'),
       )
     },
   })
@@ -371,7 +378,7 @@ export default function KasirPage() {
   function handleBayar() {
     if (keranjang.length === 0) return
     if (metode === 'tunai' && dibayarNum < total) {
-      setError('Uang dibayar kurang dari total.')
+      setError(t('kasir.uangKurangDariTotal'))
       return
     }
     bayarMutation.mutate()
@@ -399,10 +406,10 @@ export default function KasirPage() {
       {/* Daftar produk */}
       <section>
         <div className="mb-3 flex items-baseline justify-between gap-2">
-          <h1 className="judul-halaman">Kasir</h1>
+          <h1 className="judul-halaman">{t('nav.kasir')}</h1>
           {keranjang.length > 0 && (
             <span className="rounded-md bg-pinus-100 px-2.5 py-1 text-xs font-bold text-pinus-800">
-              {keranjang.length} item di keranjang
+              {t('kasir.itemDiKeranjang', { count: keranjang.length })}
             </span>
           )}
         </div>
@@ -412,7 +419,7 @@ export default function KasirPage() {
             type="search"
             value={cari}
             onChange={(e) => setCari(e.target.value)}
-            placeholder="Cari produk… (mis. beras, kopi)"
+            placeholder={t('kasir.cariProduk')}
             className="input pl-11"
           />
         </div>
@@ -420,7 +427,7 @@ export default function KasirPage() {
           <div
             className="mb-3 flex flex-wrap rounded-lg bg-kertas-gelap p-1"
             role="group"
-            aria-label="Filter kategori"
+            aria-label={t('kasir.filterKategori')}
           >
             <button
               type="button"
@@ -432,7 +439,7 @@ export default function KasirPage() {
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              Semua
+              {t('umum.semua')}
             </button>
             {kategoriList.map((k) => (
               <button
@@ -460,20 +467,22 @@ export default function KasirPage() {
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                Tanpa kategori
+                {t('umum.tanpaKategori')}
               </button>
             )}
           </div>
         )}
         {produkQuery.isLoading && (
-          <p className="text-stone-600">Memuat produk…</p>
+          <p className="text-stone-600">{t('kasir.memuatProduk')}</p>
         )}
         {produkQuery.isError && (
           <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-            Gagal memuat produk:{' '}
-            {produkQuery.error instanceof Error
-              ? produkQuery.error.message
-              : 'terjadi kesalahan.'}
+            {t('kasir.gagalMemuatProduk', {
+              pesan:
+                produkQuery.error instanceof Error
+                  ? produkQuery.error.message
+                  : t('kasir.terjadiKesalahan'),
+            })}
           </p>
         )}
         {produkQuery.data && produkList.length === 0 && (
@@ -481,17 +490,20 @@ export default function KasirPage() {
             <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
             <p className="mt-3 font-semibold">
               {cari.trim()
-                ? `Tidak ada produk yang cocok dengan “${cari}”.`
+                ? t('kasir.tidakAdaCocok', { cari })
                 : kategoriId
-                  ? `Tidak ada produk di kategori “${kategoriAktif?.nama ?? 'Tanpa kategori'}”.`
-                  : 'Belum ada produk.'}
+                  ? t('kasir.tidakAdaDiKategori', {
+                      kategori:
+                        kategoriAktif?.nama ?? t('umum.tanpaKategori'),
+                    })
+                  : t('kasir.belumAdaProduk')}
             </p>
             <p className="mt-1 text-sm text-stone-600">
               {cari.trim()
-                ? 'Coba kata kunci lain.'
+                ? t('kasir.cobaKataKunciLain')
                 : kategoriId
-                  ? 'Pilih kategori lain.'
-                  : 'Tambahkan produk dulu di menu Produk.'}
+                  ? t('kasir.pilihKategoriLain')
+                  : t('kasir.tambahkanProdukDulu')}
             </p>
           </div>
         )}
@@ -510,14 +522,14 @@ export default function KasirPage() {
                   type="button"
                   onClick={() => tambahKeKeranjang(p)}
                   disabled={habis}
-                  aria-label={`Tambah ${p.nama} ke keranjang`}
+                  aria-label={t('kasir.tambahKeKeranjang', { nama: p.nama })}
                   className="min-w-0 flex-1 text-left disabled:cursor-not-allowed"
                 >
                   <div className="break-words font-semibold leading-snug">
                     {p.nama}
                   </div>
                   <div className="mt-1 text-xs text-stone-600">
-                    {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
+                    {p.kategori?.nama ?? t('umum.tanpaKategori')} · per {p.satuan}
                   </div>
                   <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
                     {formatRupiah(p.harga_jual)}
@@ -531,16 +543,18 @@ export default function KasirPage() {
                           : 'bg-kertas-gelap text-stone-600'
                     }`}
                   >
-                    Stok {p.stok}
-                    {p.stok <= 5 && p.stok > 0 ? ', hampir habis' : ''}
-                    {habis ? ', habis' : ''}
+                    {habis
+                      ? t('kasir.stokHabisBadge', { stok: p.stok })
+                      : p.stok <= 5
+                        ? t('kasir.stokHampirHabis', { stok: p.stok })
+                        : t('kasir.stokJumlah', { stok: p.stok })}
                   </div>
                 </button>
                 {qty > 0 && (
                   <div className="mt-3 flex items-center gap-1 border-t border-dashed border-garis pt-3">
                     <button
                       type="button"
-                      aria-label={`Kurangi ${p.nama}`}
+                      aria-label={t('kasir.kurangiProduk', { nama: p.nama })}
                       onClick={() => ubahQty(p.id, -1)}
                       className="flex h-11 flex-1 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                     >
@@ -551,7 +565,7 @@ export default function KasirPage() {
                     </span>
                     <button
                       type="button"
-                      aria-label={`Tambah ${p.nama}`}
+                      aria-label={t('kasir.tambahProduk', { nama: p.nama })}
                       onClick={() => tambahKeKeranjang(p)}
                       className="flex h-11 flex-1 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                     >
@@ -573,7 +587,7 @@ export default function KasirPage() {
       {/* Keranjang & pembayaran, panel samping (layar sedang ke atas) */}
       <aside className="hidden h-fit md:block lg:sticky lg:top-24">
         <div className="card p-4 sm:p-5">
-          <h2 className="text-lg font-bold">Keranjang</h2>
+          <h2 className="text-lg font-bold">{t('kasir.keranjang')}</h2>
           <CartPanel {...cartProps} />
         </div>
       </aside>
@@ -588,12 +602,12 @@ export default function KasirPage() {
         >
           <span className="flex items-center gap-2 text-sm font-medium">
             <IconKeranjang className="h-5 w-5" />
-            {keranjang.length} item
+            {t('kasir.item', { count: keranjang.length })}
           </span>
           <span className="flex items-center gap-3">
             <span className="text-base font-bold">{formatRupiah(total)}</span>
             <span className="rounded-md bg-white px-3 py-1.5 text-xs font-bold text-pinus-800">
-              Keranjang
+              {t('kasir.keranjang')}
             </span>
           </span>
         </button>
@@ -608,10 +622,10 @@ export default function KasirPage() {
           />
           <div className="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-lg bg-white pb-[env(safe-area-inset-bottom)] shadow-angkat">
             <div className="sticky top-0 flex items-center justify-between border-b border-garis bg-white px-4 py-3">
-              <h2 className="text-lg font-bold">Keranjang</h2>
+              <h2 className="text-lg font-bold">{t('kasir.keranjang')}</h2>
               <button
                 type="button"
-                aria-label="Tutup keranjang"
+                aria-label={t('kasir.tutupKeranjang')}
                 onClick={() => setKeranjangTerbuka(false)}
                 className="flex h-10 w-10 items-center justify-center rounded-md text-stone-600 hover:bg-kertas-gelap"
               >

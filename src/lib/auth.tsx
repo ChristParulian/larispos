@@ -23,6 +23,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { isDemoMode, supabase } from './supabase'
 import { fetchProfil } from './api'
 import type { Peran, Profil } from './types'
+import i18n from './i18n'
 
 export interface AuthState {
   /** Akun Supabase yang login (null bila belum login / mode demo). */
@@ -47,28 +48,28 @@ export interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null)
 
-/** Pesan error Supabase Auth diterjemahkan ke Bahasa Indonesia. */
+/** Pesan error Supabase Auth diterjemahkan ke bahasa tampilan. */
 function terjemahkanError(pesan: string): string {
   if (/invalid login credentials/i.test(pesan)) {
-    return 'Email atau kata sandi salah.'
+    return i18n.t('galat.emailSalah')
   }
   if (/email not confirmed/i.test(pesan)) {
-    return 'Email belum dikonfirmasi. Cek kotak masukmu dan klik tautan konfirmasi.'
+    return i18n.t('galat.emailBelumKonfirmasi')
   }
   if (/user already registered|already registered/i.test(pesan)) {
-    return 'Email ini sudah terdaftar. Silakan masuk.'
+    return i18n.t('galat.emailTerdaftar')
   }
   if (/password.*at least 6|password should/i.test(pesan)) {
-    return 'Kata sandi minimal 6 karakter.'
+    return i18n.t('galat.sandiMin6')
   }
   if (/invalid email/i.test(pesan)) {
-    return 'Format email tidak valid.'
+    return i18n.t('galat.emailTidakValid')
   }
   if (/too many requests|rate limit/i.test(pesan)) {
-    return 'Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.'
+    return i18n.t('galat.terlaluBanyak')
   }
   if (/network|fetch failed|failed to fetch/i.test(pesan)) {
-    return 'Tidak bisa terhubung ke server. Periksa koneksimu.'
+    return i18n.t('galat.tidakTerhubung')
   }
   return pesan
 }
@@ -135,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [muatProfil, queryClient])
 
   const signIn = useCallback(async (email: string, password: string) => {
-    if (!supabase) return 'Supabase belum dikonfigurasi.'
+    if (!supabase) return i18n.t('galat.supabaseBelumSiap')
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -147,7 +148,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = useCallback(
     async (email: string, password: string, nama: string) => {
       if (!supabase) {
-        return { needsConfirmation: false, error: 'Supabase belum dikonfigurasi.' }
+        return {
+          needsConfirmation: false,
+          error: i18n.t('galat.supabaseBelumSiap'),
+        }
       }
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -209,11 +213,11 @@ export function useAuth(): AuthState {
 export async function ubahEmailSendiri(
   emailBaru: string,
 ): Promise<string | null> {
-  if (!supabase) return 'Supabase belum dikonfigurasi.'
+  if (!supabase) return i18n.t('galat.supabaseBelumSiap')
   const { error } = await supabase.auth.updateUser({ email: emailBaru })
   if (error) {
     if (/already registered|already exists/i.test(error.message)) {
-      return 'Email ini sudah dipakai akun lain.'
+      return i18n.t('galat.emailDipakai')
     }
     return terjemahkanError(error.message)
   }
@@ -230,13 +234,13 @@ export async function ubahKataSandiSendiri(
   sandiLama: string,
   sandiBaru: string,
 ): Promise<string | null> {
-  if (!supabase) return 'Supabase belum dikonfigurasi.'
-  if (sandiBaru.length < 8) return 'Kata sandi baru minimal 8 karakter.'
+  if (!supabase) return i18n.t('galat.supabaseBelumSiap')
+  if (sandiBaru.length < 8) return i18n.t('galat.sandiBaruMin8')
   const { error: errMasuk } = await supabase.auth.signInWithPassword({
     email,
     password: sandiLama,
   })
-  if (errMasuk) return 'Kata sandi saat ini salah.'
+  if (errMasuk) return i18n.t('galat.sandiLamaSalah')
   const { error } = await supabase.auth.updateUser({ password: sandiBaru })
   if (error) return terjemahkanError(error.message)
   return null
@@ -253,7 +257,7 @@ export async function ubahKataSandiSendiri(
 export async function kirimLinkAturUlangSandi(
   email: string,
 ): Promise<string | null> {
-  if (!supabase) return 'Supabase belum dikonfigurasi.'
+  if (!supabase) return i18n.t('galat.supabaseBelumSiap')
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${window.location.origin}/atur-ulang-sandi`,
   })
@@ -268,8 +272,8 @@ export async function kirimLinkAturUlangSandi(
 export async function aturUlangSandiBaru(
   sandiBaru: string,
 ): Promise<string | null> {
-  if (!supabase) return 'Supabase belum dikonfigurasi.'
-  if (sandiBaru.length < 8) return 'Kata sandi baru minimal 8 karakter.'
+  if (!supabase) return i18n.t('galat.supabaseBelumSiap')
+  if (sandiBaru.length < 8) return i18n.t('galat.sandiBaruMin8')
   const { error } = await supabase.auth.updateUser({ password: sandiBaru })
   if (error) return terjemahkanError(error.message)
   return null

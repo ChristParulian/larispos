@@ -8,6 +8,7 @@
 // (ditolak RLS, sesuai desain skema).
 
 import { isDemoMode, requireSupabase } from './supabase'
+import i18n, { terjemahkanGalatDb } from './i18n'
 import {
   demoBatalkanTransaksi,
   demoCheckout,
@@ -60,15 +61,31 @@ export async function fetchKategori(): Promise<Kategori[]> {
   return (data ?? []) as Kategori[]
 }
 
+/**
+ * Terjemahkan pesan galat RPC database ke bahasa tampilan,
+ * sambil mempertahankan kode galatnya.
+ */
+function galatRpc(error: { message: string; code?: string }): Error {
+  const e = new Error(terjemahkanGalatDb(error.message))
+  if (error.code) (e as Error & { code: string }).code = error.code
+  return e
+}
+
 /** Pesan duplikat yang ramah untuk pelanggaran UNIQUE nama (kategori/satuan). */
-function duplikatError(error: unknown, label: string, nama: string): Error {
+function duplikatError(
+  error: unknown,
+  label: 'kategori' | 'satuan',
+  nama: string,
+): Error {
   if (
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
     (error as { code: unknown }).code === '23505'
   ) {
-    return new Error(`${label} "${nama}" sudah ada.`)
+    return new Error(
+      i18n.t('galat.sudahAda', { label: i18n.t(`umum.${label}`), nama }),
+    )
   }
   return error instanceof Error
     ? error
@@ -81,7 +98,7 @@ export async function saveKategori(
   id?: string,
 ): Promise<Kategori> {
   const namaBersih = nama.trim()
-  if (!namaBersih) throw new Error('Nama kategori tidak boleh kosong.')
+  if (!namaBersih) throw new Error(i18n.t('galat.namaKategoriKosong'))
   if (isDemoMode) return demoSaveKategori(namaBersih, id)
   const sb = requireSupabase()
   if (id) {
@@ -91,7 +108,7 @@ export async function saveKategori(
       .eq('id', id)
       .select('id, nama')
       .single()
-    if (error) throw duplikatError(error, 'Kategori', namaBersih)
+    if (error) throw duplikatError(error, 'kategori', namaBersih)
     return data as Kategori
   }
   const { data, error } = await sb
@@ -99,7 +116,7 @@ export async function saveKategori(
     .insert({ nama: namaBersih })
     .select('id, nama')
     .single()
-  if (error) throw duplikatError(error, 'Kategori', namaBersih)
+  if (error) throw duplikatError(error, 'kategori', namaBersih)
   return data as Kategori
 }
 
@@ -120,7 +137,7 @@ export async function fetchSatuan(): Promise<Satuan[]> {
  */
 export async function saveSatuan(nama: string, id?: string): Promise<Satuan> {
   const namaBersih = nama.trim()
-  if (!namaBersih) throw new Error('Nama satuan tidak boleh kosong.')
+  if (!namaBersih) throw new Error(i18n.t('galat.namaSatuanKosong'))
   if (isDemoMode) return demoSaveSatuan(namaBersih, id)
   const sb = requireSupabase()
   if (id) {
@@ -136,7 +153,7 @@ export async function saveSatuan(nama: string, id?: string): Promise<Satuan> {
       .eq('id', id)
       .select('id, nama')
       .single()
-    if (error) throw duplikatError(error, 'Satuan', namaBersih)
+    if (error) throw duplikatError(error, 'satuan', namaBersih)
     const namaLama = (lama as { nama: string }).nama
     if (namaLama !== namaBersih) {
       const { error: errProduk } = await sb
@@ -152,7 +169,7 @@ export async function saveSatuan(nama: string, id?: string): Promise<Satuan> {
     .insert({ nama: namaBersih })
     .select('id, nama')
     .single()
-  if (error) throw duplikatError(error, 'Satuan', namaBersih)
+  if (error) throw duplikatError(error, 'satuan', namaBersih)
   return data as Satuan
 }
 
@@ -276,7 +293,7 @@ export async function tambahStok(
     p_jumlah: jumlah,
     p_alasan: catatan?.trim() ? catatan.trim() : null,
   })
-  if (error) throw error
+  if (error) throw galatRpc(error)
   return data as number
 }
 
@@ -332,7 +349,7 @@ export async function ubahPeranProfil(id: string, role: Peran): Promise<void> {
     .from('profiles')
     .update({ role })
     .eq('id', id)
-  if (error) throw error
+  if (error) throw galatRpc(error)
 }
 
 /**
@@ -362,7 +379,7 @@ export async function batalkanTransaksi(id: string): Promise<void> {
   const { error } = await requireSupabase().rpc('batalkan_transaksi', {
     p_transaksi_id: id,
   })
-  if (error) throw error
+  if (error) throw galatRpc(error)
 }
 
 /** Satu transaksi + itemnya, untuk halaman ubah transaksi. */
@@ -400,7 +417,7 @@ export async function ubahTransaksi(
     p_items: items,
     p_dibayar: dibayar,
   })
-  if (error) throw error
+  if (error) throw galatRpc(error)
 }
 
 export interface CheckoutItem {
@@ -425,6 +442,6 @@ export async function checkout(
     p_metode_bayar: metode,
     p_dibayar: dibayar,
   })
-  if (error) throw error
+  if (error) throw galatRpc(error)
   return data as unknown as CheckoutResult
 }

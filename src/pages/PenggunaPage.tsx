@@ -6,6 +6,7 @@
 // peran, dan owner terakhir tidak boleh diturunkan.
 
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -20,6 +21,7 @@ import { IconChevron, IconSearch } from '../components/icons'
 import type { Peran, Profil } from '../lib/types'
 
 export default function PenggunaPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [cari, setCari] = useState('')
@@ -41,12 +43,21 @@ export default function PenggunaPage() {
     onSuccess: (_d, v) => {
       void queryClient.invalidateQueries({ queryKey: ['profil-semua'] })
       setPesan(
-        `Peran ${v.nama} diubah menjadi ${v.role === 'owner' ? 'Owner' : 'Kasir'}.`,
+        t('pengguna.peranDiubah', {
+          nama: v.nama,
+          peran: t(
+            v.role === 'owner'
+              ? 'pengguna.peranOwner'
+              : 'pengguna.peranKasir',
+          ),
+        }),
       )
       setError(null)
     },
     onError: (err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Gagal mengubah peran.')
+      setError(
+        err instanceof Error ? err.message : t('pengguna.gagalUbahPeran'),
+      )
     },
   })
 
@@ -55,11 +66,13 @@ export default function PenggunaPage() {
       ubahNamaProfil(id, nama),
     onSuccess: (_d, v) => {
       void queryClient.invalidateQueries({ queryKey: ['profil-semua'] })
-      setPesan(`Nama diubah menjadi ${v.nama}.`)
+      setPesan(t('pengguna.namaDiubah', { nama: v.nama }))
       setError(null)
     },
     onError: (err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Gagal mengubah nama.')
+      setError(
+        err instanceof Error ? err.message : t('pengguna.gagalUbahNama'),
+      )
     },
   })
 
@@ -90,10 +103,17 @@ export default function PenggunaPage() {
 
   function konfirmasiUbah(p: Profil) {
     const target: Peran = p.role === 'owner' ? 'kasir' : 'owner'
-    const nama = p.nama ?? p.email ?? 'pengguna ini'
+    const nama = p.nama ?? p.email ?? t('pengguna.penggunaIni')
     if (
       window.confirm(
-        `Ubah ${nama} menjadi ${target === 'owner' ? 'Owner' : 'Kasir'}?`,
+        t('pengguna.konfirmasiUbahPeran', {
+          nama,
+          peran: t(
+            target === 'owner'
+              ? 'pengguna.peranOwner'
+              : 'pengguna.peranKasir',
+          ),
+        }),
       )
     ) {
       ubahMutation.mutate({ id: p.id, role: target, nama })
@@ -102,7 +122,7 @@ export default function PenggunaPage() {
 
   async function kirimReset(p: Profil) {
     if (!p.email) {
-      setError('Pengguna ini tidak punya email.')
+      setError(t('pengguna.tidakPunyaEmail'))
       return
     }
     setSibukReset(true)
@@ -114,7 +134,7 @@ export default function PenggunaPage() {
       setError(err)
       return
     }
-    setPesan(`Link atur ulang kata sandi dikirim ke ${p.email}.`)
+    setPesan(t('pengguna.linkResetDikirim', { email: p.email }))
   }
 
   function badgePeran(role: Peran) {
@@ -126,7 +146,9 @@ export default function PenggunaPage() {
             : 'bg-kertas-gelap text-stone-700'
         }`}
       >
-        {role === 'owner' ? 'Owner' : 'Kasir'}
+        {role === 'owner'
+          ? t('pengguna.peranOwner')
+          : t('pengguna.peranKasir')}
       </span>
     )
   }
@@ -134,10 +156,9 @@ export default function PenggunaPage() {
   if (isDemoMode) {
     return (
       <div>
-        <h1 className="mb-3 judul-halaman">Pengguna</h1>
+        <h1 className="mb-3 judul-halaman">{t('nav.pengguna')}</h1>
         <p className="rounded-lg bg-aksen-100 px-4 py-3 text-sm text-aksen-800">
-          Halaman ini hanya tersedia saat memakai Supabase. Di mode demo
-          tidak ada akun pengguna.
+          {t('pengguna.hanyaSupabase')}
         </p>
       </div>
     )
@@ -146,21 +167,21 @@ export default function PenggunaPage() {
   return (
     <div>
       <div className="mb-4">
-        <h1 className="judul-halaman">Pengguna</h1>
+        <h1 className="judul-halaman">{t('nav.pengguna')}</h1>
         <p className="mt-1 text-sm text-stone-600">
-          Owner bisa melihat harga beli, laba, dan mengatur peran. Kasir
-          fokus berjualan. Akun baru yang mendaftar otomatis menjadi
-          Kasir. Ketuk salah satu pengguna untuk mengubah nama dan
-          perannya, atau mengirim link atur ulang kata sandi. Untuk
-          akunmu sendiri, buka Profil Saya di pojok kanan atas.
+          {t('pengguna.keterangan')}
         </p>
         {profilQuery.data && (
           <p className="mt-2 text-sm">
             <span className="font-semibold">
-              {profilQuery.data.length} pengguna
+              {t('pengguna.jumlahPengguna', {
+                count: profilQuery.data.length,
+              })}
             </span>
             <span className="text-stone-600">
-              {' '}· {jumlahOwner} Owner · {jumlahKasir} Kasir
+              {' '}·{' '}
+              {t('pengguna.jumlahOwner', { count: jumlahOwner })} ·{' '}
+              {t('pengguna.jumlahKasir', { count: jumlahKasir })}
             </span>
           </p>
         )}
@@ -172,7 +193,7 @@ export default function PenggunaPage() {
           type="search"
           value={cari}
           onChange={(e) => setCari(e.target.value)}
-          placeholder="Cari nama atau email…"
+          placeholder={t('pengguna.cariPlaceholder')}
           className="input pl-11"
         />
       </div>
@@ -189,19 +210,19 @@ export default function PenggunaPage() {
       )}
 
       {profilQuery.isLoading && (
-        <p className="text-stone-600">Memuat pengguna…</p>
+        <p className="text-stone-600">{t('pengguna.memuat')}</p>
       )}
       {profilQuery.isError && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-          Gagal memuat pengguna:{' '}
+          {t('pengguna.gagalMemuat')}{' '}
           {profilQuery.error instanceof Error
             ? profilQuery.error.message
-            : 'terjadi kesalahan.'}
+            : t('pengguna.terjadiKesalahan')}
         </p>
       )}
 
       {profilQuery.data && profilQuery.data.length === 0 && (
-        <p className="text-stone-600">Belum ada pengguna terdaftar.</p>
+        <p className="text-stone-600">{t('pengguna.belumAda')}</p>
       )}
 
       {profilQuery.data &&
@@ -209,10 +230,10 @@ export default function PenggunaPage() {
         profilTampil.length === 0 && (
           <div className="card px-6 py-10 text-center">
             <p className="font-semibold">
-              Tidak ada pengguna yang cocok dengan “{cari}”.
+              {t('pengguna.tidakCocok', { kata: cari })}
             </p>
             <p className="mt-1 text-sm text-stone-600">
-              Coba kata kunci lain.
+              {t('pengguna.cobaKataLain')}
             </p>
           </div>
         )}
@@ -234,20 +255,22 @@ export default function PenggunaPage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="break-words font-medium">
-                          {p.nama ?? 'Tanpa nama'}
+                          {p.nama ?? t('pengguna.tanpaNama')}
                         </span>
                         {iniSaya && (
                           <span className="rounded-md bg-pinus-100 px-2 py-0.5 text-xs font-semibold text-pinus-800">
-                            Kamu
+                            {t('pengguna.kamu')}
                           </span>
                         )}
                         {badgePeran(p.role)}
                       </div>
                       <div className="mt-0.5 break-words text-sm text-stone-600">
-                        {p.email ?? 'Tanpa email'}
+                        {p.email ?? t('pengguna.tanpaEmail')}
                       </div>
                       <div className="text-xs text-stone-600">
-                        Terdaftar {formatTanggal(p.created_at)}
+                        {t('pengguna.terdaftar', {
+                          tanggal: formatTanggal(p.created_at),
+                        })}
                       </div>
                     </div>
                     <IconChevron
@@ -262,30 +285,29 @@ export default function PenggunaPage() {
                       {iniSaya ? (
                         <>
                           <p className="text-sm text-stone-600">
-                            Kelola nama, email, dan kata sandimu di
-                            halaman{' '}
+                            {t('pengguna.kelolaAkunSendiri')}{' '}
                             <Link
                               to="/profil-saya"
                               className="font-bold text-pinus-700 underline"
                             >
-                              Profil Saya
+                              {t('profil.judul')}
                             </Link>
-                            .
+                            {t('pengguna.kelolaAkunSendiriAkhir')}
                           </p>
                           <p className="text-xs text-stone-600">
-                            Peran sendiri tidak bisa diubah di sini.
+                            {t('pengguna.peranSendiriTidakBisa')}
                           </p>
                         </>
                       ) : (
                         <>
                           <div>
-                            <span className="label">Nama</span>
+                            <span className="label">{t('umum.nama')}</span>
                             <div className="flex gap-2">
                               <input
                                 className="input"
                                 value={namaEdit}
                                 onChange={(e) => setNamaEdit(e.target.value)}
-                                placeholder="Nama pengguna"
+                                placeholder={t('pengguna.placeholderNama')}
                                 autoComplete="name"
                               />
                               <button
@@ -303,13 +325,13 @@ export default function PenggunaPage() {
                                 }
                                 className="btn-secondary min-h-11 shrink-0 px-4"
                               >
-                                Simpan
+                                {t('umum.simpan')}
                               </button>
                             </div>
                           </div>
 
                           <div className="border-t border-dashed border-garis pt-5">
-                            <span className="label">Peran</span>
+                            <span className="label">{t('umum.peran')}</span>
                             <div className="flex flex-wrap items-center gap-2">
                               {badgePeran(p.role)}
                               <button
@@ -319,27 +341,25 @@ export default function PenggunaPage() {
                                 className="btn-secondary min-h-11 px-4"
                               >
                                 {p.role === 'owner'
-                                  ? 'Jadikan Kasir'
-                                  : 'Jadikan Owner'}
+                                  ? t('pengguna.jadikanKasir')
+                                  : t('pengguna.jadikanOwner')}
                               </button>
                             </div>
                           </div>
 
                           <div className="border-t border-dashed border-garis pt-5">
-                            <span className="label">Email</span>
+                            <span className="label">{t('umum.email')}</span>
                             <p className="text-sm text-stone-600">
-                              Email hanya bisa diubah oleh pemilik akun
-                              dari akunnya sendiri.
+                              {t('pengguna.emailHanyaPemilik')}
                             </p>
                           </div>
 
                           <div className="border-t border-dashed border-garis pt-5">
-                            <span className="label">Kata sandi</span>
+                            <span className="label">
+                              {t('umum.kataSandi')}
+                            </span>
                             <p className="text-sm text-stone-600">
-                              Kata sandi tidak bisa dilihat atau diubah
-                              langsung. Kirim link atur ulang ke email
-                              pengguna, dan dia mengatur kata sandi
-                              barunya sendiri.
+                              {t('pengguna.sandiTidakBisaDilihat')}
                             </p>
                             <button
                               type="button"
@@ -347,7 +367,7 @@ export default function PenggunaPage() {
                               onClick={() => void kirimReset(p)}
                               className="btn-secondary mt-2 min-h-11 w-full sm:w-auto"
                             >
-                              Kirim link atur ulang kata sandi
+                              {t('pengguna.kirimLinkReset')}
                             </button>
                           </div>
                         </>

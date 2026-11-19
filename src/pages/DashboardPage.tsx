@@ -6,6 +6,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { fetchProduk, fetchTransaksi } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import {
@@ -14,6 +15,7 @@ import {
   labelMetode,
   tanggalHariIni,
 } from '../lib/format'
+import i18n from '../lib/i18n'
 import {
   IconKasir,
   IconLaporan,
@@ -26,20 +28,23 @@ const BATAS_STOK_TIPIS = 5
 
 function sapaanWaktu(): string {
   const jam = new Date().getHours()
-  if (jam < 11) return 'Selamat pagi'
-  if (jam < 15) return 'Selamat siang'
-  if (jam < 19) return 'Selamat sore'
-  return 'Selamat malam'
+  if (jam < 11) return i18n.t('dashboard.sapaanPagi')
+  if (jam < 15) return i18n.t('dashboard.sapaanSiang')
+  if (jam < 19) return i18n.t('dashboard.sapaanSore')
+  return i18n.t('dashboard.sapaanMalam')
 }
 
 /** Tanggal hari ini, panjang: "Rabu, 18 November 2026". */
 function tanggalPanjang(): string {
-  return new Date().toLocaleDateString('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  return new Date().toLocaleDateString(
+    i18n.language === 'en' ? 'en-US' : 'id-ID',
+    {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    },
+  )
 }
 
 /** Tanggal lokal YYYY-MM-DD untuk n hari yang lalu. */
@@ -63,16 +68,24 @@ function tanggalLokalDariIso(iso: string): string {
 
 /** Rupiah ringkas untuk label grafik: 120000 -> "120 rb", 2500000 -> "2,5 jt". */
 function formatSingkat(nilai: number): string {
+  const bahasaInggris = i18n.language === 'en'
   if (nilai >= 1_000_000) {
     const jt = nilai / 1_000_000
-    const teks = jt % 1 === 0 ? String(jt) : jt.toFixed(1).replace('.', ',')
-    return `${teks} jt`
+    const teks =
+      jt % 1 === 0
+        ? String(jt)
+        : bahasaInggris
+          ? jt.toFixed(1)
+          : jt.toFixed(1).replace('.', ',')
+    return `${teks}${i18n.t('dashboard.singkatanJuta')}`
   }
-  if (nilai >= 1000) return `${Math.round(nilai / 1000)} rb`
+  if (nilai >= 1000)
+    return `${Math.round(nilai / 1000)}${i18n.t('dashboard.singkatanRibu')}`
   return String(nilai)
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const { isOwner, profil, user } = useAuth()
   const hariIni = tanggalHariIni()
 
@@ -132,10 +145,10 @@ export default function DashboardPage() {
       string,
       { nama: string; qty: number; omzet: number }
     >()
-    for (const t of semuaTransaksi) {
-      if (t.status === 'dibatalkan') continue
-      for (const it of t.item_transaksi ?? []) {
-        const nama = it.produk?.nama ?? 'Produk dihapus'
+    for (const trx of semuaTransaksi) {
+      if (trx.status === 'dibatalkan') continue
+      for (const it of trx.item_transaksi ?? []) {
+        const nama = it.produk?.nama ?? t('dashboard.produkDihapus')
         const cur = perProduk.get(it.produk_id) ?? { nama, qty: 0, omzet: 0 }
         cur.qty += it.qty
         cur.omzet += it.subtotal
@@ -143,7 +156,7 @@ export default function DashboardPage() {
       }
     }
     return [...perProduk.values()].sort((a, b) => b.qty - a.qty).slice(0, 5)
-  }, [semuaTransaksi])
+  }, [semuaTransaksi, t])
 
   const transaksiTerakhir = semuaTransaksi.slice(0, 5)
 
@@ -154,7 +167,10 @@ export default function DashboardPage() {
       d.setDate(d.getDate() - nLalu)
       return {
         tanggal: tanggalLokal(nLalu),
-        label: d.toLocaleDateString('id-ID', { weekday: 'short' }),
+        label: d.toLocaleDateString(
+          i18n.language === 'en' ? 'en-US' : 'id-ID',
+          { weekday: 'short' },
+        ),
         hariIni: nLalu === 0,
         total: 0,
       }
@@ -168,7 +184,7 @@ export default function DashboardPage() {
     const maks = Math.max(0, ...hari.map((h) => h.total))
     const totalMinggu = hari.reduce((s, h) => s + h.total, 0)
     return { hari, maks, totalMinggu }
-  }, [semuaTransaksi])
+  }, [semuaTransaksi, i18n.language])
 
   const memuat =
     produkQuery.isLoading || hariIniQuery.isLoading || semuaQuery.isLoading
@@ -185,30 +201,38 @@ export default function DashboardPage() {
         <p className="eyebrow mt-1.5">{tanggalPanjang()}</p>
       </div>
 
-      {memuat && <p className="text-stone-600">Memuat dashboard…</p>}
+      {memuat && <p className="text-stone-600">{t('dashboard.memuat')}</p>}
       {galat && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-          Gagal memuat dashboard:{' '}
-          {galat instanceof Error ? galat.message : 'terjadi kesalahan.'}
+          {t('dashboard.gagalMemuat', {
+            pesan:
+              galat instanceof Error
+                ? galat.message
+                : t('dashboard.terjadiKesalahan'),
+          })}
         </p>
       )}
 
       {!memuat && !galat && (
         <>
           {/* Angka utama hari ini, satu-satunya yang besar di halaman. */}
-          <section aria-label="Penjualan hari ini">
-            <p className="eyebrow">Penjualan hari ini</p>
+          <section aria-label={t('dashboard.penjualanHariIni')}>
+            <p className="eyebrow">{t('dashboard.penjualanHariIni')}</p>
             <p className="mt-2 text-5xl font-extrabold tracking-tighter sm:text-6xl">
               {formatRupiah(ringkasanHariIni.total)}
             </p>
             <p className="mt-2 text-sm text-stone-600">
               {ringkasanHariIni.jumlah === 0
-                ? 'Belum ada transaksi hari ini.'
-                : `${ringkasanHariIni.jumlah} transaksi · rata-rata ${formatRupiah(ringkasanHariIni.rataRata)} per transaksi`}
+                ? t('dashboard.belumAdaTransaksiHariIni')
+                : t('dashboard.ringkasanHariIni', {
+                    count: ringkasanHariIni.jumlah,
+                    jumlah: ringkasanHariIni.jumlah,
+                    rataRata: formatRupiah(ringkasanHariIni.rataRata),
+                  })}
             </p>
             {isOwner && (
               <p className="mt-1 text-sm text-stone-600">
-                Estimasi laba kotor hari ini:{' '}
+                {t('dashboard.estimasiLabaHariIni')}{' '}
                 <span className="font-semibold text-stone-700">
                   {formatRupiah(ringkasanHariIni.labaKotor)}
                 </span>
@@ -221,15 +245,15 @@ export default function DashboardPage() {
           {/* Jalan pintas. */}
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link to="/kasir" className="btn-primary flex-1">
-              <IconKasir className="h-5 w-5" /> Mulai Jualan
+              <IconKasir className="h-5 w-5" /> {t('dashboard.mulaiJualan')}
             </Link>
             {isOwner && (
               <Link to="/produk/tambah" className="btn-secondary flex-1">
-                <IconPlus className="h-5 w-5" /> Tambah Produk
+                <IconPlus className="h-5 w-5" /> {t('dashboard.tambahProduk')}
               </Link>
             )}
             <Link to="/laporan" className="btn-secondary flex-1">
-              <IconLaporan className="h-5 w-5" /> Lihat Laporan
+              <IconLaporan className="h-5 w-5" /> {t('dashboard.lihatLaporan')}
             </Link>
           </div>
 
@@ -239,18 +263,18 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-base font-bold">
                   <IconPeringatan className="h-5 w-5 text-aksen-600" />
-                  Stok menipis
+                  {t('dashboard.stokMenipis')}
                 </h2>
                 <Link
                   to="/produk"
                   className="tautan"
                 >
-                  Lihat produk
+                  {t('dashboard.lihatProduk')}
                 </Link>
               </div>
               {stokTipis.length === 0 ? (
                 <p className="mt-3 text-sm text-stone-600">
-                  Semua stok aman. Tidak ada produk dengan stok 5 atau kurang.
+                  {t('dashboard.semuaStokAman')}
                 </p>
               ) : (
                 <ul className="mt-2 divide-y divide-garis">
@@ -265,7 +289,7 @@ export default function DashboardPage() {
                             {p.nama}
                           </span>
                           <span className="text-xs text-stone-600">
-                            {p.kategori?.nama ?? 'Tanpa kategori'}
+                            {p.kategori?.nama ?? t('umum.tanpaKategori')}
                           </span>
                         </span>
                         <span
@@ -274,8 +298,11 @@ export default function DashboardPage() {
                           }`}
                         >
                           {p.stok === 0
-                            ? 'Habis'
-                            : `Sisa ${p.stok} ${p.satuan}`}
+                            ? t('dashboard.habis')
+                            : t('dashboard.sisaStok', {
+                                stok: p.stok,
+                                satuan: p.satuan,
+                              })}
                         </span>
                       </Link>
                     </li>
@@ -284,8 +311,10 @@ export default function DashboardPage() {
               )}
               {stokTipis.length > 8 && (
                 <p className="mt-2 text-sm text-stone-600">
-                  Dan {stokTipis.length - 8} produk lagi, lihat di halaman
-                  Produk.
+                  {t('dashboard.danProdukLagi', {
+                    count: stokTipis.length - 8,
+                    jumlah: stokTipis.length - 8,
+                  })}
                 </p>
               )}
             </section>
@@ -293,17 +322,19 @@ export default function DashboardPage() {
             {/* Produk terlaris. */}
             <section className="card p-4 sm:p-5">
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-base font-bold">Produk terlaris</h2>
+                <h2 className="text-base font-bold">
+                  {t('dashboard.produkTerlaris')}
+                </h2>
                 <Link
                   to="/laporan"
                   className="tautan"
                 >
-                  Lihat laporan
+                  {t('dashboard.lihatLaporanTautan')}
                 </Link>
               </div>
               {top5.length === 0 ? (
                 <p className="mt-3 text-sm text-stone-600">
-                  Belum ada penjualan.
+                  {t('dashboard.belumAdaPenjualan')}
                 </p>
               ) : (
                 <ol className="mt-3 space-y-3">
@@ -319,7 +350,10 @@ export default function DashboardPage() {
                         <span className="truncate font-medium">{p.nama}</span>
                       </span>
                       <span className="shrink-0 text-stone-600">
-                        {p.qty} terjual · {formatRupiah(p.omzet)}
+                        {t('dashboard.terjual', {
+                          qty: p.qty,
+                          omzet: formatRupiah(p.omzet),
+                        })}
                       </span>
                     </li>
                   ))}
@@ -330,42 +364,47 @@ export default function DashboardPage() {
             {/* Transaksi terakhir. */}
             <section className="card p-4 sm:p-5">
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-base font-bold">Transaksi terakhir</h2>
+                <h2 className="text-base font-bold">
+                  {t('dashboard.transaksiTerakhir')}
+                </h2>
                 <Link
                   to="/laporan"
                   className="tautan"
                 >
-                  Lihat semua
+                  {t('dashboard.lihatSemua')}
                 </Link>
               </div>
               {transaksiTerakhir.length === 0 ? (
                 <p className="mt-3 text-sm text-stone-600">
-                  Belum ada transaksi.
+                  {t('dashboard.belumAdaTransaksi')}
                 </p>
               ) : (
                 <ul className="mt-2 divide-y divide-garis">
-                  {transaksiTerakhir.map((t) => (
-                    <li key={t.id}>
+                  {transaksiTerakhir.map((trx) => (
+                    <li key={trx.id}>
                       <Link
                         to="/laporan"
                         className="flex min-h-11 items-center justify-between gap-2 py-2 text-sm"
                       >
                         <span className="min-w-0">
                           <span className="block truncate font-medium">
-                            {formatJam(t.created_at)} ·{' '}
-                            {labelMetode(t.metode_bayar)}
-                            {t.status === 'dibatalkan' && (
+                            {formatJam(trx.created_at)} ·{' '}
+                            {labelMetode(trx.metode_bayar)}
+                            {trx.status === 'dibatalkan' && (
                               <span className="ml-2 rounded-md bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
-                                Dibatalkan
+                                {t('dashboard.dibatalkan')}
                               </span>
                             )}
                           </span>
                           <span className="text-xs text-stone-600">
-                            {(t.item_transaksi ?? []).length} item
+                            {t('dashboard.jumlahItem', {
+                              count: (trx.item_transaksi ?? []).length,
+                              jumlah: (trx.item_transaksi ?? []).length,
+                            })}
                           </span>
                         </span>
                         <span className="shrink-0 font-bold">
-                          {formatRupiah(t.total)}
+                          {formatRupiah(trx.total)}
                         </span>
                       </Link>
                     </li>
@@ -377,18 +416,18 @@ export default function DashboardPage() {
             {/* Penjualan 7 hari terakhir, batang CSS, tanpa pustaka grafik. */}
             <section className="card p-4 sm:p-5">
               <h2 className="text-base font-bold">
-                Penjualan 7 hari terakhir
+                {t('dashboard.penjualan7Hari')}
               </h2>
               {tujuhHari.totalMinggu === 0 ? (
                 <p className="mt-3 text-sm text-stone-600">
-                  Belum ada penjualan dalam 7 hari terakhir.
+                  {t('dashboard.belumAdaPenjualan7Hari')}
                 </p>
               ) : (
                 <>
                   <div
                     className="mt-4 flex gap-2"
                     role="img"
-                    aria-label="Grafik penjualan 7 hari terakhir"
+                    aria-label={t('dashboard.grafikPenjualan')}
                   >
                     {tujuhHari.hari.map((h) => {
                       const pct =
@@ -428,7 +467,7 @@ export default function DashboardPage() {
                     })}
                   </div>
                   <p className="mt-3 text-sm text-stone-600">
-                    Total 7 hari:{' '}
+                    {t('dashboard.total7Hari')}{' '}
                     <span className="font-semibold text-stone-700">
                       {formatRupiah(tujuhHari.totalMinggu)}
                     </span>

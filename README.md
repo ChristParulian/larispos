@@ -42,6 +42,9 @@ langsung dilihat.
   Setiap pengguna bisa mengubah nama, email, dan kata sandinya
   sendiri di halaman Profil Saya. Akun pertama yang terdaftar
   otomatis menjadi Owner.
+- **Bahasa**: Tampilan bisa diganti antara Bahasa Indonesia dan
+  Inggris di halaman Profil Saya, atau di halaman Masuk sebelum
+  login. Pilihan bahasanya tersimpan di perangkat.
 - **Mode Demo**: Aplikasi dapat dijalankan tanpa Supabase, dengan
   12 produk contoh yang tersimpan lokal di browser.
 
@@ -49,7 +52,7 @@ langsung dilihat.
 
 | Lapisan  | Teknologi                                       |
 | -------- | ----------------------------------------------- |
-| Frontend | React, TypeScript, Vite, Tailwind CSS           |
+| Frontend | React, TypeScript, Vite, Tailwind CSS, react-i18next |
 | Backend  | Supabase (PostgreSQL, Auth, Row Level Security) |
 | Hosting  | Vercel                                          |
 

@@ -8,6 +8,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   fetchKategori,
   fetchLogStok,
@@ -40,6 +41,7 @@ function FormTambahStok({
   onSimpan: (jumlah: number, catatan?: string) => void
   onBatal: () => void
 }) {
+  const { t } = useTranslation()
   const [jumlah, setJumlah] = useState('')
   const [catatan, setCatatan] = useState('')
   const [errorLokal, setErrorLokal] = useState<string | null>(null)
@@ -47,7 +49,7 @@ function FormTambahStok({
   function simpan() {
     const n = Number(jumlah)
     if (!jumlah.trim() || !Number.isInteger(n) || n < 1) {
-      setErrorLokal('Jumlah harus angka bulat minimal 1.')
+      setErrorLokal(t('produk.jumlahBulatMinimal'))
       return
     }
     setErrorLokal(null)
@@ -57,7 +59,7 @@ function FormTambahStok({
   return (
     <div>
       <p className="text-sm text-stone-600">
-        Stok sekarang:{' '}
+        {t('produk.stokSekarang')}{' '}
         <span className="font-semibold text-tinta">
           {produk.stok} {produk.satuan}
         </span>
@@ -70,15 +72,15 @@ function FormTambahStok({
           step={1}
           value={jumlah}
           onChange={(e) => setJumlah(e.target.value)}
-          placeholder="Jumlah yang masuk"
-          aria-label="Jumlah stok yang masuk"
+          placeholder={t('produk.placeholderJumlahMasuk')}
+          aria-label={t('produk.ariaJumlahMasuk')}
           className="input sm:w-44"
         />
         <input
           value={catatan}
           onChange={(e) => setCatatan(e.target.value)}
-          placeholder="Catatan (opsional)"
-          aria-label="Catatan restock"
+          placeholder={t('produk.placeholderCatatan')}
+          aria-label={t('produk.ariaCatatanRestock')}
           className="input flex-1"
         />
       </div>
@@ -90,14 +92,14 @@ function FormTambahStok({
           onClick={simpan}
           className="btn-primary min-h-11 px-5"
         >
-          Simpan
+          {t('umum.simpan')}
         </button>
         <button
           type="button"
           onClick={onBatal}
           className="btn-secondary min-h-11 px-4"
         >
-          Batal
+          {t('umum.batal')}
         </button>
       </div>
     </div>
@@ -106,6 +108,7 @@ function FormTambahStok({
 
 export default function ProdukPage() {
   // Harga beli hanya terlihat oleh owner (Tahap 2).
+  const { t } = useTranslation()
   const { isOwner } = useAuth()
   const location = useLocation()
   const queryClient = useQueryClient()
@@ -156,11 +159,13 @@ export default function ProdukPage() {
     mutationFn: (id: string) => hapusProduk(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
-      setPesan('Produk berhasil dihapus.')
+      setPesan(t('produk.produkDihapus'))
       setError(null)
     },
     onError: (err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Gagal menghapus produk.')
+      setError(
+        err instanceof Error ? err.message : t('produk.gagalHapusProduk'),
+      )
     },
   })
 
@@ -181,21 +186,28 @@ export default function ProdukPage() {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
       const nama =
-        produkQuery.data?.find((p) => p.id === v.id)?.nama ?? 'Produk'
-      setPesan(`Stok ${nama} bertambah ${v.jumlah}. Stok sekarang ${stokBaru}.`)
+        produkQuery.data?.find((p) => p.id === v.id)?.nama ??
+        t('umum.produk')
+      setPesan(
+        t('produk.stokBertambah', {
+          nama,
+          jumlah: v.jumlah,
+          stokBaru,
+        }),
+      )
       setError(null)
       setStokId(null)
     },
     onError: (err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Gagal menambah stok.')
+      setError(
+        err instanceof Error ? err.message : t('produk.gagalTambahStok'),
+      )
     },
   })
 
   function konfirmasiHapus(id: string, nama: string) {
     if (
-      window.confirm(
-        `Hapus produk "${nama}"? Produk yang pernah terjual tidak bisa dihapus.`,
-      )
+      window.confirm(t('produk.konfirmasiHapusProduk', { nama }))
     ) {
       hapusMutation.mutate(id)
     }
@@ -219,8 +231,8 @@ export default function ProdukPage() {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       setPesan(
         input.id
-          ? 'Kategori berhasil diubah.'
-          : 'Kategori berhasil ditambahkan.',
+          ? t('produk.kategoriDiubah')
+          : t('produk.kategoriDitambahkan'),
       )
       setError(null)
       setNamaBaru('')
@@ -229,7 +241,7 @@ export default function ProdukPage() {
     },
     onError: (err: unknown) => {
       setError(
-        err instanceof Error ? err.message : 'Gagal menyimpan kategori.',
+        err instanceof Error ? err.message : t('produk.gagalSimpanKategori'),
       )
     },
   })
@@ -239,25 +251,26 @@ export default function ProdukPage() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['kategori'] })
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
-      setPesan('Kategori berhasil dihapus.')
+      setPesan(t('produk.kategoriDihapus'))
       setError(null)
     },
     onError: (err: unknown) => {
       setError(
-        err instanceof Error ? err.message : 'Gagal menghapus kategori.',
+        err instanceof Error ? err.message : t('produk.gagalHapusKategori'),
       )
     },
   })
 
   function konfirmasiHapusKategori(id: string, nama: string) {
     const jumlah = jumlahProduk.get(id) ?? 0
-    const peringatan =
+    const pesanKonfirmasi =
       jumlah > 0
-        ? ` ${jumlah} produk di dalamnya akan menjadi tanpa kategori.`
-        : ''
-    if (
-      window.confirm(`Hapus kategori "${nama}"?${peringatan}`)
-    ) {
+        ? t('produk.konfirmasiHapusKategoriDenganProduk', {
+            nama,
+            count: jumlah,
+          })
+        : t('produk.konfirmasiHapusKategori', { nama })
+    if (window.confirm(pesanKonfirmasi)) {
       hapusKategoriMutation.mutate(id)
     }
   }
@@ -280,8 +293,8 @@ export default function ProdukPage() {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       setPesan(
         input.id
-          ? 'Satuan berhasil diubah.'
-          : 'Satuan berhasil ditambahkan.',
+          ? t('produk.satuanDiubah')
+          : t('produk.satuanDitambahkan'),
       )
       setError(null)
       setNamaSatuanBaru('')
@@ -290,7 +303,7 @@ export default function ProdukPage() {
     },
     onError: (err: unknown) => {
       setError(
-        err instanceof Error ? err.message : 'Gagal menyimpan satuan.',
+        err instanceof Error ? err.message : t('produk.gagalSimpanSatuan'),
       )
     },
   })
@@ -299,26 +312,44 @@ export default function ProdukPage() {
     mutationFn: (id: string) => hapusSatuan(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['satuan'] })
-      setPesan('Satuan berhasil dihapus.')
+      setPesan(t('produk.satuanDihapus'))
       setError(null)
     },
     onError: (err: unknown) => {
       setError(
-        err instanceof Error ? err.message : 'Gagal menghapus satuan.',
+        err instanceof Error ? err.message : t('produk.gagalHapusSatuan'),
       )
     },
   })
 
   function konfirmasiHapusSatuan(id: string, nama: string) {
     const jumlah = jumlahProdukSatuan.get(nama) ?? 0
-    const peringatan =
+    const pesanKonfirmasi =
       jumlah > 0
-        ? ` ${jumlah} produk masih memakainya, tapi produk tersebut tetap menampilkan satuannya.`
-        : ''
-    if (
-      window.confirm(`Hapus satuan "${nama}"?${peringatan}`)
-    ) {
+        ? t('produk.konfirmasiHapusSatuanDenganProduk', {
+            nama,
+            count: jumlah,
+          })
+        : t('produk.konfirmasiHapusSatuan', { nama })
+    if (window.confirm(pesanKonfirmasi)) {
       hapusSatuanMutation.mutate(id)
+    }
+  }
+
+  // Alasan log yang dikenal diterjemahkan; catatan bebas pengguna
+  // ditampilkan apa adanya.
+  function alasanTampil(alasan: string): string {
+    switch (alasan) {
+      case 'penjualan':
+        return t('produk.alasanPenjualan')
+      case 'restock':
+        return t('produk.alasanRestock')
+      case 'batal transaksi':
+        return t('produk.alasanBatal')
+      case 'ubah transaksi':
+        return t('produk.alasanUbah')
+      default:
+        return alasan
     }
   }
 
@@ -328,11 +359,15 @@ export default function ProdukPage() {
     <div>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="judul-halaman">Produk &amp; Stok</h1>
+          <h1 className="judul-halaman">{t('produk.judul')}</h1>
           <p className="text-sm text-stone-600">
             {produkQuery.data
-              ? `${produkTampil.length} dari ${produkQuery.data.length} produk`
-              : 'Kelola daftar produk warung.'}
+              ? t('produk.ringkasanProduk', {
+                  count: produkQuery.data.length,
+                  tampil: produkTampil.length,
+                  total: produkQuery.data.length,
+                })
+              : t('produk.keterangan')}
           </p>
         </div>
         <div className="flex flex-wrap rounded-lg bg-kertas-gelap p-1">
@@ -345,7 +380,7 @@ export default function ProdukPage() {
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            Daftar Produk
+            {t('produk.tabDaftarProduk')}
           </button>
           <button
             type="button"
@@ -356,7 +391,7 @@ export default function ProdukPage() {
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            Kategori
+            {t('umum.kategori')}
           </button>
           <button
             type="button"
@@ -367,7 +402,7 @@ export default function ProdukPage() {
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            Satuan
+            {t('umum.satuan')}
           </button>
           <button
             type="button"
@@ -378,7 +413,7 @@ export default function ProdukPage() {
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            Log Stok
+            {t('produk.tabLogStok')}
           </button>
         </div>
       </div>
@@ -403,7 +438,7 @@ export default function ProdukPage() {
                 type="search"
                 value={cari}
                 onChange={(e) => setCari(e.target.value)}
-                placeholder="Cari produk…"
+                placeholder={t('produk.placeholderCari')}
                 className="input pl-11"
               />
             </div>
@@ -411,9 +446,9 @@ export default function ProdukPage() {
               value={filterKategori}
               onChange={(e) => setFilterKategori(e.target.value)}
               className="input sm:w-52"
-              aria-label="Filter kategori"
+              aria-label={t('produk.ariaFilterKategori')}
             >
-              <option value="">Semua kategori</option>
+              <option value="">{t('produk.semuaKategori')}</option>
               {(kategoriQuery.data ?? []).map((k) => (
                 <option key={k.id} value={k.id}>
                   {k.nama}
@@ -423,20 +458,20 @@ export default function ProdukPage() {
             {isOwner && (
               <Link to="/produk/tambah" className="btn-primary sm:w-auto">
                 <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-                Tambah Produk
+                {t('produk.tambahProduk')}
               </Link>
             )}
           </div>
 
           {produkQuery.isLoading && (
-            <p className="text-stone-600">Memuat produk…</p>
+            <p className="text-stone-600">{t('produk.memuatProduk')}</p>
           )}
           {produkQuery.isError && (
             <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-              Gagal memuat produk:{' '}
+              {t('produk.gagalMuatProduk')}{' '}
               {produkQuery.error instanceof Error
                 ? produkQuery.error.message
-                : 'terjadi kesalahan.'}
+                : t('produk.galatUmum')}
             </p>
           )}
           {produkQuery.data && produkTampil.length === 0 && (
@@ -444,20 +479,20 @@ export default function ProdukPage() {
               <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
               <p className="mt-3 font-semibold">
                 {sedangFilter
-                  ? 'Tidak ada produk yang cocok.'
-                  : 'Belum ada produk.'}
+                  ? t('produk.tidakAdaYangCocok')
+                  : t('produk.belumAdaProduk')}
               </p>
               <p className="mt-1 text-sm text-stone-600">
                 {sedangFilter
-                  ? 'Coba kata kunci atau kategori lain.'
+                  ? t('produk.cobaKataKunciLain')
                   : isOwner
-                    ? 'Tambahkan produk pertama agar bisa dijual di kasir.'
-                    : 'Produk ditambahkan oleh owner.'}
+                    ? t('produk.tambahPertama')
+                    : t('produk.produkOlehOwner')}
               </p>
               {isOwner && !sedangFilter && (
                 <Link to="/produk/tambah" className="btn-primary mt-4">
                   <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-                  Tambah Produk
+                  {t('produk.tambahProduk')}
                 </Link>
               )}
             </div>
@@ -469,18 +504,18 @@ export default function ProdukPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-kertas text-left">
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Produk</th>
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Kategori</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">{t('umum.produk')}</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">{t('umum.kategori')}</th>
                     {isOwner && (
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
-                        Harga Beli
+                        {t('produk.hargaBeli')}
                       </th>
                     )}
                     <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
-                      Harga Jual
+                      {t('produk.hargaJual')}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">Stok</th>
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">Aksi</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">{t('umum.stok')}</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">{t('produk.aksi')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -490,7 +525,7 @@ export default function ProdukPage() {
                         <td className="px-4 py-3">
                           <div className="font-medium">{p.nama}</div>
                           <div className="text-xs text-stone-600">
-                            per {p.satuan}
+                            {t('produk.perSatuan', { satuan: p.satuan })}
                           </div>
                         </td>
                         <td className="px-4 py-3 text-stone-600">
@@ -520,7 +555,7 @@ export default function ProdukPage() {
                               }
                               className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                             >
-                              Tambah Stok
+                              {t('produk.tambahStok')}
                             </button>
                             {isOwner && (
                               <>
@@ -528,14 +563,14 @@ export default function ProdukPage() {
                                   to={`/produk/ubah/${p.id}`}
                                   className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                                 >
-                                  Ubah
+                                  {t('umum.ubah')}
                                 </Link>
                                 <button
                                   type="button"
                                   onClick={() => konfirmasiHapus(p.id, p.nama)}
                                   className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
                                 >
-                                  Hapus
+                                  {t('umum.hapus')}
                                 </button>
                               </>
                             )}
@@ -576,7 +611,8 @@ export default function ProdukPage() {
                       {p.nama}
                     </div>
                     <div className="mt-0.5 text-xs text-stone-600">
-                      {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
+                      {p.kategori?.nama ?? t('umum.tanpaKategori')} ·{' '}
+                      {t('produk.perSatuan', { satuan: p.satuan })}
                     </div>
                   </div>
                   <span
@@ -586,13 +622,15 @@ export default function ProdukPage() {
                         : 'bg-kertas-gelap text-stone-700'
                     }`}
                   >
-                    Stok {p.stok}
+                    {t('produk.badgeStok', { jumlah: p.stok })}
                   </span>
                 </div>
                 <div className="mt-3 flex items-baseline justify-between gap-2 text-sm">
                   {isOwner ? (
                     <span className="text-stone-600">
-                      Beli {formatRupiah(p.harga_beli)}
+                      {t('produk.hargaBeliSingkat', {
+                        harga: formatRupiah(p.harga_beli),
+                      })}
                     </span>
                   ) : (
                     <span />
@@ -607,14 +645,14 @@ export default function ProdukPage() {
                       to={`/produk/ubah/${p.id}`}
                       className="btn-secondary min-h-10 flex-1 py-2"
                     >
-                      Ubah
+                      {t('umum.ubah')}
                     </Link>
                     <button
                       type="button"
                       onClick={() => konfirmasiHapus(p.id, p.nama)}
                       className="btn-danger-outline min-h-10 flex-1 py-2"
                     >
-                      Hapus
+                      {t('umum.hapus')}
                     </button>
                   </div>
                 )}
@@ -623,7 +661,7 @@ export default function ProdukPage() {
                   onClick={() => setStokId(stokId === p.id ? null : p.id)}
                   className="btn-secondary mt-2 min-h-11 w-full py-2"
                 >
-                  Tambah Stok
+                  {t('produk.tambahStok')}
                 </button>
                 {stokId === p.id && (
                   <div className="mt-3 border-t border-dashed border-garis pt-3">
@@ -646,10 +684,9 @@ export default function ProdukPage() {
       {tab === 'kategori' && (
         <div className="card">
           <div className="border-b px-4 py-4 sm:px-5">
-            <h2 className="font-bold">Kategori Produk</h2>
+            <h2 className="font-bold">{t('produk.judulKategori')}</h2>
             <p className="text-sm text-stone-600">
-              Kelompokkan produk agar mudah dicari di kasir dan difilter di
-              daftar produk. Nama kategori tidak boleh sama.
+              {t('produk.keteranganKategori')}
             </p>
           </div>
           {isOwner && (
@@ -665,8 +702,8 @@ export default function ProdukPage() {
                 type="text"
                 value={namaBaru}
                 onChange={(e) => setNamaBaru(e.target.value)}
-                placeholder="Nama kategori baru"
-                aria-label="Nama kategori baru"
+                placeholder={t('produk.namaKategoriBaru')}
+                aria-label={t('produk.namaKategoriBaru')}
                 className="input flex-1"
               />
               <button
@@ -677,28 +714,28 @@ export default function ProdukPage() {
                 className="btn-primary sm:w-auto"
               >
                 <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-                Tambah Kategori
+                {t('produk.tambahKategori')}
               </button>
             </form>
           )}
           {kategoriQuery.isLoading && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
-              Memuat kategori…
+              {t('produk.memuatKategori')}
             </p>
           )}
           {kategoriQuery.isError && (
             <p className="px-4 py-4 text-sm text-red-700 sm:px-5">
-              Gagal memuat kategori:{' '}
+              {t('produk.gagalMuatKategori')}{' '}
               {kategoriQuery.error instanceof Error
                 ? kategoriQuery.error.message
-                : 'terjadi kesalahan.'}
+                : t('produk.galatUmum')}
             </p>
           )}
           {kategoriQuery.data && kategoriQuery.data.length === 0 && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
               {isOwner
-                ? 'Belum ada kategori. Tambahkan kategori pertama di atas agar produk bisa dikelompokkan.'
-                : 'Belum ada kategori.'}
+                ? t('produk.belumAdaKategoriOwner')
+                : t('produk.belumAdaKategori')}
             </p>
           )}
           <ul className="divide-y divide-garis">
@@ -726,7 +763,7 @@ export default function ProdukPage() {
                         type="text"
                         value={editNama}
                         onChange={(e) => setEditNama(e.target.value)}
-                        aria-label="Nama kategori"
+                        aria-label={t('produk.ariaNamaKategori')}
                         className="input min-w-40 flex-1"
                       />
                       <button
@@ -737,7 +774,7 @@ export default function ProdukPage() {
                         }
                         className="inline-flex min-h-9 items-center rounded-lg bg-pinus-700 px-3 text-xs font-bold text-white hover:bg-pinus-800 disabled:opacity-50"
                       >
-                        Simpan
+                        {t('umum.simpan')}
                       </button>
                       <button
                         type="button"
@@ -747,7 +784,7 @@ export default function ProdukPage() {
                         }}
                         className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                       >
-                        Batal
+                        {t('umum.batal')}
                       </button>
                     </form>
                   ) : (
@@ -756,8 +793,8 @@ export default function ProdukPage() {
                         <div className="break-words font-medium">{k.nama}</div>
                         <div className="text-xs text-stone-600">
                           {jumlah === 0
-                            ? 'Belum ada produk'
-                            : `${jumlah} produk`}
+                            ? t('produk.belumAdaProdukRow')
+                            : t('produk.jumlahProduk', { count: jumlah })}
                         </div>
                       </div>
                       {isOwner && (
@@ -771,7 +808,7 @@ export default function ProdukPage() {
                             }}
                             className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                           >
-                            Ubah
+                            {t('umum.ubah')}
                           </button>
                           <button
                             type="button"
@@ -780,7 +817,7 @@ export default function ProdukPage() {
                             }
                             className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
                           >
-                            Hapus
+                            {t('umum.hapus')}
                           </button>
                         </div>
                       )}
@@ -796,11 +833,9 @@ export default function ProdukPage() {
       {tab === 'satuan' && (
         <div className="card">
           <div className="border-b px-4 py-4 sm:px-5">
-            <h2 className="font-bold">Satuan Produk</h2>
+            <h2 className="font-bold">{t('produk.judulSatuan')}</h2>
             <p className="text-sm text-stone-600">
-              Daftar satuan yang bisa dipilih di form produk, misalnya pcs,
-              kg, atau botol. Ubah nama satuan memperbarui produk yang
-              memakainya; hapus satuan tidak mengubah produk yang ada.
+              {t('produk.keteranganSatuan')}
             </p>
           </div>
           {isOwner && (
@@ -816,8 +851,8 @@ export default function ProdukPage() {
                 type="text"
                 value={namaSatuanBaru}
                 onChange={(e) => setNamaSatuanBaru(e.target.value)}
-                placeholder="Nama satuan baru"
-                aria-label="Nama satuan baru"
+                placeholder={t('produk.namaSatuanBaru')}
+                aria-label={t('produk.namaSatuanBaru')}
                 className="input flex-1"
               />
               <button
@@ -828,28 +863,28 @@ export default function ProdukPage() {
                 className="btn-primary sm:w-auto"
               >
                 <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-                Tambah Satuan
+                {t('produk.tambahSatuan')}
               </button>
             </form>
           )}
           {satuanQuery.isLoading && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
-              Memuat satuan…
+              {t('produk.memuatSatuan')}
             </p>
           )}
           {satuanQuery.isError && (
             <p className="px-4 py-4 text-sm text-red-700 sm:px-5">
-              Gagal memuat satuan:{' '}
+              {t('produk.gagalMuatSatuan')}{' '}
               {satuanQuery.error instanceof Error
                 ? satuanQuery.error.message
-                : 'terjadi kesalahan.'}
+                : t('produk.galatUmum')}
             </p>
           )}
           {satuanQuery.data && satuanQuery.data.length === 0 && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
               {isOwner
-                ? 'Belum ada satuan. Tambahkan satuan pertama di atas agar bisa dipilih di form produk.'
-                : 'Belum ada satuan.'}
+                ? t('produk.belumAdaSatuanOwner')
+                : t('produk.belumAdaSatuan')}
             </p>
           )}
           <ul className="divide-y divide-garis">
@@ -877,7 +912,7 @@ export default function ProdukPage() {
                         type="text"
                         value={editSatuanNama}
                         onChange={(e) => setEditSatuanNama(e.target.value)}
-                        aria-label="Nama satuan"
+                        aria-label={t('produk.ariaNamaSatuan')}
                         className="input min-w-40 flex-1"
                       />
                       <button
@@ -888,7 +923,7 @@ export default function ProdukPage() {
                         }
                         className="inline-flex min-h-9 items-center rounded-lg bg-pinus-700 px-3 text-xs font-bold text-white hover:bg-pinus-800 disabled:opacity-50"
                       >
-                        Simpan
+                        {t('umum.simpan')}
                       </button>
                       <button
                         type="button"
@@ -898,7 +933,7 @@ export default function ProdukPage() {
                         }}
                         className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                       >
-                        Batal
+                        {t('umum.batal')}
                       </button>
                     </form>
                   ) : (
@@ -907,8 +942,8 @@ export default function ProdukPage() {
                         <div className="break-words font-medium">{s.nama}</div>
                         <div className="text-xs text-stone-600">
                           {jumlah === 0
-                            ? 'Belum ada produk'
-                            : `${jumlah} produk`}
+                            ? t('produk.belumAdaProdukRow')
+                            : t('produk.jumlahProduk', { count: jumlah })}
                         </div>
                       </div>
                       {isOwner && (
@@ -922,7 +957,7 @@ export default function ProdukPage() {
                             }}
                             className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                           >
-                            Ubah
+                            {t('umum.ubah')}
                           </button>
                           <button
                             type="button"
@@ -931,7 +966,7 @@ export default function ProdukPage() {
                             }
                             className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
                           >
-                            Hapus
+                            {t('umum.hapus')}
                           </button>
                         </div>
                       )}
@@ -947,28 +982,27 @@ export default function ProdukPage() {
       {tab === 'log' && (
         <div className="card">
           <div className="border-b px-4 py-4 sm:px-5">
-            <h2 className="font-bold">Log Pergerakan Stok</h2>
+            <h2 className="font-bold">{t('produk.judulLog')}</h2>
             <p className="text-sm text-stone-600">
-              100 perubahan stok terakhir. Penjualan mengurangi stok (negatif),
-              restock / koreksi menambah (positif).
+              {t('produk.keteranganLog')}
             </p>
           </div>
           {logQuery.isLoading && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
-              Memuat log stok…
+              {t('produk.memuatLog')}
             </p>
           )}
           {logQuery.isError && (
             <p className="px-4 py-4 text-sm text-red-700 sm:px-5">
-              Gagal memuat log stok:{' '}
+              {t('produk.gagalMuatLog')}{' '}
               {logQuery.error instanceof Error
                 ? logQuery.error.message
-                : 'terjadi kesalahan.'}
+                : t('produk.galatUmum')}
             </p>
           )}
           {logQuery.data && logQuery.data.length === 0 && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
-              Belum ada pergerakan stok.
+              {t('produk.belumAdaPergerakan')}
             </p>
           )}
           <ul className="divide-y divide-garis">
@@ -979,10 +1013,10 @@ export default function ProdukPage() {
               >
                 <div className="min-w-0">
                   <div className="break-words font-medium">
-                    {l.produk?.nama ?? 'Produk dihapus'}
+                    {l.produk?.nama ?? t('produk.produkDihapusLabel')}
                   </div>
                   <div className="text-xs text-stone-600">
-                    {formatTanggal(l.created_at)} · {l.alasan}
+                    {formatTanggal(l.created_at)} · {alasanTampil(l.alasan)}
                   </div>
                 </div>
                 <div className="shrink-0 text-right">

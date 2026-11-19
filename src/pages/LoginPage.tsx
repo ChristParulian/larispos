@@ -6,13 +6,16 @@
 // tautan atur ulang kata sandi ke email pengguna.
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { kirimLinkAturUlangSandi, useAuth } from '../lib/auth'
 import { BrandMark } from '../components/icons'
+import PemilihBahasa from '../components/PemilihBahasa'
 
 type Mode = 'masuk' | 'daftar' | 'lupa'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const { user, loading, signIn, signUp } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = useState<Mode>('masuk')
@@ -24,7 +27,7 @@ export default function LoginPage() {
   const [sibuk, setSibuk] = useState(false)
 
   if (loading) {
-    return <p className="p-8 text-center text-stone-600">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">{t('umum.memuat')}</p>
   }
   if (user) {
     return <Navigate to="/dashboard" replace />
@@ -36,7 +39,7 @@ export default function LoginPage() {
     setInfo(null)
     if (mode === 'lupa') {
       if (!email.trim()) {
-        setError('Email wajib diisi.')
+        setError(t('login.emailWajib'))
         return
       }
       setSibuk(true)
@@ -45,9 +48,7 @@ export default function LoginPage() {
         if (err) {
           setError(err)
         } else {
-          setInfo(
-            'Kalau email ini terdaftar, link atur ulang kata sandi sudah dikirim. Periksa kotak masukmu.',
-          )
+          setInfo(t('login.linkTerkirim'))
         }
       } finally {
         setSibuk(false)
@@ -55,16 +56,16 @@ export default function LoginPage() {
       return
     }
     if (!email.trim() || !password) {
-      setError('Email dan kata sandi wajib diisi.')
+      setError(t('login.emailSandiWajib'))
       return
     }
     if (mode === 'daftar') {
       if (!nama.trim()) {
-        setError('Nama wajib diisi.')
+        setError(t('login.namaWajib'))
         return
       }
       if (password.length < 6) {
-        setError('Kata sandi minimal 6 karakter.')
+        setError(t('galat.sandiMin6'))
         return
       }
     }
@@ -86,9 +87,7 @@ export default function LoginPage() {
         if (err) {
           setError(err)
         } else if (needsConfirmation) {
-          setInfo(
-            'Akun dibuat! Cek emailmu dan klik tautan konfirmasi sebelum masuk.',
-          )
+          setInfo(t('login.akunDibuat'))
           setMode('masuk')
         } else {
           navigate('/dashboard', { replace: true })
@@ -109,43 +108,40 @@ export default function LoginPage() {
           <div className="mt-3 text-3xl font-extrabold tracking-tight">
             Laris<span className="text-aksen-600">POS</span>
           </div>
-          <p className="mt-1 text-sm text-stone-600">
-            Kasir warung kelontong, masuk untuk mulai berjualan.
-          </p>
+          <p className="mt-1 text-sm text-stone-600">{t('login.tagline')}</p>
         </div>
 
         <div className="card p-5 sm:p-6">
           {mode === 'lupa' ? (
             <div className="mb-5">
-              <h1 className="text-lg font-bold">Lupa kata sandi</h1>
+              <h1 className="text-lg font-bold">{t('login.lupaJudul')}</h1>
               <p className="mt-1 text-sm text-stone-600">
-                Masukkan email akunmu. Kami kirim link untuk membuat kata
-                sandi baru.
+                {t('login.lupaKeterangan')}
               </p>
             </div>
           ) : (
             <div className="mb-5 flex gap-2 rounded-lg bg-kertas-gelap p-1">
               {(
                 [
-                  { mode: 'masuk', label: 'Masuk' },
-                  { mode: 'daftar', label: 'Daftar' },
+                  { mode: 'masuk', label: t('login.masuk') },
+                  { mode: 'daftar', label: t('login.daftar') },
                 ] as const
-              ).map((t) => (
+              ).map((tab) => (
                 <button
-                  key={t.mode}
+                  key={tab.mode}
                   type="button"
                   onClick={() => {
-                    setMode(t.mode)
+                    setMode(tab.mode)
                     setError(null)
                     setInfo(null)
                   }}
                   className={`min-h-11 flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
-                    mode === t.mode
+                    mode === tab.mode
                       ? 'bg-pinus-800 text-white'
                       : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  {t.label}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -165,18 +161,18 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'daftar' && (
               <label className="block">
-                <span className="label">Nama *</span>
+                <span className="label">{t('umum.nama')} *</span>
                 <input
                   className="input"
                   value={nama}
                   onChange={(e) => setNama(e.target.value)}
-                  placeholder="mis. Budi Santoso"
+                  placeholder={t('login.contohNama')}
                   autoComplete="name"
                 />
               </label>
             )}
             <label className="block">
-              <span className="label">Email *</span>
+              <span className="label">{t('umum.email')} *</span>
               <input
                 className="input"
                 type="email"
@@ -189,10 +185,10 @@ export default function LoginPage() {
             {mode !== 'lupa' && (
               <label className="block">
                 <span className="label">
-                  Kata sandi *{' '}
+                  {t('umum.kataSandi')} *{' '}
                   {mode === 'daftar' && (
                     <span className="font-normal text-stone-600">
-                      (minimal 6 karakter)
+                      {t('login.min6Karakter')}
                     </span>
                   )}
                 </span>
@@ -214,12 +210,12 @@ export default function LoginPage() {
               className="btn-primary min-h-12 w-full text-base"
             >
               {sibuk
-                ? 'Memproses…'
+                ? t('login.memproses')
                 : mode === 'masuk'
-                  ? 'Masuk'
+                  ? t('login.masuk')
                   : mode === 'daftar'
-                    ? 'Buat Akun'
-                    : 'Kirim link atur ulang'}
+                    ? t('login.buatAkun')
+                    : t('login.kirimLink')}
             </button>
           </form>
 
@@ -233,7 +229,7 @@ export default function LoginPage() {
               }}
               className="mt-4 min-h-11 w-full text-center text-sm font-bold text-pinus-700"
             >
-              Lupa kata sandi?
+              {t('login.lupaTombol')}
             </button>
           )}
           {mode === 'lupa' && (
@@ -246,19 +242,22 @@ export default function LoginPage() {
               }}
               className="mt-4 min-h-11 w-full text-center text-sm font-bold text-pinus-700"
             >
-              Kembali masuk
+              {t('login.kembaliMasuk')}
             </button>
           )}
 
           {mode === 'daftar' && (
             <p className="mt-4 text-xs leading-relaxed text-stone-600">
-              Akun pertama yang mendaftar otomatis menjadi{' '}
-              <strong>Owner</strong> (bisa melihat harga beli, laba, dan
-              mengatur pengguna). Akun berikutnya menjadi{' '}
-              <strong>Kasir</strong>, fokus berjualan, tanpa akses harga beli
-              dan laba.
+              {t('login.daftarCatatanAwal')}{' '}
+              <strong>{t('pengguna.peranOwner')}</strong>{' '}
+              {t('login.daftarCatatanTengah')}{' '}
+              <strong>{t('pengguna.peranKasir')}</strong>
+              {t('login.daftarCatatanAkhir')}
             </p>
           )}
+        </div>
+        <div className="mt-4 flex justify-center">
+          <PemilihBahasa />
         </div>
       </div>
     </div>

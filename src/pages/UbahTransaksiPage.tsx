@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   fetchProduk,
   fetchTransaksiById,
@@ -20,6 +21,7 @@ import { IconBack, IconProduk, IconSearch } from '../components/icons'
 const BATAS_UBAH_MS = 24 * 60 * 60 * 1000
 
 export default function UbahTransaksiPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const transaksiId = id ?? ''
   const navigate = useNavigate()
@@ -91,7 +93,7 @@ export default function UbahTransaksiPage() {
 
   function tambahKeKeranjang(p: Produk) {
     if (stokTersedia(p) <= 0) {
-      setError(`Stok "${p.nama}" habis.`)
+      setError(t('ubahTransaksi.stokHabis', { nama: p.nama }))
       return
     }
     setError(null)
@@ -99,7 +101,12 @@ export default function UbahTransaksiPage() {
       const ada = prev.find((it) => it.produk.id === p.id)
       if (ada) {
         if (ada.qty + 1 > stokTersedia(p)) {
-          setError(`Stok "${p.nama}" hanya tersisa ${stokTersedia(p)}.`)
+          setError(
+            t('ubahTransaksi.stokTersisa', {
+              nama: p.nama,
+              stok: stokTersedia(p),
+            }),
+          )
           return prev
         }
         return prev.map((it) =>
@@ -119,7 +126,10 @@ export default function UbahTransaksiPage() {
           const qtyBaru = it.qty + delta
           if (qtyBaru > stokTersedia(it.produk)) {
             setError(
-              `Stok "${it.produk.nama}" hanya tersisa ${stokTersedia(it.produk)}.`,
+              t('ubahTransaksi.stokTersisa', {
+                nama: it.produk.nama,
+                stok: stokTersedia(it.produk),
+              }),
             )
             return it
           }
@@ -141,21 +151,21 @@ export default function UbahTransaksiPage() {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
       navigate('/laporan', {
-        state: { pesan: 'Transaksi berhasil diubah.' },
+        state: { pesan: t('ubahTransaksi.ubahBerhasil') },
       })
     },
     onError: (err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Gagal mengubah transaksi.')
+      setError(err instanceof Error ? err.message : t('ubahTransaksi.gagalMengubah'))
     },
   })
 
   function handleSimpan() {
     if (keranjang.length === 0) {
-      setError('Keranjang tidak boleh kosong.')
+      setError(t('ubahTransaksi.keranjangKosong'))
       return
     }
     if (transaksi?.metode_bayar === 'tunai' && dibayarNum < total) {
-      setError('Uang dibayar kurang dari total.')
+      setError(t('ubahTransaksi.uangKurang'))
       return
     }
     simpanMutation.mutate()
@@ -169,66 +179,67 @@ export default function UbahTransaksiPage() {
       <div className="mb-4 flex items-center gap-3">
         <Link
           to="/laporan"
-          aria-label="Kembali ke laporan"
+          aria-label={t('ubahTransaksi.kembaliKeLaporan')}
           className="icon-btn"
         >
           <IconBack className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="judul-halaman">Ubah Transaksi</h1>
+          <h1 className="judul-halaman">{t('ubahTransaksi.judul')}</h1>
           <p className="text-sm text-stone-600">
             {transaksi
               ? `#${transaksi.id.slice(0, 8).toUpperCase()} · ${formatTanggal(transaksi.created_at)} · ${labelMetode(transaksi.metode_bayar)}`
-              : 'Ubah item transaksi, lalu simpan.'}
+              : t('ubahTransaksi.subjudul')}
           </p>
         </div>
       </div>
 
-      {memuat && <p className="text-stone-600">Memuat transaksi…</p>}
+      {memuat && <p className="text-stone-600">{t('ubahTransaksi.memuat')}</p>}
       {gagal && (
         <div className="card p-5">
           <p className="text-sm text-red-700">
-            Gagal memuat transaksi:{' '}
-            {gagal instanceof Error ? gagal.message : 'terjadi kesalahan.'}
+            {t('ubahTransaksi.gagalMemuat', {
+              pesan:
+                gagal instanceof Error
+                  ? gagal.message
+                  : t('ubahTransaksi.terjadiKesalahan'),
+            })}
           </p>
           <Link to="/laporan" className="btn-secondary mt-4">
-            Kembali ke Laporan
+            {t('ubahTransaksi.kembaliKeLaporanTombol')}
           </Link>
         </div>
       )}
       {!memuat && !gagal && !transaksi && (
         <div className="card p-5">
-          <p className="font-medium">Transaksi tidak ditemukan.</p>
+          <p className="font-medium">{t('galat.transaksiTidakDitemukan')}</p>
           <p className="mt-1 text-sm text-stone-600">
-            Transaksi ini mungkin sudah dihapus.
+            {t('ubahTransaksi.mungkinDihapus')}
           </p>
           <Link to="/laporan" className="btn-secondary mt-4">
-            Kembali ke Laporan
+            {t('ubahTransaksi.kembaliKeLaporanTombol')}
           </Link>
         </div>
       )}
       {!memuat && !gagal && transaksi?.status === 'dibatalkan' && (
         <div className="card p-5">
-          <p className="font-medium">Transaksi ini sudah dibatalkan.</p>
+          <p className="font-medium">{t('galat.transaksiSudahBatal')}</p>
           <p className="mt-1 text-sm text-stone-600">
-            Transaksi yang dibatalkan tidak bisa diubah lagi.
+            {t('ubahTransaksi.batalTidakBisaDiubah')}
           </p>
           <Link to="/laporan" className="btn-secondary mt-4">
-            Kembali ke Laporan
+            {t('ubahTransaksi.kembaliKeLaporanTombol')}
           </Link>
         </div>
       )}
       {!memuat && !gagal && transaksi && sudahLewatBatas && (
         <div className="card p-5">
-          <p className="font-medium">
-            Transaksi ini sudah lebih dari 24 jam, tidak bisa diubah lagi.
-          </p>
+          <p className="font-medium">{t('ubahTransaksi.sudahLebih24Jam')}</p>
           <p className="mt-1 text-sm text-stone-600">
-            Transaksi hanya bisa diubah dalam 24 jam setelah dibuat.
-            Transaksi ini masih bisa dibatalkan dari halaman Laporan.
+            {t('ubahTransaksi.batas24Jam')}
           </p>
           <Link to="/laporan" className="btn-secondary mt-4">
-            Kembali ke Laporan
+            {t('ubahTransaksi.kembaliKeLaporanTombol')}
           </Link>
         </div>
       )}
@@ -243,10 +254,12 @@ export default function UbahTransaksiPage() {
 
           {/* Keranjang hasil ubah */}
           <section className="card p-4 sm:p-5">
-            <h2 className="text-lg font-bold">Item transaksi</h2>
+            <h2 className="text-lg font-bold">
+              {t('ubahTransaksi.itemTransaksi')}
+            </h2>
             {keranjang.length === 0 ? (
               <p className="mt-1 text-sm text-stone-600">
-                Belum ada item. Ketuk produk di bawah untuk menambahkan.
+                {t('ubahTransaksi.belumAdaItem')}
               </p>
             ) : (
               <ul className="mt-3 space-y-3">
@@ -257,15 +270,19 @@ export default function UbahTransaksiPage() {
                         {it.produk.nama}
                       </div>
                       <div className="text-xs text-stone-600">
-                        {formatRupiah(it.produk.harga_jual)} /{' '}
-                        {it.produk.satuan} · stok tersedia{' '}
-                        {stokTersedia(it.produk)}
+                        {t('ubahTransaksi.hargaStok', {
+                          harga: formatRupiah(it.produk.harga_jual),
+                          satuan: it.produk.satuan,
+                          stok: stokTersedia(it.produk),
+                        })}
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
                       <button
                         type="button"
-                        aria-label={`Kurangi ${it.produk.nama}`}
+                        aria-label={t('ubahTransaksi.kurangi', {
+                          nama: it.produk.nama,
+                        })}
                         onClick={() => ubahQty(it.produk.id, -1)}
                         className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                       >
@@ -276,7 +293,9 @@ export default function UbahTransaksiPage() {
                       </span>
                       <button
                         type="button"
-                        aria-label={`Tambah ${it.produk.nama}`}
+                        aria-label={t('ubahTransaksi.tambah', {
+                          nama: it.produk.nama,
+                        })}
                         onClick={() => ubahQty(it.produk.id, 1)}
                         className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                       >
@@ -293,13 +312,15 @@ export default function UbahTransaksiPage() {
 
             <div className="mt-4 border-t border-dashed border-garis pt-3">
               <div className="flex justify-between text-lg">
-                <span className="font-semibold">Total baru</span>
+                <span className="font-semibold">
+                  {t('ubahTransaksi.totalBaru')}
+                </span>
                 <span className="font-bold text-pinus-700">
                   {formatRupiah(total)}
                 </span>
               </div>
               <div className="mt-1 flex justify-between text-sm text-stone-600">
-                <span>Total sebelumnya</span>
+                <span>{t('ubahTransaksi.totalSebelumnya')}</span>
                 <span>{formatRupiah(transaksi.total)}</span>
               </div>
             </div>
@@ -307,7 +328,7 @@ export default function UbahTransaksiPage() {
             {transaksi.metode_bayar === 'tunai' && (
               <div className="mt-4">
                 <label htmlFor="dibayar" className="text-sm font-medium">
-                  Uang dibayar
+                  {t('ubahTransaksi.uangDibayar')}
                 </label>
                 <input
                   id="dibayar"
@@ -321,12 +342,14 @@ export default function UbahTransaksiPage() {
                   className="input mt-1.5 text-lg font-semibold"
                 />
                 <div className="mt-2 flex justify-between text-base">
-                  <span>Kembalian</span>
+                  <span>{t('struk.kembalian')}</span>
                   <span
                     className={`font-bold ${uangKurang ? 'text-red-600' : 'text-pinus-700'}`}
                   >
                     {uangKurang
-                      ? `Kurang ${formatRupiah(total - dibayarNum)}`
+                      ? t('ubahTransaksi.kurang', {
+                          jumlah: formatRupiah(total - dibayarNum),
+                        })
                       : formatRupiah(kembalian)}
                   </span>
                 </div>
@@ -337,21 +360,20 @@ export default function UbahTransaksiPage() {
                     disabled={total === 0}
                     className="min-h-9 rounded-md border border-aksen-600 px-3 py-2 text-xs font-bold text-aksen-700 hover:bg-aksen-100 disabled:opacity-50"
                   >
-                    Uang pas
+                    {t('ubahTransaksi.uangPas')}
                   </button>
                 </div>
               </div>
             )}
             {transaksi.metode_bayar === 'qris' && (
               <p className="mt-4 rounded-lg bg-kertas-gelap px-3 py-2.5 text-sm text-stone-600">
-                QRIS: dibayar otomatis mengikuti total baru, tidak ada
-                kembalian.
+                {t('ubahTransaksi.qrisCatatan')}
               </p>
             )}
 
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row">
               <Link to="/laporan" className="btn-secondary flex-1 sm:flex-none">
-                Batal
+                {t('umum.batal')}
               </Link>
               <button
                 type="button"
@@ -364,22 +386,24 @@ export default function UbahTransaksiPage() {
                 className="btn-primary flex-1 sm:flex-none"
               >
                 {simpanMutation.isPending
-                  ? 'Menyimpan…'
-                  : 'Simpan Perubahan'}
+                  ? t('ubahTransaksi.menyimpan')
+                  : t('ubahTransaksi.simpanPerubahan')}
               </button>
             </div>
           </section>
 
           {/* Cari + tambah produk */}
           <section className="mt-4">
-            <h2 className="mb-2 text-base font-bold">Tambah produk</h2>
+            <h2 className="mb-2 text-base font-bold">
+              {t('ubahTransaksi.tambahProduk')}
+            </h2>
             <div className="relative mb-3">
               <IconSearch className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-600" />
               <input
                 type="search"
                 value={cari}
                 onChange={(e) => setCari(e.target.value)}
-                placeholder="Cari produk… (mis. beras, kopi)"
+                placeholder={t('ubahTransaksi.cariProduk')}
                 className="input pl-11"
               />
             </div>
@@ -388,13 +412,13 @@ export default function UbahTransaksiPage() {
                 <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
                 <p className="mt-3 font-semibold">
                   {cari.trim()
-                    ? `Tidak ada produk yang cocok dengan “${cari}”.`
-                    : 'Belum ada produk.'}
+                    ? t('ubahTransaksi.tidakAdaYangCocok', { cari })
+                    : t('ubahTransaksi.belumAdaProduk')}
                 </p>
                 <p className="mt-1 text-sm text-stone-600">
                   {cari.trim()
-                    ? 'Coba kata kunci lain.'
-                    : 'Tambahkan produk dulu di menu Produk.'}
+                    ? t('ubahTransaksi.cobaKataKunciLain')
+                    : t('ubahTransaksi.tambahkanProdukDulu')}
                 </p>
               </div>
             )}
@@ -411,13 +435,14 @@ export default function UbahTransaksiPage() {
                     {p.nama}
                   </div>
                   <div className="mt-1 text-xs text-stone-600">
-                    {p.kategori?.nama ?? 'Tanpa kategori'} · per {p.satuan}
+                    {p.kategori?.nama ?? t('umum.tanpaKategori')} · per{' '}
+                    {p.satuan}
                   </div>
                   <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
                     {formatRupiah(p.harga_jual)}
                   </div>
                   <div className="mt-1.5 inline-flex rounded-md bg-kertas-gelap px-2 py-0.5 text-[11px] font-bold text-stone-600">
-                    Stok {stokTersedia(p)}
+                    {t('ubahTransaksi.stok', { stok: stokTersedia(p) })}
                   </div>
                 </button>
               ))}

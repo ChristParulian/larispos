@@ -13,6 +13,7 @@ import type {
   Satuan,
   Transaksi,
 } from './types'
+import i18n from './i18n'
 
 const KEY_PRODUK = 'larispos-demo-produk'
 const KEY_TRANSAKSI = 'larispos-demo-transaksi'
@@ -58,7 +59,7 @@ export function demoGetKategori(): Kategori[] {
 
 export function demoSaveKategori(nama: string, id?: string): Kategori {
   const namaBersih = nama.trim()
-  if (!namaBersih) throw new Error('Nama kategori tidak boleh kosong.')
+  if (!namaBersih) throw new Error(i18n.t('galat.namaKategoriKosong'))
   const list = demoGetKategori()
   if (
     list.some(
@@ -66,11 +67,16 @@ export function demoSaveKategori(nama: string, id?: string): Kategori {
         k.nama.toLowerCase() === namaBersih.toLowerCase() && k.id !== id,
     )
   ) {
-    throw new Error(`Kategori "${namaBersih}" sudah ada.`)
+    throw new Error(
+      i18n.t('galat.sudahAda', {
+        label: i18n.t('umum.kategori'),
+        nama: namaBersih,
+      }),
+    )
   }
   if (id) {
     const idx = list.findIndex((k) => k.id === id)
-    if (idx === -1) throw new Error('Kategori tidak ditemukan.')
+    if (idx === -1) throw new Error(i18n.t('galat.kategoriTidakDitemukan'))
     list[idx] = { ...list[idx], nama: namaBersih }
     save(KEY_KATEGORI, list)
     return list[idx]
@@ -116,7 +122,7 @@ export function demoGetSatuan(): Satuan[] {
 
 export function demoSaveSatuan(nama: string, id?: string): Satuan {
   const namaBersih = nama.trim()
-  if (!namaBersih) throw new Error('Nama satuan tidak boleh kosong.')
+  if (!namaBersih) throw new Error(i18n.t('galat.namaSatuanKosong'))
   const list = demoGetSatuan()
   if (
     list.some(
@@ -124,11 +130,16 @@ export function demoSaveSatuan(nama: string, id?: string): Satuan {
         s.nama.toLowerCase() === namaBersih.toLowerCase() && s.id !== id,
     )
   ) {
-    throw new Error(`Satuan "${namaBersih}" sudah ada.`)
+    throw new Error(
+      i18n.t('galat.sudahAda', {
+        label: i18n.t('umum.satuan'),
+        nama: namaBersih,
+      }),
+    )
   }
   if (id) {
     const idx = list.findIndex((s) => s.id === id)
-    if (idx === -1) throw new Error('Satuan tidak ditemukan.')
+    if (idx === -1) throw new Error(i18n.t('galat.satuanTidakDitemukan'))
     const namaLama = list[idx].nama
     list[idx] = { ...list[idx], nama: namaBersih }
     save(KEY_SATUAN, list)
@@ -220,14 +231,19 @@ export function demoSaveProduk(input: ProdukInput, id?: string): Produk {
   const list = demoGetProduk()
   if (id) {
     const idx = list.findIndex((p) => p.id === id)
-    if (idx === -1) throw new Error('Produk tidak ditemukan.')
+    if (idx === -1) throw new Error(i18n.t('galat.produkTidakDitemukan'))
     const updated: Produk = { ...list[idx], ...input }
     list[idx] = updated
     save(KEY_PRODUK, list)
     return withKategori([updated])[0]
   }
   if (list.some((p) => p.nama.toLowerCase() === input.nama.toLowerCase())) {
-    throw new Error(`Produk "${input.nama}" sudah ada.`)
+    throw new Error(
+      i18n.t('galat.sudahAda', {
+        label: i18n.t('umum.produk'),
+        nama: input.nama,
+      }),
+    )
   }
   const baru: Produk = {
     id: `demo-produk-${Date.now()}`,
@@ -244,9 +260,7 @@ export function demoHapusProduk(id: string): void {
     (t.item_transaksi ?? []).some((it) => it.produk_id === id),
   )
   if (pernahTerjual) {
-    throw new Error(
-      'Produk yang pernah terjual tidak bisa dihapus (menjaga riwayat transaksi).',
-    )
+    throw new Error(i18n.t('galat.produkPernahTerjual'))
   }
   save(
     KEY_PRODUK,
@@ -261,16 +275,20 @@ export function demoCheckout(
   dibayarInput: number,
 ): CheckoutResult {
   const produkList = demoGetProduk()
-  if (items.length === 0) throw new Error('Keranjang kosong.')
+  if (items.length === 0) throw new Error(i18n.t('galat.keranjangKosong'))
 
   let total = 0
   const itemDetail = items.map((it) => {
     const p = produkList.find((x) => x.id === it.produk_id)
-    if (!p) throw new Error('Produk tidak ditemukan.')
-    if (it.qty <= 0) throw new Error('Jumlah (qty) harus lebih dari 0.')
+    if (!p) throw new Error(i18n.t('galat.produkTidakDitemukan'))
+    if (it.qty <= 0) throw new Error(i18n.t('galat.qtyPositifDemo'))
     if (p.stok < it.qty) {
       throw new Error(
-        `Stok "${p.nama}" tidak cukup (sisa ${p.stok}, diminta ${it.qty}).`,
+        i18n.t('galat.stokTidakCukup', {
+          nama: p.nama,
+          sisa: p.stok,
+          diminta: it.qty,
+        }),
       )
     }
     const subtotal = p.harga_jual * it.qty
@@ -283,7 +301,10 @@ export function demoCheckout(
   if (metode === 'tunai') {
     if (dibayar < total) {
       throw new Error(
-        `Uang dibayar (Rp${dibayar.toLocaleString('id-ID')}) kurang dari total (Rp${total.toLocaleString('id-ID')}).`,
+        i18n.t('galat.uangKurang', {
+          dibayar: dibayar.toLocaleString('id-ID'),
+          total: total.toLocaleString('id-ID'),
+        }),
       )
     }
     kembalian = dibayar - total
@@ -355,11 +376,11 @@ export function demoTambahStok(
   catatan?: string,
 ): number {
   if (!Number.isInteger(jumlah) || jumlah < 1) {
-    throw new Error('Jumlah stok harus minimal 1.')
+    throw new Error(i18n.t('galat.jumlahStokMinimal'))
   }
   const produkList = demoGetProduk()
   const p = produkList.find((x) => x.id === produkId)
-  if (!p) throw new Error('Produk tidak ditemukan.')
+  if (!p) throw new Error(i18n.t('galat.produkTidakDitemukan'))
   const stokSesudah = p.stok + jumlah
   const logs = demoGetLogStok()
   logs.unshift({
@@ -386,9 +407,9 @@ export function demoTambahStok(
 export function demoBatalkanTransaksi(id: string): void {
   const list = demoGetTransaksi()
   const idx = list.findIndex((t) => t.id === id)
-  if (idx === -1) throw new Error('Transaksi tidak ditemukan.')
+  if (idx === -1) throw new Error(i18n.t('galat.transaksiTidakDitemukan'))
   if (list[idx].status === 'dibatalkan') {
-    throw new Error('Transaksi ini sudah dibatalkan.')
+    throw new Error(i18n.t('galat.transaksiSudahBatal'))
   }
   const now = new Date().toISOString()
   const logs = demoGetLogStok()
@@ -425,18 +446,18 @@ export function demoUbahTransaksi(
 ): Transaksi {
   const list = demoGetTransaksi()
   const idx = list.findIndex((t) => t.id === id)
-  if (idx === -1) throw new Error('Transaksi tidak ditemukan.')
+  if (idx === -1) throw new Error(i18n.t('galat.transaksiTidakDitemukan'))
   const lama = list[idx]
   if (lama.status === 'dibatalkan') {
-    throw new Error('Transaksi yang sudah dibatalkan tidak bisa diubah.')
+    throw new Error(i18n.t('galat.transaksiBatalTidakBisaDiubah'))
   }
   // Hanya di core: transaksi hanya bisa diubah dalam 24 jam.
   // Demo Pro (di tree Pro) tidak punya batas ini, jadi file ini
   // tidak lagi identik antar tree; jangan salin mentah-mentah.
   if (Date.now() - new Date(lama.created_at).getTime() > 24 * 60 * 60 * 1000) {
-    throw new Error('Transaksi hanya bisa diubah dalam 24 jam setelah dibuat.')
+    throw new Error(i18n.t('galat.ubah24Jam'))
   }
-  if (items.length === 0) throw new Error('Keranjang kosong.')
+  if (items.length === 0) throw new Error(i18n.t('galat.keranjangKosong'))
   const now = new Date().toISOString()
   const logs = demoGetLogStok()
 
@@ -463,11 +484,15 @@ export function demoUbahTransaksi(
   let total = 0
   const itemDetail = items.map((it) => {
     const p = produkList.find((x) => x.id === it.produk_id)
-    if (!p) throw new Error('Produk tidak ditemukan.')
-    if (it.qty <= 0) throw new Error('Jumlah (qty) harus lebih dari 0.')
+    if (!p) throw new Error(i18n.t('galat.produkTidakDitemukan'))
+    if (it.qty <= 0) throw new Error(i18n.t('galat.qtyPositifDemo'))
     if (p.stok < it.qty) {
       throw new Error(
-        `Stok "${p.nama}" tidak cukup (sisa ${p.stok}, diminta ${it.qty}).`,
+        i18n.t('galat.stokTidakCukup', {
+          nama: p.nama,
+          sisa: p.stok,
+          diminta: it.qty,
+        }),
       )
     }
     const subtotal = p.harga_jual * it.qty
@@ -481,7 +506,10 @@ export function demoUbahTransaksi(
   if (lama.metode_bayar === 'tunai') {
     if (dibayar < total) {
       throw new Error(
-        `Uang dibayar (Rp${dibayar.toLocaleString('id-ID')}) kurang dari total (Rp${total.toLocaleString('id-ID')}).`,
+        i18n.t('galat.uangKurang', {
+          dibayar: dibayar.toLocaleString('id-ID'),
+          total: total.toLocaleString('id-ID'),
+        }),
       )
     }
     kembalian = dibayar - total

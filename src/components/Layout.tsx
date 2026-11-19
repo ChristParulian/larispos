@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { isDemoMode } from '../lib/supabase'
 import { demoReset } from '../lib/demo'
@@ -14,26 +15,29 @@ import {
 
 interface NavItem {
   to: string
+  // Kunci terjemahan (mis. 'nav.dashboard'), diterjemahkan saat
+  // dirender supaya label mengikuti bahasa tampilan saat ini.
   label: string
   Icon: ComponentType<{ className?: string; strokeWidth?: number }>
 }
 
 const NAV: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', Icon: IconDashboard },
-  { to: '/kasir', label: 'Kasir', Icon: IconKasir },
-  { to: '/produk', label: 'Produk', Icon: IconProduk },
-  { to: '/laporan', label: 'Laporan', Icon: IconLaporan },
+  { to: '/dashboard', label: 'nav.dashboard', Icon: IconDashboard },
+  { to: '/kasir', label: 'nav.kasir', Icon: IconKasir },
+  { to: '/produk', label: 'nav.produk', Icon: IconProduk },
+  { to: '/laporan', label: 'nav.laporan', Icon: IconLaporan },
 ]
 
 const NAV_PENGGUNA: NavItem = {
   to: '/pengguna',
-  label: 'Pengguna',
+  label: 'nav.pengguna',
   Icon: IconPengguna,
 }
 
 /** Satu tab di menu bawah: ikon + label, tab aktif ditandai garis
     kuning di atas dan warna pinus, tanpa pil berwarna. */
 function BottomNavItem({ item }: { item: NavItem }) {
+  const { t } = useTranslation()
   return (
     <NavLink
       to={item.to}
@@ -55,7 +59,7 @@ function BottomNavItem({ item }: { item: NavItem }) {
                 : 'font-medium text-stone-600'
             }
           >
-            {item.label}
+            {t(item.label)}
           </span>
         </>
       )}
@@ -64,6 +68,7 @@ function BottomNavItem({ item }: { item: NavItem }) {
 }
 
 export default function Layout() {
+  const { t } = useTranslation()
   const { user, profil, isOwner, signOut } = useAuth()
   const navigate = useNavigate()
   const tampilPengguna = isOwner && !isDemoMode
@@ -97,19 +102,21 @@ export default function Layout() {
                 </span>
                 <NavLink
                   to="/profil-saya"
-                  aria-label="Profil Saya"
-                  title="Profil Saya"
+                  aria-label={t('profil.judul')}
+                  title={t('profil.judul')}
                   className="inline-flex min-h-10 items-center rounded-lg border border-pinus-700 px-3 py-2 text-xs font-semibold text-pinus-100 hover:bg-pinus-800"
                 >
                   <IconPengguna className="h-5 w-5 sm:hidden" />
-                  <span className="hidden sm:inline">Profil</span>
+                  <span className="hidden sm:inline">
+                    {t('layout.profil')}
+                  </span>
                 </NavLink>
                 <button
                   type="button"
                   onClick={handleKeluar}
                   className="min-h-10 rounded-lg border border-pinus-700 px-3 py-2 text-xs font-semibold text-pinus-100 hover:bg-pinus-800"
                 >
-                  Keluar
+                  {t('layout.keluar')}
                 </button>
               </div>
             )}
@@ -119,30 +126,27 @@ export default function Layout() {
 
       {isDemoMode && (
         <div className="bg-aksen-100 px-4 py-2 text-center text-sm text-aksen-800 no-print">
-          <strong>Mode demo, data lokal.</strong> Supabase belum
-          dikonfigurasi, jadi transaksi hanya tersimpan di browser ini.
-          Isi <code className="rounded bg-aksen-200 px-1">.env</code> dengan{' '}
+          <strong>{t('layout.demoJudul')}</strong>{' '}
+          {t('layout.demoKeterangan')}{' '}
+          <code className="rounded bg-aksen-200 px-1">.env</code>{' '}
+          {t('layout.demoDengan')}{' '}
           <code className="rounded bg-aksen-200 px-1">VITE_SUPABASE_URL</code>{' '}
-          dan{' '}
+          {t('layout.demoDan')}{' '}
           <code className="rounded bg-aksen-200 px-1">
             VITE_SUPABASE_ANON_KEY
           </code>{' '}
-          untuk memakai database nyata.{' '}
+          {t('layout.demoAkhir')}{' '}
           <button
             type="button"
             className="underline"
             onClick={() => {
-              if (
-                window.confirm(
-                  'Kembalikan data demo ke 12 produk awal? Transaksi demo akan dihapus.',
-                )
-              ) {
+              if (window.confirm(t('layout.konfirmasiResetDemo'))) {
                 demoReset()
                 window.location.reload()
               }
             }}
           >
-            Reset data demo
+            {t('layout.resetDemo')}
           </button>
         </div>
       )}
@@ -156,7 +160,7 @@ export default function Layout() {
       {/* Menu bawah: satu-satunya navigasi, di semua ukuran layar.
           Tab dibatasi lebar konten agar tidak melebar di layar besar. */}
       <nav
-        aria-label="Navigasi utama"
+        aria-label={t('layout.navUtama')}
         className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-white shadow-bar-bawah no-print"
       >
         <div

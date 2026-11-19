@@ -6,6 +6,7 @@
 // saat ini.
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ubahNamaProfil } from '../lib/api'
 import {
@@ -15,10 +16,28 @@ import {
 } from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
+import PemilihBahasa from '../components/PemilihBahasa'
 
 type AksiSibuk = 'email' | 'sandi' | null
 
+/** Bagian pemilih bahasa tampilan (Indonesia / Inggris). */
+function BagianBahasa() {
+  const { t } = useTranslation()
+  return (
+    <div>
+      <span className="label">{t('bahasa.judul')}</span>
+      <div className="mt-1">
+        <PemilihBahasa />
+      </div>
+      <p className="mt-1.5 text-xs text-stone-600">
+        {t('bahasa.keterangan')}
+      </p>
+    </div>
+  )
+}
+
 export default function ProfilSayaPage() {
+  const { t } = useTranslation()
   const { user, profil, loading, muatUlangProfil } = useAuth()
   const queryClient = useQueryClient()
   const [namaEdit, setNamaEdit] = useState<string | null>(null)
@@ -40,26 +59,28 @@ export default function ProfilSayaPage() {
     onSuccess: (_d, v) => {
       void queryClient.invalidateQueries({ queryKey: ['profil-semua'] })
       void muatUlangProfil()
-      setPesan(`Nama diubah menjadi ${v.nama}.`)
+      setPesan(t('pengguna.namaDiubah', { nama: v.nama }))
       setError(null)
     },
     onError: (err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Gagal mengubah nama.')
+      setError(
+        err instanceof Error ? err.message : t('pengguna.gagalUbahNama'),
+      )
     },
   })
 
   async function simpanEmail() {
     const baru = emailBaru.trim()
     if (!baru) {
-      setError('Email baru wajib diisi.')
+      setError(t('profil.emailBaruWajib'))
       return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(baru)) {
-      setError('Format email tidak valid.')
+      setError(t('galat.emailTidakValid'))
       return
     }
     if (baru.toLowerCase() === (profil?.email ?? '').toLowerCase()) {
-      setError('Email baru sama dengan email saat ini.')
+      setError(t('profil.emailBaruSama'))
       return
     }
     setSibukAksi('email')
@@ -71,28 +92,26 @@ export default function ProfilSayaPage() {
       setError(err)
       return
     }
-    setPesan(
-      `Link konfirmasi dikirim ke ${baru}. Email berubah setelah kamu membuka link itu.`,
-    )
+    setPesan(t('profil.linkKonfirmasiDikirim', { email: baru }))
     setEmailBaru('')
   }
 
   async function simpanSandi() {
     if (!sandiLama || !sandiBaru || !sandiBaruUlang) {
-      setError('Semua kolom kata sandi wajib diisi.')
+      setError(t('profil.semuaKolomSandiWajib'))
       return
     }
     if (sandiBaru.length < 8) {
-      setError('Kata sandi baru minimal 8 karakter.')
+      setError(t('galat.sandiBaruMin8'))
       return
     }
     if (sandiBaru !== sandiBaruUlang) {
-      setError('Konfirmasi kata sandi baru tidak cocok.')
+      setError(t('aturSandi.konfirmasiTidakCocok'))
       return
     }
     const email = user?.email
     if (!email) {
-      setError('Email akun tidak ditemukan. Masuk ulang lalu coba lagi.')
+      setError(t('profil.emailAkunTidakDitemukan'))
       return
     }
     setSibukAksi('sandi')
@@ -104,24 +123,26 @@ export default function ProfilSayaPage() {
       setError(err)
       return
     }
-    setPesan('Kata sandi diubah.')
+    setPesan(t('profil.sandiDiubah'))
     setSandiLama('')
     setSandiBaru('')
     setSandiBaruUlang('')
   }
 
   if (loading) {
-    return <p className="text-stone-600">Memuat profil…</p>
+    return <p className="text-stone-600">{t('profil.memuat')}</p>
   }
 
   if (isDemoMode) {
     return (
       <div>
-        <h1 className="mb-3 judul-halaman">Profil Saya</h1>
+        <h1 className="mb-3 judul-halaman">{t('profil.judul')}</h1>
         <p className="rounded-lg bg-aksen-100 px-4 py-3 text-sm text-aksen-800">
-          Halaman ini hanya tersedia saat memakai Supabase. Di mode demo
-          tidak ada akun pengguna.
+          {t('pengguna.hanyaSupabase')}
         </p>
+        <div className="card mt-4 px-4 py-4 sm:px-5">
+          <BagianBahasa />
+        </div>
       </div>
     )
   }
@@ -129,9 +150,9 @@ export default function ProfilSayaPage() {
   if (!profil) {
     return (
       <div>
-        <h1 className="mb-3 judul-halaman">Profil Saya</h1>
+        <h1 className="mb-3 judul-halaman">{t('profil.judul')}</h1>
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-          Gagal memuat profil. Coba muat ulang halaman.
+          {t('profil.gagalMemuat')}
         </p>
       </div>
     )
@@ -140,9 +161,9 @@ export default function ProfilSayaPage() {
   return (
     <div>
       <div className="mb-4">
-        <h1 className="judul-halaman">Profil Saya</h1>
+        <h1 className="judul-halaman">{t('profil.judul')}</h1>
         <p className="mt-1 text-sm text-stone-600">
-          Kelola akunmu: nama, email, dan kata sandi.
+          {t('profil.keterangan')}
         </p>
       </div>
 
@@ -160,26 +181,34 @@ export default function ProfilSayaPage() {
       <div className="card">
         <div className="px-4 py-4 sm:px-5">
           <div className="break-words font-medium">
-            {profil.nama ?? 'Tanpa nama'}
+            {profil.nama ?? t('pengguna.tanpaNama')}
           </div>
           <div className="mt-0.5 break-words text-sm text-stone-600">
-            {profil.email ?? 'Tanpa email'}
+            {profil.email ?? t('pengguna.tanpaEmail')}
           </div>
           <div className="text-xs text-stone-600">
-            Peran {profil.role === 'owner' ? 'Owner' : 'Kasir'} · Terdaftar{' '}
-            {formatTanggal(profil.created_at)}
+            {t('profil.ringkasanAkun', {
+              peran: t(
+                profil.role === 'owner'
+                  ? 'pengguna.peranOwner'
+                  : 'pengguna.peranKasir',
+              ),
+              tanggal: formatTanggal(profil.created_at),
+            })}
           </div>
         </div>
 
         <div className="space-y-5 border-t border-dashed border-garis px-4 py-4 sm:px-5">
-          <div>
-            <span className="label">Nama</span>
+          <BagianBahasa />
+
+          <div className="border-t border-dashed border-garis pt-5">
+            <span className="label">{t('umum.nama')}</span>
             <div className="flex gap-2">
               <input
                 className="input"
                 value={namaTampil}
                 onChange={(e) => setNamaEdit(e.target.value)}
-                placeholder="Nama pengguna"
+                placeholder={t('pengguna.placeholderNama')}
                 autoComplete="name"
               />
               <button
@@ -197,15 +226,17 @@ export default function ProfilSayaPage() {
                 }
                 className="btn-secondary min-h-11 shrink-0 px-4"
               >
-                Simpan
+                {t('umum.simpan')}
               </button>
             </div>
           </div>
 
           <div className="border-t border-dashed border-garis pt-5">
-            <span className="label">Email</span>
+            <span className="label">{t('umum.email')}</span>
             <p className="text-sm text-stone-600">
-              Email saat ini: {profil.email ?? 'Tanpa email'}
+              {t('profil.emailSaatIni', {
+                email: profil.email ?? t('pengguna.tanpaEmail'),
+              })}
             </p>
             <div className="mt-2 flex gap-2">
               <input
@@ -213,7 +244,7 @@ export default function ProfilSayaPage() {
                 className="input"
                 value={emailBaru}
                 onChange={(e) => setEmailBaru(e.target.value)}
-                placeholder="Email baru"
+                placeholder={t('profil.emailBaruPlaceholder')}
                 autoComplete="email"
               />
               <button
@@ -222,24 +253,25 @@ export default function ProfilSayaPage() {
                 onClick={() => void simpanEmail()}
                 className="btn-secondary min-h-11 shrink-0 px-4"
               >
-                Ubah email
+                {t('profil.ubahEmail')}
               </button>
             </div>
             <p className="mt-1.5 text-xs text-stone-600">
-              Link konfirmasi dikirim ke email baru. Email berubah setelah
-              kamu membuka link itu.
+              {t('profil.keteranganEmail')}
             </p>
           </div>
 
           <div className="border-t border-dashed border-garis pt-5">
             <div className="flex items-center justify-between">
-              <span className="label">Kata sandi</span>
+              <span className="label">{t('umum.kataSandi')}</span>
               <button
                 type="button"
                 onClick={() => setLihatSandi((v) => !v)}
                 className="min-h-11 px-2 text-xs font-bold text-pinus-700"
               >
-                {lihatSandi ? 'Sembunyikan' : 'Lihat'}
+                {lihatSandi
+                  ? t('aturSandi.sembunyikan')
+                  : t('aturSandi.lihat')}
               </button>
             </div>
             <div className="space-y-2">
@@ -248,7 +280,7 @@ export default function ProfilSayaPage() {
                 className="input"
                 value={sandiLama}
                 onChange={(e) => setSandiLama(e.target.value)}
-                placeholder="Kata sandi saat ini"
+                placeholder={t('profil.sandiSaatIni')}
                 autoComplete="current-password"
               />
               <input
@@ -256,7 +288,7 @@ export default function ProfilSayaPage() {
                 className="input"
                 value={sandiBaru}
                 onChange={(e) => setSandiBaru(e.target.value)}
-                placeholder="Kata sandi baru (minimal 8 karakter)"
+                placeholder={t('profil.sandiBaruPlaceholder')}
                 autoComplete="new-password"
               />
               <input
@@ -264,7 +296,7 @@ export default function ProfilSayaPage() {
                 className="input"
                 value={sandiBaruUlang}
                 onChange={(e) => setSandiBaruUlang(e.target.value)}
-                placeholder="Ulangi kata sandi baru"
+                placeholder={t('aturSandi.ulangiSandiBaru')}
                 autoComplete="new-password"
               />
             </div>
@@ -274,7 +306,7 @@ export default function ProfilSayaPage() {
               onClick={() => void simpanSandi()}
               className="btn-secondary mt-2 min-h-11 w-full sm:w-auto"
             >
-              Ubah kata sandi
+              {t('profil.ubahSandi')}
             </button>
           </div>
         </div>

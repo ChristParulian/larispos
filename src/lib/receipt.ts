@@ -4,6 +4,7 @@
 
 import type { CartItem, CheckoutResult } from './types'
 import { formatRupiah, formatTanggal, labelMetode } from './format'
+import i18n from './i18n'
 
 export function teksStruk(
   items: CartItem[],
@@ -19,17 +20,17 @@ export function teksStruk(
     .join('\n')
   return [
     'LARISPOS - WARUNG',
-    'Struk Belanja',
+    i18n.t('struk.judul'),
     formatTanggal(tanggalIso),
     `No. ${hasil.transaksi_id.slice(0, 8).toUpperCase()}`,
     garis,
     baris,
     garis,
-    `Total      : ${formatRupiah(hasil.total)}`,
-    `Bayar (${labelMetode(hasil.metode_bayar)}) : ${formatRupiah(hasil.dibayar)}`,
-    `Kembalian  : ${formatRupiah(hasil.kembalian)}`,
+    `${i18n.t('umum.total').padEnd(11)}: ${formatRupiah(hasil.total)}`,
+    `${i18n.t('struk.bayar')} (${labelMetode(hasil.metode_bayar)}) : ${formatRupiah(hasil.dibayar)}`,
+    `${i18n.t('struk.kembalian').padEnd(11)}: ${formatRupiah(hasil.kembalian)}`,
     garis,
-    'Terima kasih sudah belanja!',
+    i18n.t('struk.terimaKasih'),
   ].join('\n')
 }
 

@@ -2,8 +2,10 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
     "@tanstack/react-query": "^5.56.0",
+    "i18next": "^27.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^18.0.3",
     "react-router-dom": "^6.28.0"
   },
   "description": "LarisPOS — Warung POS open source (MIT). Kasir warung kelontong berbasis Supabase + React, di-hosting di Vercel.",

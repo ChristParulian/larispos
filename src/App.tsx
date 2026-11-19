@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './lib/auth'
+import i18n from './lib/i18n'
 import { isDemoMode } from './lib/supabase'
 import Layout from './components/Layout'
 import DashboardPage from './pages/DashboardPage'
@@ -19,7 +20,7 @@ function ButuhLogin({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
   if (isDemoMode) return <>{children}</>
   if (loading) {
-    return <p className="p-8 text-center text-stone-600">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">{i18n.t('umum.memuat')}</p>
   }
   if (!user) return <Navigate to="/login" replace />
   return <>{children}</>
@@ -30,7 +31,7 @@ function KhususOwner({ children }: { children: ReactNode }) {
   const { isOwner, loading } = useAuth()
   if (isDemoMode) return <>{children}</>
   if (loading) {
-    return <p className="p-8 text-center text-stone-600">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">{i18n.t('umum.memuat')}</p>
   }
   if (!isOwner) return <Navigate to="/dashboard" replace />
   return <>{children}</>

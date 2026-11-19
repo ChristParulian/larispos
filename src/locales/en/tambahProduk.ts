@@ -1,0 +1,22 @@
+export default {
+  judulUbah: 'Edit product',
+  keteranganUbah: 'Edit the product details, then save.',
+  keteranganTambah:
+    'Fill in the details of the new product to sell at the cashier.',
+  ariaKembali: 'Back to the product list',
+  kembaliKeDaftar: 'Back to the product list',
+  mungkinDihapus: 'This product may have been deleted.',
+  labelNama: 'Product name *',
+  placeholderNama: 'e.g. Beras Premium 5 kg',
+  labelHargaBeli: 'Purchase price (optional)',
+  placeholderHargaBeli: 'Fill in to calculate profit',
+  labelHargaJual: 'Selling price *',
+  menyimpan: 'Saving…',
+  simpanProduk: 'Save product',
+  produkDiubah: 'Product updated.',
+  produkDitambahkan: 'Product added.',
+  gagalSimpanProduk: 'Failed to save the product.',
+  namaWajib: 'Product name is required.',
+  hargaJualNegatif: 'Selling price cannot be negative.',
+  stokNegatif: 'Stock cannot be negative.',
+}

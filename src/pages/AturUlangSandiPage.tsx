@@ -5,11 +5,13 @@
 // tampil pesan untuk minta tautan baru dari halaman masuk.
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { aturUlangSandiBaru, useAuth } from '../lib/auth'
 import { BrandMark } from '../components/icons'
 
 export default function AturUlangSandiPage() {
+  const { t } = useTranslation()
   const { user, loading } = useAuth()
   const navigate = useNavigate()
   const [sandiBaru, setSandiBaru] = useState('')
@@ -19,18 +21,18 @@ export default function AturUlangSandiPage() {
   const [sibuk, setSibuk] = useState(false)
 
   if (loading) {
-    return <p className="p-8 text-center text-stone-600">Memuat…</p>
+    return <p className="p-8 text-center text-stone-600">{t('umum.memuat')}</p>
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     if (sandiBaru.length < 8) {
-      setError('Kata sandi baru minimal 8 karakter.')
+      setError(t('galat.sandiBaruMin8'))
       return
     }
     if (sandiBaru !== sandiUlang) {
-      setError('Konfirmasi kata sandi baru tidak cocok.')
+      setError(t('aturSandi.konfirmasiTidakCocok'))
       return
     }
     setSibuk(true)
@@ -61,24 +63,23 @@ export default function AturUlangSandiPage() {
         <div className="card p-5 sm:p-6">
           {!user ? (
             <>
-              <h1 className="judul-halaman">Link tidak berlaku lagi</h1>
+              <h1 className="judul-halaman">{t('aturSandi.linkTidakBerlaku')}</h1>
               <p className="mt-2 text-sm text-stone-600">
-                Tautan atur ulang kata sandi ini sudah kedaluwarsa atau
-                sudah dipakai. Minta tautan baru dari halaman masuk.
+                {t('aturSandi.linkKedaluwarsa')}
               </p>
               <button
                 type="button"
                 onClick={() => navigate('/login', { replace: true })}
                 className="btn-primary mt-5 min-h-12 w-full text-base"
               >
-                Ke halaman masuk
+                {t('aturSandi.keHalamanMasuk')}
               </button>
             </>
           ) : (
             <>
-              <h1 className="judul-halaman">Atur ulang kata sandi</h1>
+              <h1 className="judul-halaman">{t('aturSandi.judul')}</h1>
               <p className="mt-2 text-sm text-stone-600">
-                Buat kata sandi baru untuk akun {user.email}.
+                {t('aturSandi.buatSandiBaru', { email: user.email })}
               </p>
 
               {error && (
@@ -90,13 +91,17 @@ export default function AturUlangSandiPage() {
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="label">Kata sandi baru *</span>
+                    <span className="label">
+                      {t('aturSandi.sandiBaru')} *
+                    </span>
                     <button
                       type="button"
                       onClick={() => setLihatSandi((v) => !v)}
                       className="min-h-11 px-2 text-xs font-bold text-pinus-700"
                     >
-                      {lihatSandi ? 'Sembunyikan' : 'Lihat'}
+                      {lihatSandi
+                        ? t('aturSandi.sembunyikan')
+                        : t('aturSandi.lihat')}
                     </button>
                   </div>
                   <input
@@ -104,18 +109,20 @@ export default function AturUlangSandiPage() {
                     className="input"
                     value={sandiBaru}
                     onChange={(e) => setSandiBaru(e.target.value)}
-                    placeholder="Minimal 8 karakter"
+                    placeholder={t('aturSandi.sandiBaruPlaceholder')}
                     autoComplete="new-password"
                   />
                 </div>
                 <label className="block">
-                  <span className="label">Ulangi kata sandi baru *</span>
+                  <span className="label">
+                    {t('aturSandi.ulangiSandiBaru')} *
+                  </span>
                   <input
                     type={lihatSandi ? 'text' : 'password'}
                     className="input"
                     value={sandiUlang}
                     onChange={(e) => setSandiUlang(e.target.value)}
-                    placeholder="Ulangi kata sandi baru"
+                    placeholder={t('aturSandi.ulangiSandiBaru')}
                     autoComplete="new-password"
                   />
                 </label>
@@ -124,7 +131,9 @@ export default function AturUlangSandiPage() {
                   disabled={sibuk}
                   className="btn-primary min-h-12 w-full text-base"
                 >
-                  {sibuk ? 'Memproses…' : 'Simpan kata sandi baru'}
+                  {sibuk
+                    ? t('login.memproses')
+                    : t('aturSandi.simpanSandiBaru')}
                 </button>
               </form>
             </>

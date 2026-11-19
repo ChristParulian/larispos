@@ -34,7 +34,8 @@ kerja, dan hasil dengan satu FAIL tidak boleh di-push.
   backend (PostgreSQL + Auth + RLS), deploy di Vercel.
 - Perintah: `npm run dev` untuk pengembangan, `npm run build` untuk
   verifikasi sebelum push. Build harus lolos.
-- UI berbahasa Indonesia, mobile-first (pengguna warung memakai HP).
+- UI berbahasa Indonesia (bawaan) dan Inggris, bisa diganti di Profil
+  Saya. Mobile-first (pengguna warung memakai HP).
 - Checkout SELALU lewat RPC `buat_transaksi()` di database. Harga dan
   total dihitung ulang di database, tidak pernah dipercaya dari browser.
 - Jangan pernah memasukkan `service_role` key, `.env`, atau kredensial
