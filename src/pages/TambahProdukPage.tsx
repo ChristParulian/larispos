@@ -7,7 +7,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchKategori, fetchProduk, saveProduk } from '../lib/api'
+import {
+  fetchKategori,
+  fetchProduk,
+  fetchSatuan,
+  saveProduk,
+} from '../lib/api'
 import { useAuth } from '../lib/auth'
 import type { ProdukInput } from '../lib/types'
 import { IconBack } from '../components/icons'
@@ -35,6 +40,10 @@ export default function TambahProdukPage() {
   const kategoriQuery = useQuery({
     queryKey: ['kategori'],
     queryFn: fetchKategori,
+  })
+  const satuanQuery = useQuery({
+    queryKey: ['satuan'],
+    queryFn: fetchSatuan,
   })
   const produkQuery = useQuery({
     queryKey: ['produk'],
@@ -196,14 +205,27 @@ export default function TambahProdukPage() {
             </label>
             <label className="block">
               <span className="label">Satuan</span>
-              <input
+              <select
                 className="input"
                 value={form.satuan}
                 onChange={(e) =>
                   setForm({ ...form, satuan: e.target.value })
                 }
-                placeholder="pcs, kg, botol…"
-              />
+              >
+                {(satuanQuery.data ?? []).map((s) => (
+                  <option key={s.id} value={s.nama}>
+                    {s.nama}
+                  </option>
+                ))}
+                {/* Satuan produk ini tidak ada lagi di daftar: tetap
+                    tampilkan agar nilainya tidak hilang saat diubah. */}
+                {form.satuan &&
+                  !(satuanQuery.data ?? []).some(
+                    (s) => s.nama === form.satuan,
+                  ) && (
+                    <option value={form.satuan}>{form.satuan}</option>
+                  )}
+              </select>
             </label>
             {isOwner && (
               <label className="block">

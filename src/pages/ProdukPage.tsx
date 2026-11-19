@@ -1,8 +1,8 @@
 // Halaman Produk & Stok: daftar produk (cari + filter kategori,
-// hapus produk yang belum pernah terjual), kelola kategori
-// (tambah / ubah / hapus), dan riwayat pergerakan stok (log_stok).
-// Tambah / ubah produk lewat halaman sendiri (/produk/tambah dan
-// /produk/ubah/:id).
+// hapus produk yang belum pernah terjual), kelola kategori dan
+// satuan (tambah / ubah / hapus), dan riwayat pergerakan stok
+// (log_stok). Tambah / ubah produk lewat halaman sendiri
+// (/produk/tambah dan /produk/ubah/:id).
 
 import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -11,15 +11,18 @@ import {
   fetchKategori,
   fetchLogStok,
   fetchProduk,
+  fetchSatuan,
   hapusKategori,
   hapusProduk,
+  hapusSatuan,
   saveKategori,
+  saveSatuan,
 } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal } from '../lib/format'
 import { IconPlus, IconProduk, IconSearch } from '../components/icons'
 
-type Tab = 'produk' | 'kategori' | 'log'
+type Tab = 'produk' | 'kategori' | 'satuan' | 'log'
 
 export default function ProdukPage() {
   // Harga beli hanya terlihat oleh owner (Tahap 2).
@@ -34,6 +37,10 @@ export default function ProdukPage() {
   const [namaBaru, setNamaBaru] = useState('')
   const [editId, setEditId] = useState<string | null>(null)
   const [editNama, setEditNama] = useState('')
+  // Form satuan, pola yang sama seperti kategori.
+  const [namaSatuanBaru, setNamaSatuanBaru] = useState('')
+  const [editSatuanId, setEditSatuanId] = useState<string | null>(null)
+  const [editSatuanNama, setEditSatuanNama] = useState('')
   // Pesan sukses dari halaman tambah/ubah produk (location state).
   const [pesan, setPesan] = useState<string | null>(
     () =>
@@ -44,6 +51,10 @@ export default function ProdukPage() {
   const kategoriQuery = useQuery({
     queryKey: ['kategori'],
     queryFn: fetchKategori,
+  })
+  const satuanQuery = useQuery({
+    queryKey: ['satuan'],
+    queryFn: fetchSatuan,
   })
   const logQuery = useQuery({
     queryKey: ['log-stok'],
@@ -144,6 +155,66 @@ export default function ProdukPage() {
     }
   }
 
+  // Jumlah produk per satuan (produk menyimpan satuannya sebagai
+  // teks), untuk tab Satuan.
+  const jumlahProdukSatuan = useMemo(() => {
+    const hitung = new Map<string, number>()
+    for (const p of produkQuery.data ?? []) {
+      hitung.set(p.satuan, (hitung.get(p.satuan) ?? 0) + 1)
+    }
+    return hitung
+  }, [produkQuery.data])
+
+  const simpanSatuanMutation = useMutation({
+    mutationFn: (input: { nama: string; id?: string }) =>
+      saveSatuan(input.nama, input.id),
+    onSuccess: (_data, input) => {
+      void queryClient.invalidateQueries({ queryKey: ['satuan'] })
+      void queryClient.invalidateQueries({ queryKey: ['produk'] })
+      setPesan(
+        input.id
+          ? 'Satuan berhasil diubah.'
+          : 'Satuan berhasil ditambahkan.',
+      )
+      setError(null)
+      setNamaSatuanBaru('')
+      setEditSatuanId(null)
+      setEditSatuanNama('')
+    },
+    onError: (err: unknown) => {
+      setError(
+        err instanceof Error ? err.message : 'Gagal menyimpan satuan.',
+      )
+    },
+  })
+
+  const hapusSatuanMutation = useMutation({
+    mutationFn: (id: string) => hapusSatuan(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['satuan'] })
+      setPesan('Satuan berhasil dihapus.')
+      setError(null)
+    },
+    onError: (err: unknown) => {
+      setError(
+        err instanceof Error ? err.message : 'Gagal menghapus satuan.',
+      )
+    },
+  })
+
+  function konfirmasiHapusSatuan(id: string, nama: string) {
+    const jumlah = jumlahProdukSatuan.get(nama) ?? 0
+    const peringatan =
+      jumlah > 0
+        ? ` ${jumlah} produk masih memakainya, tapi produk tersebut tetap menampilkan satuannya.`
+        : ''
+    if (
+      window.confirm(`Hapus satuan "${nama}"?${peringatan}`)
+    ) {
+      hapusSatuanMutation.mutate(id)
+    }
+  }
+
   const sedangFilter = cari.trim() !== '' || filterKategori !== ''
 
   return (
@@ -157,7 +228,7 @@ export default function ProdukPage() {
               : 'Kelola daftar produk warung.'}
           </p>
         </div>
-        <div className="flex rounded-lg bg-kertas-gelap p-1">
+        <div className="flex flex-wrap rounded-lg bg-kertas-gelap p-1">
           <button
             type="button"
             onClick={() => setTab('produk')}
@@ -179,6 +250,17 @@ export default function ProdukPage() {
             }`}
           >
             Kategori
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('satuan')}
+            className={`min-h-10 rounded-lg px-4 text-sm font-bold transition-colors ${
+              tab === 'satuan'
+                ? 'bg-pinus-800 text-white'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            Satuan
           </button>
           <button
             type="button"
@@ -529,6 +611,152 @@ export default function ProdukPage() {
                           type="button"
                           onClick={() =>
                             konfirmasiHapusKategori(k.id, k.nama)
+                          }
+                          className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+
+      {tab === 'satuan' && (
+        <div className="card">
+          <div className="border-b px-4 py-4 sm:px-5">
+            <h2 className="font-bold">Satuan Produk</h2>
+            <p className="text-sm text-stone-600">
+              Daftar satuan yang bisa dipilih di form produk, misalnya pcs,
+              kg, atau botol. Ubah nama satuan memperbarui produk yang
+              memakainya; hapus satuan tidak mengubah produk yang ada.
+            </p>
+          </div>
+          <form
+            className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:px-5"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!namaSatuanBaru.trim()) return
+              simpanSatuanMutation.mutate({ nama: namaSatuanBaru })
+            }}
+          >
+            <input
+              type="text"
+              value={namaSatuanBaru}
+              onChange={(e) => setNamaSatuanBaru(e.target.value)}
+              placeholder="Nama satuan baru"
+              aria-label="Nama satuan baru"
+              className="input flex-1"
+            />
+            <button
+              type="submit"
+              disabled={
+                !namaSatuanBaru.trim() || simpanSatuanMutation.isPending
+              }
+              className="btn-primary sm:w-auto"
+            >
+              <IconPlus className="h-5 w-5" strokeWidth={2.2} />
+              Tambah Satuan
+            </button>
+          </form>
+          {satuanQuery.isLoading && (
+            <p className="px-4 py-4 text-stone-600 sm:px-5">
+              Memuat satuan…
+            </p>
+          )}
+          {satuanQuery.isError && (
+            <p className="px-4 py-4 text-sm text-red-700 sm:px-5">
+              Gagal memuat satuan:{' '}
+              {satuanQuery.error instanceof Error
+                ? satuanQuery.error.message
+                : 'terjadi kesalahan.'}
+            </p>
+          )}
+          {satuanQuery.data && satuanQuery.data.length === 0 && (
+            <p className="px-4 py-4 text-stone-600 sm:px-5">
+              Belum ada satuan. Tambahkan satuan pertama di atas agar bisa
+              dipilih di form produk.
+            </p>
+          )}
+          <ul className="divide-y divide-garis">
+            {(satuanQuery.data ?? []).map((s) => {
+              const jumlah = jumlahProdukSatuan.get(s.nama) ?? 0
+              const sedangUbah = editSatuanId === s.id
+              return (
+                <li
+                  key={s.id}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-sm sm:px-5"
+                >
+                  {sedangUbah ? (
+                    <form
+                      className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        if (!editSatuanNama.trim()) return
+                        simpanSatuanMutation.mutate({
+                          nama: editSatuanNama,
+                          id: s.id,
+                        })
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={editSatuanNama}
+                        onChange={(e) => setEditSatuanNama(e.target.value)}
+                        aria-label="Nama satuan"
+                        className="input min-w-40 flex-1"
+                      />
+                      <button
+                        type="submit"
+                        disabled={
+                          !editSatuanNama.trim() ||
+                          simpanSatuanMutation.isPending
+                        }
+                        className="inline-flex min-h-9 items-center rounded-lg bg-pinus-700 px-3 text-xs font-bold text-white hover:bg-pinus-800 disabled:opacity-50"
+                      >
+                        Simpan
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditSatuanId(null)
+                          setEditSatuanNama('')
+                        }}
+                        className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                      >
+                        Batal
+                      </button>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="min-w-0">
+                        <div className="break-words font-medium">{s.nama}</div>
+                        <div className="text-xs text-stone-600">
+                          {jumlah === 0
+                            ? 'Belum ada produk'
+                            : `${jumlah} produk`}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditSatuanId(s.id)
+                            setEditSatuanNama(s.nama)
+                            setError(null)
+                          }}
+                          className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                        >
+                          Ubah
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            konfirmasiHapusSatuan(s.id, s.nama)
                           }
                           className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
                         >

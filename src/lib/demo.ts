@@ -10,6 +10,7 @@ import type {
   LogStok,
   Produk,
   ProdukInput,
+  Satuan,
   Transaksi,
 } from './types'
 
@@ -17,6 +18,7 @@ const KEY_PRODUK = 'larispos-demo-produk'
 const KEY_TRANSAKSI = 'larispos-demo-transaksi'
 const KEY_LOG = 'larispos-demo-log-stok'
 const KEY_KATEGORI = 'larispos-demo-kategori'
+const KEY_SATUAN = 'larispos-demo-satuan'
 
 export const DEMO_KATEGORI: Kategori[] = [
   { id: 'demo-kat-sembako', nama: 'Sembako' },
@@ -91,6 +93,68 @@ export function demoHapusKategori(id: string): void {
       p.kategori_id === id ? { ...p, kategori_id: null } : p,
     ),
   )
+}
+
+// Satuan awal demo: sama dengan satuan 12 produk seed.
+const DEMO_SATUAN: Satuan[] = [
+  { id: 'demo-sat-botol', nama: 'botol' },
+  { id: 'demo-sat-bungkus', nama: 'bungkus' },
+  { id: 'demo-sat-kaleng', nama: 'kaleng' },
+  { id: 'demo-sat-karung', nama: 'karung' },
+  { id: 'demo-sat-kg', nama: 'kg' },
+  { id: 'demo-sat-pcs', nama: 'pcs' },
+  { id: 'demo-sat-sachet', nama: 'sachet' },
+]
+
+/** Daftar satuan demo, tersimpan di localStorage agar CRUD bertahan. */
+export function demoGetSatuan(): Satuan[] {
+  const saved = load<Satuan[]>(KEY_SATUAN)
+  if (saved) return saved
+  save(KEY_SATUAN, DEMO_SATUAN)
+  return [...DEMO_SATUAN]
+}
+
+export function demoSaveSatuan(nama: string, id?: string): Satuan {
+  const namaBersih = nama.trim()
+  if (!namaBersih) throw new Error('Nama satuan tidak boleh kosong.')
+  const list = demoGetSatuan()
+  if (
+    list.some(
+      (s) =>
+        s.nama.toLowerCase() === namaBersih.toLowerCase() && s.id !== id,
+    )
+  ) {
+    throw new Error(`Satuan "${namaBersih}" sudah ada.`)
+  }
+  if (id) {
+    const idx = list.findIndex((s) => s.id === id)
+    if (idx === -1) throw new Error('Satuan tidak ditemukan.')
+    const namaLama = list[idx].nama
+    list[idx] = { ...list[idx], nama: namaBersih }
+    save(KEY_SATUAN, list)
+    // Ubah nama satuan memperbarui produk yang memakainya.
+    if (namaLama !== namaBersih) {
+      save(
+        KEY_PRODUK,
+        demoGetProduk().map((p) =>
+          p.satuan === namaLama ? { ...p, satuan: namaBersih } : p,
+        ),
+      )
+    }
+    return list[idx]
+  }
+  const baru: Satuan = { id: `demo-sat-${Date.now()}`, nama: namaBersih }
+  list.push(baru)
+  save(KEY_SATUAN, list)
+  return baru
+}
+
+export function demoHapusSatuan(id: string): void {
+  save(
+    KEY_SATUAN,
+    demoGetSatuan().filter((s) => s.id !== id),
+  )
+  // Produk tetap menampilkan satuannya (teks di produk.satuan).
 }
 
 function seedProduk(): Produk[] {
@@ -287,4 +351,5 @@ export function demoReset(): void {
   localStorage.removeItem(KEY_TRANSAKSI)
   localStorage.removeItem(KEY_LOG)
   localStorage.removeItem(KEY_KATEGORI)
+  localStorage.removeItem(KEY_SATUAN)
 }

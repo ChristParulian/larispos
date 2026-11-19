@@ -12,6 +12,7 @@ Checkout hanya lewat fungsi `buat_transaksi()` di database.
 | `002_seed_12_produk.sql` | **Seed.** 12 produk warung realistis di 4 kategori (Sembako, Minuman, Makanan Ringan, Perawatan & Rumah Tangga), masing-masing dengan harga beli, harga jual, dan stok awal. Idempotent (aman dijalankan ulang). |
 | `003_pro_addon.sql` | **Pro-only.** Tabel `pelanggan`, `piutang`, `pembayaran_hutang` + trigger cicilan otomatis + view ringkasan piutang + perpanjangan `buat_transaksi()` untuk pembayaran Bon. **Jangan masukkan ke repo publik ini.** |
 | `004_tahap2_auth.sql` | **Tahap 2.** Login + peran: trigger profil otomatis saat signup (akun pertama = owner, sisanya kasir), penjaga peran & harga beli, RLS baca hanya untuk pengguna login, dan pencabutan grant `anon` ke `buat_transaksi()`. Jalankan SETELAH frontend Tahap 2 (dengan halaman login) tayang. |
+| `006_satuan.sql` | **Core.** Tabel master `satuan` untuk daftar satuan produk (dikelola lewat CRUD di tab Satuan halaman Produk; form produk memilih dari daftar ini). Kolom `produk.satuan` tetap teks, bukan foreign key: hapus satuan tidak merusak produk lama, ubah nama memperbarui produk yang memakainya. Seed awal diambil dari satuan yang dipakai produk. |
 
 ## Urutan menjalankan
 
@@ -21,6 +22,7 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 2. `002_seed_12_produk.sql`: setelah 001.
 3. `004_tahap2_auth.sql`: setelah frontend Tahap 2 (dengan halaman login) tayang, di project utama **dan** project Pro.
 4. `003_pro_addon.sql`: **hanya di project Pro**, setelah 001 + 002 (urutan terhadap 004 bebas).
+5. `006_satuan.sql`: setelah 001, di project utama **dan** project Pro. Seed awal diambil dari satuan yang dipakai produk.
 
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing: jangan tertukar.

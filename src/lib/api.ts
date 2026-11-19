@@ -13,11 +13,14 @@ import {
   demoGetKategori,
   demoGetLogStok,
   demoGetProduk,
+  demoGetSatuan,
   demoGetTransaksi,
   demoHapusKategori,
   demoHapusProduk,
+  demoHapusSatuan,
   demoSaveKategori,
   demoSaveProduk,
+  demoSaveSatuan,
 } from './demo'
 import type {
   CheckoutResult,
@@ -27,6 +30,7 @@ import type {
   Produk,
   ProdukInput,
   Profil,
+  Satuan,
   Transaksi,
 } from './types'
 
@@ -53,17 +57,19 @@ export async function fetchKategori(): Promise<Kategori[]> {
   return (data ?? []) as Kategori[]
 }
 
-/** Pesan duplikat yang ramah untuk pelanggaran UNIQUE nama kategori. */
-function kategoriError(error: unknown, nama: string): Error {
+/** Pesan duplikat yang ramah untuk pelanggaran UNIQUE nama (kategori/satuan). */
+function duplikatError(error: unknown, label: string, nama: string): Error {
   if (
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
     (error as { code: unknown }).code === '23505'
   ) {
-    return new Error(`Kategori "${nama}" sudah ada.`)
+    return new Error(`${label} "${nama}" sudah ada.`)
   }
-  return error instanceof Error ? error : new Error('Gagal menyimpan kategori.')
+  return error instanceof Error
+    ? error
+    : new Error(`Gagal menyimpan ${label.toLowerCase()}.`)
 }
 
 /** Simpan (tambah/ubah) kategori. Nama unik, ditegakkan database. */
@@ -82,7 +88,7 @@ export async function saveKategori(
       .eq('id', id)
       .select('id, nama')
       .single()
-    if (error) throw kategoriError(error, namaBersih)
+    if (error) throw duplikatError(error, 'Kategori', namaBersih)
     return data as Kategori
   }
   const { data, error } = await sb
@@ -90,8 +96,77 @@ export async function saveKategori(
     .insert({ nama: namaBersih })
     .select('id, nama')
     .single()
-  if (error) throw kategoriError(error, namaBersih)
+  if (error) throw duplikatError(error, 'Kategori', namaBersih)
   return data as Kategori
+}
+
+export async function fetchSatuan(): Promise<Satuan[]> {
+  if (isDemoMode) return demoGetSatuan()
+  const { data, error } = await requireSupabase()
+    .from('satuan')
+    .select('id, nama')
+    .order('nama')
+  if (error) throw error
+  return (data ?? []) as Satuan[]
+}
+
+/**
+ * Simpan (tambah/ubah) satuan. Nama unik, ditegakkan database.
+ * Ubah nama satuan memperbarui produk yang memakai nama lama,
+ * karena produk menyimpan satuannya sebagai teks (lihat 006).
+ */
+export async function saveSatuan(nama: string, id?: string): Promise<Satuan> {
+  const namaBersih = nama.trim()
+  if (!namaBersih) throw new Error('Nama satuan tidak boleh kosong.')
+  if (isDemoMode) return demoSaveSatuan(namaBersih, id)
+  const sb = requireSupabase()
+  if (id) {
+    const { data: lama, error: errLama } = await sb
+      .from('satuan')
+      .select('nama')
+      .eq('id', id)
+      .single()
+    if (errLama) throw errLama
+    const { data, error } = await sb
+      .from('satuan')
+      .update({ nama: namaBersih })
+      .eq('id', id)
+      .select('id, nama')
+      .single()
+    if (error) throw duplikatError(error, 'Satuan', namaBersih)
+    const namaLama = (lama as { nama: string }).nama
+    if (namaLama !== namaBersih) {
+      const { error: errProduk } = await sb
+        .from('produk')
+        .update({ satuan: namaBersih })
+        .eq('satuan', namaLama)
+      if (errProduk) throw errProduk
+    }
+    return data as Satuan
+  }
+  const { data, error } = await sb
+    .from('satuan')
+    .insert({ nama: namaBersih })
+    .select('id, nama')
+    .single()
+  if (error) throw duplikatError(error, 'Satuan', namaBersih)
+  return data as Satuan
+}
+
+/**
+ * Hapus satuan dari daftar. Produk yang memakainya tidak ikut
+ * terhapus dan tetap menampilkan satuannya (teks di produk.satuan).
+ */
+export async function hapusSatuan(id: string): Promise<void> {
+  if (isDemoMode) {
+    demoHapusSatuan(id)
+    return
+  }
+  const { error } = await requireSupabase()
+    .from('satuan')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }
 
 /**

@@ -6,6 +6,12 @@ export interface Kategori {
   nama: string
 }
 
+/** Satuan produk (tabel master, lihat 006_satuan.sql). */
+export interface Satuan {
+  id: string
+  nama: string
+}
+
 export interface Produk {
   id: string
   kategori_id: string | null
