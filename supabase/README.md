@@ -1,8 +1,8 @@
 # Warung POS: SQL Supabase
 
 Migrasi SQL untuk Warung POS, sesuai spesifikasi beku
-`warung-pos-spec-gratis-pro.pdf`. Backend Supabase saja, tanpa Express.
-Checkout hanya lewat fungsi `buat_transaksi()` di database.
+`warung-pos-spec-gratis-pro.pdf`. Backendnya hanya Supabase, dan
+checkout hanya lewat fungsi `buat_transaksi()` di database.
 
 ## File
 
@@ -37,11 +37,11 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing: jangan tertukar.
 
-## Yang masih perlu project Supabase nyata untuk diuji
+## Memverifikasi instalasi
 
-File-file ini ditulis dari spesifikasi dan **belum pernah dijalankan**
-(spec sendiri menyatakan schema & seed belum pernah diuji di Supabase
-nyata: pengujian pertamanya di Tahap 1). Setelah project dibuat, uji:
+Semua migrasi di folder ini sudah dijalankan dan diuji di project
+Supabase live (core dan Pro). Setelah menjalankannya di projectmu
+sendiri, verifikasi dengan langkah-langkah berikut:
 
 1. Jalankan 001 → 002 di SQL Editor, pastikan tanpa error.
 2. Panggil `buat_transaksi()` sebagai `anon` (demo tanpa login) dan

@@ -20,19 +20,27 @@ langsung dilihat.
 
 ## Fitur
 
-- **Kasir**: Pencarian produk, keranjang belanja, pembayaran tunai
-  atau QRIS, dan perhitungan kembalian otomatis. Setiap transaksi
-  diproses secara atomik melalui fungsi database `buat_transaksi()`,
-  sehingga harga, total, dan stok selalu konsisten. Struk digital
-  tersedia di layar, dapat dibagikan melalui WhatsApp, atau disimpan
-  sebagai PDF.
-- **Produk & Stok**: Manajemen produk dan kategori, pencatatan harga
-  beli dan harga jual, serta riwayat pergerakan stok.
+- **Dashboard**: Ringkasan penjualan hari ini, stok menipis,
+  produk terlaris, transaksi terbaru, dan grafik penjualan 7 hari.
+- **Kasir**: Pencarian produk, filter kategori, keranjang belanja,
+  pembayaran tunai atau QRIS, tombol uang cepat, dan perhitungan
+  kembalian otomatis. Setiap transaksi diproses secara atomik
+  melalui fungsi database `buat_transaksi()`, sehingga harga,
+  total, dan stok selalu konsisten. Struk digital tersedia di
+  layar, dapat dibagikan melalui WhatsApp, atau disimpan sebagai
+  PDF.
+- **Produk & Stok**: Manajemen produk, kategori, dan satuan;
+  pencatatan harga beli dan harga jual; tambah stok dengan catatan
+  yang tercatat di riwayat pergerakan stok.
 - **Laporan**: Ringkasan penjualan harian, estimasi laba kotor,
-  produk terlaris, dan riwayat transaksi lengkap.
+  produk terlaris, dan riwayat transaksi lengkap. Owner bisa
+  mengubah transaksi (dalam 24 jam) atau membatalkannya, dengan
+  stok yang dikembalikan otomatis.
 - **Login & Peran**: Akun Owner dapat mengakses harga beli, laba,
   dan mengelola pengguna; akun Kasir fokus melayani penjualan.
-  Akun pertama yang terdaftar otomatis menjadi Owner.
+  Setiap pengguna bisa mengubah nama, email, dan kata sandinya
+  sendiri di halaman Profil Saya. Akun pertama yang terdaftar
+  otomatis menjadi Owner.
 - **Mode Demo**: Aplikasi dapat dijalankan tanpa Supabase, dengan
   12 produk contoh yang tersimpan lokal di browser.
 
@@ -62,6 +70,12 @@ berjalan dalam mode demo dengan data contoh lokal.
    - `001_free_core.sql`: skema database, RLS, dan fungsi transaksi
    - `002_seed_12_produk.sql`: 12 produk contoh
    - `004_tahap2_auth.sql`: login dan peran pengguna
+   - `006_satuan.sql`: daftar satuan produk
+   - `007_transaksi_batal.sql`: pembatalan transaksi
+   - `009_ubah_transaksi.sql`: ubah transaksi dalam 24 jam
+   - `011_tambah_email_profil.sql`: kolom email di profil pengguna
+   - `012_sinkron_email_profil.sql`: sinkronisasi email profil
+   - `013_tambah_stok.sql`: fungsi tambah stok
 3. Salin `.env.example` menjadi `.env`, lalu isi dari
    **Project Settings → API**:
    - `VITE_SUPABASE_URL`: Project URL
@@ -109,8 +123,12 @@ larispos/
 ├── src/
 │   ├── components/   Layout, Struk (struk digital)
 │   ├── lib/          supabase client, api, auth, mode demo, format, struk
-│   └── pages/        KasirPage, ProdukPage, LaporanPage, LoginPage, PenggunaPage
-├── supabase/         Migrasi SQL (001 core, 002 seed, 004 auth)
+│   └── pages/        DashboardPage, KasirPage, ProdukPage, LaporanPage,
+│                     LoginPage, PenggunaPage, ProfilSayaPage,
+│                     UbahTransaksiPage, AturUlangSandiPage
+├── supabase/         Migrasi SQL (001 core, 002 seed, 004 auth, 006 satuan,
+│                     007 batal, 009 ubah, 011 email, 012 sinkron email,
+│                     013 tambah stok)
 ├── vercel.json       SPA rewrite
 └── .env.example      Template environment variables
 ```
