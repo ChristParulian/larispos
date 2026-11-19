@@ -37,7 +37,8 @@ langsung dilihat.
   mengubah transaksi (dalam 24 jam) atau membatalkannya, dengan
   stok yang dikembalikan otomatis.
 - **Login & Peran**: Akun Owner dapat mengakses harga beli, laba,
-  dan mengelola pengguna; akun Kasir fokus melayani penjualan.
+  mengelola pengguna, dan mengelola produk, kategori, dan satuan;
+  akun Kasir fokus melayani penjualan dan menambah stok.
   Setiap pengguna bisa mengubah nama, email, dan kata sandinya
   sendiri di halaman Profil Saya. Akun pertama yang terdaftar
   otomatis menjadi Owner.
@@ -76,6 +77,7 @@ berjalan dalam mode demo dengan data contoh lokal.
    - `011_tambah_email_profil.sql`: kolom email di profil pengguna
    - `012_sinkron_email_profil.sql`: sinkronisasi email profil
    - `013_tambah_stok.sql`: fungsi tambah stok
+   - `014_batasi_kelola_produk_owner.sql`: kelola produk, kategori, dan satuan hanya owner
 3. Salin `.env.example` menjadi `.env`, lalu isi dari
    **Project Settings → API**:
    - `VITE_SUPABASE_URL`: Project URL
@@ -128,7 +130,7 @@ larispos/
 │                     UbahTransaksiPage, AturUlangSandiPage
 ├── supabase/         Migrasi SQL (001 core, 002 seed, 004 auth, 006 satuan,
 │                     007 batal, 009 ubah, 011 email, 012 sinkron email,
-│                     013 tambah stok)
+│                     013 tambah stok, 014 owner kelola)
 ├── vercel.json       SPA rewrite
 └── .env.example      Template environment variables
 ```

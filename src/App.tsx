@@ -72,7 +72,9 @@ export default function App() {
             path="/produk/tambah"
             element={
               <ButuhLogin>
-                <TambahProdukPage />
+                <KhususOwner>
+                  <TambahProdukPage />
+                </KhususOwner>
               </ButuhLogin>
             }
           />
@@ -80,7 +82,9 @@ export default function App() {
             path="/produk/ubah/:id"
             element={
               <ButuhLogin>
-                <TambahProdukPage />
+                <KhususOwner>
+                  <TambahProdukPage />
+                </KhususOwner>
               </ButuhLogin>
             }
           />

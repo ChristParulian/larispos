@@ -1,7 +1,8 @@
 // Halaman Produk & Stok: daftar produk (cari + filter kategori,
-// tambah stok yang tercatat di log, hapus produk yang belum pernah
-// terjual), kelola kategori dan satuan (tambah / ubah / hapus),
-// dan riwayat pergerakan stok (log_stok). Tambah / ubah produk
+// tambah stok yang tercatat di log), kelola kategori dan satuan,
+// dan riwayat pergerakan stok (log_stok). Tambah / ubah / hapus
+// produk, kategori, dan satuan hanya untuk owner; kasir hanya
+// bisa melihat daftar dan menambah stok. Tambah / ubah produk
 // lewat halaman sendiri (/produk/tambah dan /produk/ubah/:id).
 
 import { Fragment, useMemo, useState } from 'react'
@@ -419,10 +420,12 @@ export default function ProdukPage() {
                 </option>
               ))}
             </select>
-            <Link to="/produk/tambah" className="btn-primary sm:w-auto">
-              <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-              Tambah Produk
-            </Link>
+            {isOwner && (
+              <Link to="/produk/tambah" className="btn-primary sm:w-auto">
+                <IconPlus className="h-5 w-5" strokeWidth={2.2} />
+                Tambah Produk
+              </Link>
+            )}
           </div>
 
           {produkQuery.isLoading && (
@@ -447,9 +450,11 @@ export default function ProdukPage() {
               <p className="mt-1 text-sm text-stone-600">
                 {sedangFilter
                   ? 'Coba kata kunci atau kategori lain.'
-                  : 'Tambahkan produk pertama agar bisa dijual di kasir.'}
+                  : isOwner
+                    ? 'Tambahkan produk pertama agar bisa dijual di kasir.'
+                    : 'Produk ditambahkan oleh owner.'}
               </p>
-              {!sedangFilter && (
+              {isOwner && !sedangFilter && (
                 <Link to="/produk/tambah" className="btn-primary mt-4">
                   <IconPlus className="h-5 w-5" strokeWidth={2.2} />
                   Tambah Produk
@@ -517,19 +522,23 @@ export default function ProdukPage() {
                             >
                               Tambah Stok
                             </button>
-                            <Link
-                              to={`/produk/ubah/${p.id}`}
-                              className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
-                            >
-                              Ubah
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => konfirmasiHapus(p.id, p.nama)}
-                              className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
-                            >
-                              Hapus
-                            </button>
+                            {isOwner && (
+                              <>
+                                <Link
+                                  to={`/produk/ubah/${p.id}`}
+                                  className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                                >
+                                  Ubah
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={() => konfirmasiHapus(p.id, p.nama)}
+                                  className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
+                                >
+                                  Hapus
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -592,21 +601,23 @@ export default function ProdukPage() {
                     {formatRupiah(p.harga_jual)}
                   </span>
                 </div>
-                <div className="mt-3 flex gap-2">
-                  <Link
-                    to={`/produk/ubah/${p.id}`}
-                    className="btn-secondary min-h-10 flex-1 py-2"
-                  >
-                    Ubah
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => konfirmasiHapus(p.id, p.nama)}
-                    className="btn-danger-outline min-h-10 flex-1 py-2"
-                  >
-                    Hapus
-                  </button>
-                </div>
+                {isOwner && (
+                  <div className="mt-3 flex gap-2">
+                    <Link
+                      to={`/produk/ubah/${p.id}`}
+                      className="btn-secondary min-h-10 flex-1 py-2"
+                    >
+                      Ubah
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => konfirmasiHapus(p.id, p.nama)}
+                      className="btn-danger-outline min-h-10 flex-1 py-2"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => setStokId(stokId === p.id ? null : p.id)}
@@ -641,33 +652,35 @@ export default function ProdukPage() {
               daftar produk. Nama kategori tidak boleh sama.
             </p>
           </div>
-          <form
-            className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:px-5"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (!namaBaru.trim()) return
-              simpanKategoriMutation.mutate({ nama: namaBaru })
-            }}
-          >
-            <input
-              type="text"
-              value={namaBaru}
-              onChange={(e) => setNamaBaru(e.target.value)}
-              placeholder="Nama kategori baru"
-              aria-label="Nama kategori baru"
-              className="input flex-1"
-            />
-            <button
-              type="submit"
-              disabled={
-                !namaBaru.trim() || simpanKategoriMutation.isPending
-              }
-              className="btn-primary sm:w-auto"
+          {isOwner && (
+            <form
+              className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:px-5"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (!namaBaru.trim()) return
+                simpanKategoriMutation.mutate({ nama: namaBaru })
+              }}
             >
-              <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-              Tambah Kategori
-            </button>
-          </form>
+              <input
+                type="text"
+                value={namaBaru}
+                onChange={(e) => setNamaBaru(e.target.value)}
+                placeholder="Nama kategori baru"
+                aria-label="Nama kategori baru"
+                className="input flex-1"
+              />
+              <button
+                type="submit"
+                disabled={
+                  !namaBaru.trim() || simpanKategoriMutation.isPending
+                }
+                className="btn-primary sm:w-auto"
+              >
+                <IconPlus className="h-5 w-5" strokeWidth={2.2} />
+                Tambah Kategori
+              </button>
+            </form>
+          )}
           {kategoriQuery.isLoading && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
               Memuat kategori…
@@ -683,8 +696,9 @@ export default function ProdukPage() {
           )}
           {kategoriQuery.data && kategoriQuery.data.length === 0 && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
-              Belum ada kategori. Tambahkan kategori pertama di atas agar
-              produk bisa dikelompokkan.
+              {isOwner
+                ? 'Belum ada kategori. Tambahkan kategori pertama di atas agar produk bisa dikelompokkan.'
+                : 'Belum ada kategori.'}
             </p>
           )}
           <ul className="divide-y divide-garis">
@@ -746,28 +760,30 @@ export default function ProdukPage() {
                             : `${jumlah} produk`}
                         </div>
                       </div>
-                      <div className="flex shrink-0 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditId(k.id)
-                            setEditNama(k.nama)
-                            setError(null)
-                          }}
-                          className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
-                        >
-                          Ubah
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            konfirmasiHapusKategori(k.id, k.nama)
-                          }
-                          className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
-                        >
-                          Hapus
-                        </button>
-                      </div>
+                      {isOwner && (
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditId(k.id)
+                              setEditNama(k.nama)
+                              setError(null)
+                            }}
+                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                          >
+                            Ubah
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              konfirmasiHapusKategori(k.id, k.nama)
+                            }
+                            className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      )}
                     </>
                   )}
                 </li>
@@ -787,33 +803,35 @@ export default function ProdukPage() {
               memakainya; hapus satuan tidak mengubah produk yang ada.
             </p>
           </div>
-          <form
-            className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:px-5"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (!namaSatuanBaru.trim()) return
-              simpanSatuanMutation.mutate({ nama: namaSatuanBaru })
-            }}
-          >
-            <input
-              type="text"
-              value={namaSatuanBaru}
-              onChange={(e) => setNamaSatuanBaru(e.target.value)}
-              placeholder="Nama satuan baru"
-              aria-label="Nama satuan baru"
-              className="input flex-1"
-            />
-            <button
-              type="submit"
-              disabled={
-                !namaSatuanBaru.trim() || simpanSatuanMutation.isPending
-              }
-              className="btn-primary sm:w-auto"
+          {isOwner && (
+            <form
+              className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:px-5"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (!namaSatuanBaru.trim()) return
+                simpanSatuanMutation.mutate({ nama: namaSatuanBaru })
+              }}
             >
-              <IconPlus className="h-5 w-5" strokeWidth={2.2} />
-              Tambah Satuan
-            </button>
-          </form>
+              <input
+                type="text"
+                value={namaSatuanBaru}
+                onChange={(e) => setNamaSatuanBaru(e.target.value)}
+                placeholder="Nama satuan baru"
+                aria-label="Nama satuan baru"
+                className="input flex-1"
+              />
+              <button
+                type="submit"
+                disabled={
+                  !namaSatuanBaru.trim() || simpanSatuanMutation.isPending
+                }
+                className="btn-primary sm:w-auto"
+              >
+                <IconPlus className="h-5 w-5" strokeWidth={2.2} />
+                Tambah Satuan
+              </button>
+            </form>
+          )}
           {satuanQuery.isLoading && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
               Memuat satuan…
@@ -829,8 +847,9 @@ export default function ProdukPage() {
           )}
           {satuanQuery.data && satuanQuery.data.length === 0 && (
             <p className="px-4 py-4 text-stone-600 sm:px-5">
-              Belum ada satuan. Tambahkan satuan pertama di atas agar bisa
-              dipilih di form produk.
+              {isOwner
+                ? 'Belum ada satuan. Tambahkan satuan pertama di atas agar bisa dipilih di form produk.'
+                : 'Belum ada satuan.'}
             </p>
           )}
           <ul className="divide-y divide-garis">
@@ -892,28 +911,30 @@ export default function ProdukPage() {
                             : `${jumlah} produk`}
                         </div>
                       </div>
-                      <div className="flex shrink-0 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditSatuanId(s.id)
-                            setEditSatuanNama(s.nama)
-                            setError(null)
-                          }}
-                          className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
-                        >
-                          Ubah
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            konfirmasiHapusSatuan(s.id, s.nama)
-                          }
-                          className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
-                        >
-                          Hapus
-                        </button>
-                      </div>
+                      {isOwner && (
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditSatuanId(s.id)
+                              setEditSatuanNama(s.nama)
+                              setError(null)
+                            }}
+                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                          >
+                            Ubah
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              konfirmasiHapusSatuan(s.id, s.nama)
+                            }
+                            className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      )}
                     </>
                   )}
                 </li>
