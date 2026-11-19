@@ -1,10 +1,10 @@
 // Halaman Produk & Stok: daftar produk (cari + filter kategori,
-// hapus produk yang belum pernah terjual), kelola kategori dan
-// satuan (tambah / ubah / hapus), dan riwayat pergerakan stok
-// (log_stok). Tambah / ubah produk lewat halaman sendiri
-// (/produk/tambah dan /produk/ubah/:id).
+// tambah stok yang tercatat di log, hapus produk yang belum pernah
+// terjual), kelola kategori dan satuan (tambah / ubah / hapus),
+// dan riwayat pergerakan stok (log_stok). Tambah / ubah produk
+// lewat halaman sendiri (/produk/tambah dan /produk/ubah/:id).
 
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -17,12 +17,91 @@ import {
   hapusSatuan,
   saveKategori,
   saveSatuan,
+  tambahStok,
 } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal } from '../lib/format'
 import { IconPlus, IconProduk, IconSearch } from '../components/icons'
+import type { Produk } from '../lib/types'
 
 type Tab = 'produk' | 'kategori' | 'satuan' | 'log'
+
+/** Form restock sebaris: jumlah yang masuk + catatan opsional.
+    Dipakai di tabel (layar besar) dan kartu (HP). */
+function FormTambahStok({
+  produk,
+  sibuk,
+  onSimpan,
+  onBatal,
+}: {
+  produk: Produk
+  sibuk: boolean
+  onSimpan: (jumlah: number, catatan?: string) => void
+  onBatal: () => void
+}) {
+  const [jumlah, setJumlah] = useState('')
+  const [catatan, setCatatan] = useState('')
+  const [errorLokal, setErrorLokal] = useState<string | null>(null)
+
+  function simpan() {
+    const n = Number(jumlah)
+    if (!jumlah.trim() || !Number.isInteger(n) || n < 1) {
+      setErrorLokal('Jumlah harus angka bulat minimal 1.')
+      return
+    }
+    setErrorLokal(null)
+    onSimpan(n, catatan.trim() ? catatan.trim() : undefined)
+  }
+
+  return (
+    <div>
+      <p className="text-sm text-stone-600">
+        Stok sekarang:{' '}
+        <span className="font-semibold text-tinta">
+          {produk.stok} {produk.satuan}
+        </span>
+      </p>
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1}
+          step={1}
+          value={jumlah}
+          onChange={(e) => setJumlah(e.target.value)}
+          placeholder="Jumlah yang masuk"
+          aria-label="Jumlah stok yang masuk"
+          className="input sm:w-44"
+        />
+        <input
+          value={catatan}
+          onChange={(e) => setCatatan(e.target.value)}
+          placeholder="Catatan (opsional)"
+          aria-label="Catatan restock"
+          className="input flex-1"
+        />
+      </div>
+      {errorLokal && <p className="mt-2 text-sm text-red-700">{errorLokal}</p>}
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          disabled={sibuk}
+          onClick={simpan}
+          className="btn-primary min-h-11 px-5"
+        >
+          Simpan
+        </button>
+        <button
+          type="button"
+          onClick={onBatal}
+          className="btn-secondary min-h-11 px-4"
+        >
+          Batal
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function ProdukPage() {
   // Harga beli hanya terlihat oleh owner (Tahap 2).
@@ -81,6 +160,33 @@ export default function ProdukPage() {
     },
     onError: (err: unknown) => {
       setError(err instanceof Error ? err.message : 'Gagal menghapus produk.')
+    },
+  })
+
+  // Form tambah stok: satu produk dalam satu waktu.
+  const [stokId, setStokId] = useState<string | null>(null)
+
+  const stokMutation = useMutation({
+    mutationFn: ({
+      id,
+      jumlah,
+      catatan,
+    }: {
+      id: string
+      jumlah: number
+      catatan?: string
+    }) => tambahStok(id, jumlah, catatan),
+    onSuccess: (stokBaru, v) => {
+      void queryClient.invalidateQueries({ queryKey: ['produk'] })
+      void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
+      const nama =
+        produkQuery.data?.find((p) => p.id === v.id)?.nama ?? 'Produk'
+      setPesan(`Stok ${nama} bertambah ${v.jumlah}. Stok sekarang ${stokBaru}.`)
+      setError(null)
+      setStokId(null)
+    },
+    onError: (err: unknown) => {
+      setError(err instanceof Error ? err.message : 'Gagal menambah stok.')
     },
   })
 
@@ -374,52 +480,78 @@ export default function ProdukPage() {
                 </thead>
                 <tbody>
                   {produkTampil.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="border-b transition-colors last:border-0 hover:bg-kertas"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="font-medium">{p.nama}</div>
-                        <div className="text-xs text-stone-600">
-                          per {p.satuan}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-stone-600">
-                        {p.kategori?.nama ?? '-'}
-                      </td>
-                      {isOwner && (
-                        <td className="px-4 py-3 text-right">
-                          {formatRupiah(p.harga_beli)}
+                    <Fragment key={p.id}>
+                      <tr className="border-b transition-colors last:border-0 hover:bg-kertas">
+                        <td className="px-4 py-3">
+                          <div className="font-medium">{p.nama}</div>
+                          <div className="text-xs text-stone-600">
+                            per {p.satuan}
+                          </div>
                         </td>
+                        <td className="px-4 py-3 text-stone-600">
+                          {p.kategori?.nama ?? '-'}
+                        </td>
+                        {isOwner && (
+                          <td className="px-4 py-3 text-right">
+                            {formatRupiah(p.harga_beli)}
+                          </td>
+                        )}
+                        <td className="px-4 py-3 text-right font-semibold tabular-nums">
+                          {formatRupiah(p.harga_jual)}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-right font-semibold tabular-nums ${
+                            p.stok <= 5 ? 'text-red-600' : ''
+                          }`}
+                        >
+                          {p.stok}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setStokId(stokId === p.id ? null : p.id)
+                              }
+                              className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                            >
+                              Tambah Stok
+                            </button>
+                            <Link
+                              to={`/produk/ubah/${p.id}`}
+                              className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                            >
+                              Ubah
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => konfirmasiHapus(p.id, p.nama)}
+                              className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
+                            >
+                              Hapus
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {stokId === p.id && (
+                        <tr className="border-b bg-kertas">
+                          <td colSpan={isOwner ? 6 : 5} className="px-4 py-4">
+                            <FormTambahStok
+                              produk={p}
+                              sibuk={stokMutation.isPending}
+                              onSimpan={(jumlah, catatan) =>
+                                stokMutation.mutate({
+                                  id: p.id,
+                                  jumlah,
+                                  catatan,
+                                })
+                              }
+                              onBatal={() => setStokId(null)}
+                            />
+                          </td>
+                        </tr>
                       )}
-                      <td className="px-4 py-3 text-right font-semibold tabular-nums">
-                        {formatRupiah(p.harga_jual)}
-                      </td>
-                      <td
-                        className={`px-4 py-3 text-right font-semibold tabular-nums ${
-                          p.stok <= 5 ? 'text-red-600' : ''
-                        }`}
-                      >
-                        {p.stok}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
-                          <Link
-                            to={`/produk/ubah/${p.id}`}
-                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
-                          >
-                            Ubah
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => konfirmasiHapus(p.id, p.nama)}
-                            className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -475,6 +607,25 @@ export default function ProdukPage() {
                     Hapus
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setStokId(stokId === p.id ? null : p.id)}
+                  className="btn-secondary mt-2 min-h-11 w-full py-2"
+                >
+                  Tambah Stok
+                </button>
+                {stokId === p.id && (
+                  <div className="mt-3 border-t border-dashed border-garis pt-3">
+                    <FormTambahStok
+                      produk={p}
+                      sibuk={stokMutation.isPending}
+                      onSimpan={(jumlah, catatan) =>
+                        stokMutation.mutate({ id: p.id, jumlah, catatan })
+                      }
+                      onBatal={() => setStokId(null)}
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

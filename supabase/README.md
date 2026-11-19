@@ -17,6 +17,7 @@ Checkout hanya lewat fungsi `buat_transaksi()` di database.
 | `009_ubah_transaksi.sql` | **Core.** Fungsi `ubah_transaksi()`: ubah item transaksi (stok lama dikembalikan, item baru diproses seperti checkout, total dihitung ulang, metode bayar tidak berubah). Di core, transaksi hanya bisa diubah dalam 24 jam setelah dibuat; Bon tidak bisa diubah di core. |
 | `011_tambah_email_profil.sql` | **Core.** Kolom `email` di tabel `profiles` + trigger signup ikut menyimpan email akun baru + backfill email akun lama dari `auth.users`. Halaman Pengguna memakai email untuk mengenali tiap akun. |
 | `012_sinkron_email_profil.sql` | **Core.** Trigger yang menyalin perubahan email di `auth.users` ke `profiles.email`, supaya email yang diubah pengguna lewat tautan konfirmasi langsung tampil benar di halaman Pengguna. |
+| `013_tambah_stok.sql` | **Core.** Fungsi `tambah_stok()`: menambah stok produk dan mencatatnya di `log_stok` (alasan `restock` atau catatan yang diisi) dalam satu transaksi atomik. Bisa dipakai owner maupun kasir; mengembalikan stok baru. |
 
 ## Urutan menjalankan
 
@@ -31,6 +32,7 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 7. `009_ubah_transaksi.sql`: setelah 007, di project utama **dan** project Pro.
 8. `011_tambah_email_profil.sql`: setelah 004, di project utama **dan** project Pro.
 9. `012_sinkron_email_profil.sql`: setelah 011, di project utama **dan** project Pro.
+10. `013_tambah_stok.sql`: setelah 001, di project utama **dan** project Pro.
 
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing: jangan tertukar.

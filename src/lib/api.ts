@@ -22,6 +22,7 @@ import {
   demoSaveKategori,
   demoSaveProduk,
   demoSaveSatuan,
+  demoTambahStok,
   demoUbahTransaksi,
 } from './demo'
 import type {
@@ -257,6 +258,26 @@ export async function fetchLogStok(limit = 100): Promise<LogStok[]> {
     .limit(limit)
   if (error) throw error
   return (data ?? []) as unknown as LogStok[]
+}
+
+/**
+ * Tambah stok produk lewat fungsi database tambah_stok() (013):
+ * stok bertambah dan tercatat di log stok dalam satu transaksi.
+ * Mengembalikan stok baru. Bisa dipakai owner maupun kasir.
+ */
+export async function tambahStok(
+  produkId: string,
+  jumlah: number,
+  catatan?: string,
+): Promise<number> {
+  if (isDemoMode) return demoTambahStok(produkId, jumlah, catatan)
+  const { data, error } = await requireSupabase().rpc('tambah_stok', {
+    p_produk_id: produkId,
+    p_jumlah: jumlah,
+    p_alasan: catatan?.trim() ? catatan.trim() : null,
+  })
+  if (error) throw error
+  return data as number
 }
 
 /** Riwayat transaksi + itemnya, terbaru dulu. Filter tanggal opsional (YYYY-MM-DD, zona lokal). */

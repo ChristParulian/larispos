@@ -348,6 +348,40 @@ export function demoCheckout(
   }
 }
 
+/** Tambah stok produk demo + catat di log stok (cermin 013). */
+export function demoTambahStok(
+  produkId: string,
+  jumlah: number,
+  catatan?: string,
+): number {
+  if (!Number.isInteger(jumlah) || jumlah < 1) {
+    throw new Error('Jumlah stok harus minimal 1.')
+  }
+  const produkList = demoGetProduk()
+  const p = produkList.find((x) => x.id === produkId)
+  if (!p) throw new Error('Produk tidak ditemukan.')
+  const stokSesudah = p.stok + jumlah
+  const logs = demoGetLogStok()
+  logs.unshift({
+    id: `restock-${produkId}-${Date.now()}`,
+    produk_id: produkId,
+    transaksi_id: null,
+    perubahan: jumlah,
+    stok_sebelum: p.stok,
+    stok_sesudah: stokSesudah,
+    alasan: catatan?.trim() ? catatan.trim() : 'restock',
+    created_at: new Date().toISOString(),
+  })
+  save(KEY_LOG, logs)
+  save(
+    KEY_PRODUK,
+    produkList.map((x) =>
+      x.id === produkId ? { ...x, stok: stokSesudah } : x,
+    ),
+  )
+  return stokSesudah
+}
+
 /** Meniru batalkan_transaksi() untuk mode demo (stok kembali, log ditulis). */
 export function demoBatalkanTransaksi(id: string): void {
   const list = demoGetTransaksi()
