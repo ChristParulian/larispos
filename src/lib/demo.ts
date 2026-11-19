@@ -383,7 +383,7 @@ export function demoBatalkanTransaksi(id: string): void {
   save(KEY_TRANSAKSI, list)
 }
 
-/** Meniru ubah_transaksi() (Pro) untuk mode demo. */
+/** Meniru ubah_transaksi() untuk mode demo. */
 export function demoUbahTransaksi(
   id: string,
   items: Array<{ produk_id: string; qty: number }>,
@@ -395,6 +395,12 @@ export function demoUbahTransaksi(
   const lama = list[idx]
   if (lama.status === 'dibatalkan') {
     throw new Error('Transaksi yang sudah dibatalkan tidak bisa diubah.')
+  }
+  // Hanya di core: transaksi hanya bisa diubah dalam 24 jam.
+  // Demo Pro (di tree Pro) tidak punya batas ini, jadi file ini
+  // tidak lagi identik antar tree; jangan salin mentah-mentah.
+  if (Date.now() - new Date(lama.created_at).getTime() > 24 * 60 * 60 * 1000) {
+    throw new Error('Transaksi hanya bisa diubah dalam 24 jam setelah dibuat.')
   }
   if (items.length === 0) throw new Error('Keranjang kosong.')
   const now = new Date().toISOString()
