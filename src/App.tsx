@@ -11,6 +11,7 @@ import LaporanPage from './pages/LaporanPage'
 import LoginPage from './pages/LoginPage'
 import AturUlangSandiPage from './pages/AturUlangSandiPage'
 import PenggunaPage from './pages/PenggunaPage'
+import ProfilSayaPage from './pages/ProfilSayaPage'
 import UbahTransaksiPage from './pages/UbahTransaksiPage'
 
 /** Rute yang butuh login. Mode demo (tanpa Supabase) bebas lewat. */
@@ -108,6 +109,14 @@ export default function App() {
                 <KhususOwner>
                   <PenggunaPage />
                 </KhususOwner>
+              </ButuhLogin>
+            }
+          />
+          <Route
+            path="/profil-saya"
+            element={
+              <ButuhLogin>
+                <ProfilSayaPage />
               </ButuhLogin>
             }
           />

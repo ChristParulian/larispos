@@ -91,6 +91,15 @@ export default function Layout() {
                 <span className="hidden rounded-md border border-pinus-700 bg-pinus-800 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-pinus-100 sm:block">
                   {isOwner ? 'Owner' : 'Kasir'}
                 </span>
+                <NavLink
+                  to="/profil-saya"
+                  aria-label="Profil Saya"
+                  title="Profil Saya"
+                  className="inline-flex min-h-10 items-center rounded-lg border border-pinus-700 px-3 py-2 text-xs font-semibold text-pinus-100 hover:bg-pinus-800"
+                >
+                  <IconPengguna className="h-5 w-5 sm:hidden" />
+                  <span className="hidden sm:inline">Profil</span>
+                </NavLink>
                 <button
                   type="button"
                   onClick={handleKeluar}
