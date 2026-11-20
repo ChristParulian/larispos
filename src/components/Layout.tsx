@@ -12,6 +12,7 @@ import {
   IconPengguna,
   IconProduk,
 } from './icons'
+import BatasError from './BatasError'
 
 interface NavItem {
   to: string
@@ -154,7 +155,11 @@ export default function Layout() {
       {/* Padding bawah ekstra agar menu bawah tidak menutupi konten,
           di semua ukuran layar. */}
       <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:pt-6">
-        <Outlet />
+        {/* Batas dalam: error halaman ditangkap di sini supaya header dan
+            menu bawah tetap tampil. */}
+        <BatasError>
+          <Outlet />
+        </BatasError>
       </main>
 
       {/* Menu bawah: satu-satunya navigasi, di semua ukuran layar.

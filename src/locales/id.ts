@@ -15,6 +15,7 @@ import aturSandi from './id/aturSandi'
 import pengguna from './id/pengguna'
 import profil from './id/profil'
 import layout from './id/layout'
+import batasError from './id/batasError'
 
 export default {
   umum,
@@ -34,4 +35,5 @@ export default {
   pengguna,
   profil,
   layout,
+  batasError,
 }

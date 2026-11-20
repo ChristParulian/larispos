@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './lib/auth'
 import i18n from './lib/i18n'
 import { isDemoMode } from './lib/supabase'
 import Layout from './components/Layout'
+import BatasError from './components/BatasError'
 import DashboardPage from './pages/DashboardPage'
 import KasirPage from './pages/KasirPage'
 import ProdukPage from './pages/ProdukPage'
@@ -40,7 +41,11 @@ function KhususOwner({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
+      {/* Batas luar: menangkap error dari Layout sendiri. Error halaman
+          ditangkap batas dalam di Layout, supaya header dan menu bawah
+          tetap tampil. */}
+      <BatasError>
+        <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/atur-ulang-sandi" element={<AturUlangSandiPage />} />
         <Route element={<Layout />}>
@@ -127,7 +132,8 @@ export default function App() {
           />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
-      </Routes>
+        </Routes>
+      </BatasError>
     </AuthProvider>
   )
 }
