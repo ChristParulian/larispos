@@ -229,6 +229,7 @@ export default function PenggunaPage() {
           value={cari}
           onChange={(e) => setCari(e.target.value)}
           placeholder={t('pengguna.cariPlaceholder')}
+          aria-label={t('pengguna.cariPlaceholder')}
           className="input pl-11"
         />
       </div>
@@ -336,9 +337,15 @@ export default function PenggunaPage() {
                       ) : (
                         <>
                           <div>
-                            <span className="label">{t('umum.nama')}</span>
+                            <label
+                              htmlFor={`nama-pengguna-${p.id}`}
+                              className="label"
+                            >
+                              {t('umum.nama')}
+                            </label>
                             <div className="flex gap-2">
                               <input
+                                id={`nama-pengguna-${p.id}`}
                                 className="input"
                                 value={namaEdit}
                                 onChange={(e) => setNamaEdit(e.target.value)}
@@ -383,7 +390,12 @@ export default function PenggunaPage() {
                           </div>
 
                           <div className="border-t border-dashed border-garis pt-5">
-                            <span className="label">{t('umum.email')}</span>
+                            <label
+                              htmlFor={`email-pengguna-${p.id}`}
+                              className="label"
+                            >
+                              {t('umum.email')}
+                            </label>
                             <p className="text-sm text-stone-600">
                               {t('profil.emailSaatIni', {
                                 email: p.email ?? t('pengguna.tanpaEmail'),
@@ -391,6 +403,7 @@ export default function PenggunaPage() {
                             </p>
                             <div className="mt-2 flex gap-2">
                               <input
+                                id={`email-pengguna-${p.id}`}
                                 type="email"
                                 className="input"
                                 value={emailBaru}
@@ -416,9 +429,12 @@ export default function PenggunaPage() {
 
                           <div className="border-t border-dashed border-garis pt-5">
                             <div className="flex items-center justify-between">
-                              <span className="label">
+                              <label
+                                htmlFor={`sandi-pengguna-${p.id}`}
+                                className="label"
+                              >
                                 {t('umum.kataSandi')}
-                              </span>
+                              </label>
                               <button
                                 type="button"
                                 onClick={() => setLihatSandiBaru((v) => !v)}
@@ -430,6 +446,7 @@ export default function PenggunaPage() {
                               </button>
                             </div>
                             <input
+                              id={`sandi-pengguna-${p.id}`}
                               type={lihatSandiBaru ? 'text' : 'password'}
                               className="input"
                               value={sandiBaru}

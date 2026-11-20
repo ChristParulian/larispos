@@ -429,6 +429,7 @@ export default function ProdukPage() {
                 value={cari}
                 onChange={(e) => setCari(e.target.value)}
                 placeholder={t('produk.placeholderCari')}
+                aria-label={t('produk.placeholderCari')}
                 className="input pl-11"
               />
             </div>

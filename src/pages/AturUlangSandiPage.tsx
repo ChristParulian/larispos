@@ -93,7 +93,9 @@ export default function AturUlangSandiPage() {
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="label">{t('aturSandi.sandiBaru')} *</span>
+                    <label htmlFor="sandi-baru" className="label">
+                      {t('aturSandi.sandiBaru')} *
+                    </label>
                     <button
                       type="button"
                       onClick={() => setLihatSandi((v) => !v)}
@@ -105,6 +107,7 @@ export default function AturUlangSandiPage() {
                     </button>
                   </div>
                   <input
+                    id="sandi-baru"
                     type={lihatSandi ? 'text' : 'password'}
                     className="input"
                     value={sandiBaru}

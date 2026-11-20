@@ -420,6 +420,7 @@ export default function KasirPage() {
             value={cari}
             onChange={(e) => setCari(e.target.value)}
             placeholder={t('kasir.cariProduk')}
+            aria-label={t('kasir.cariProduk')}
             className="input pl-11"
           />
         </div>

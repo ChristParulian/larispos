@@ -193,9 +193,12 @@ export default function ProfilSayaPage() {
           <BagianBahasa />
 
           <div className="border-t border-dashed border-garis pt-5">
-            <span className="label">{t('umum.nama')}</span>
+            <label htmlFor="nama-profil" className="label">
+              {t('umum.nama')}
+            </label>
             <div className="flex gap-2">
               <input
+                id="nama-profil"
                 className="input"
                 value={namaTampil}
                 onChange={(e) => setNamaEdit(e.target.value)}
@@ -223,7 +226,9 @@ export default function ProfilSayaPage() {
           </div>
 
           <div className="border-t border-dashed border-garis pt-5">
-            <span className="label">{t('umum.email')}</span>
+            <label htmlFor="email-profil" className="label">
+              {t('umum.email')}
+            </label>
             <p className="text-sm text-stone-600">
               {t('profil.emailSaatIni', {
                 email: profil.email ?? t('pengguna.tanpaEmail'),
@@ -231,6 +236,7 @@ export default function ProfilSayaPage() {
             </p>
             <div className="mt-2 flex gap-2">
               <input
+                id="email-profil"
                 type="email"
                 className="input"
                 value={emailBaru}
@@ -270,6 +276,7 @@ export default function ProfilSayaPage() {
                 value={sandiLama}
                 onChange={(e) => setSandiLama(e.target.value)}
                 placeholder={t('profil.sandiSaatIni')}
+                aria-label={t('profil.sandiSaatIni')}
                 autoComplete="current-password"
               />
               <input
@@ -278,6 +285,7 @@ export default function ProfilSayaPage() {
                 value={sandiBaru}
                 onChange={(e) => setSandiBaru(e.target.value)}
                 placeholder={t('profil.sandiBaruPlaceholder')}
+                aria-label={t('profil.sandiBaruPlaceholder')}
                 autoComplete="new-password"
               />
               <input
@@ -286,6 +294,7 @@ export default function ProfilSayaPage() {
                 value={sandiBaruUlang}
                 onChange={(e) => setSandiBaruUlang(e.target.value)}
                 placeholder={t('aturSandi.ulangiSandiBaru')}
+                aria-label={t('aturSandi.ulangiSandiBaru')}
                 autoComplete="new-password"
               />
             </div>

@@ -413,6 +413,7 @@ export default function UbahTransaksiPage() {
                   value={cari}
                   onChange={(e) => setCari(e.target.value)}
                   placeholder={t('ubahTransaksi.cariProduk')}
+                  aria-label={t('ubahTransaksi.cariProduk')}
                   className="input pl-11"
                 />
               </div>
