@@ -1,6 +1,7 @@
 export default {
   batalBerhasil: 'Transaksi berhasil dibatalkan. Stok sudah dikembalikan.',
   gagalMembatalkan: 'Gagal membatalkan transaksi.',
+  judulBatal: 'Batalkan transaksi',
   konfirmasiBatal:
     'Batalkan transaksi ini? Stok semua item akan dikembalikan, dan transaksi tidak lagi dihitung di laporan.',
   produkDihapus: 'Produk dihapus',

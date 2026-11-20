@@ -4,6 +4,7 @@ export default {
   namaDiubah: 'Nama diubah menjadi {{nama}}.',
   gagalUbahNama: 'Gagal mengubah nama.',
   penggunaIni: 'pengguna ini',
+  judulUbahPeran: 'Ubah peran',
   konfirmasiUbahPeran: 'Ubah {{nama}} menjadi {{peran}}?',
   emailPenggunaDiubah: 'Email {{nama}} diubah menjadi {{email}}.',
   sandiBaruWajib: 'Kata sandi baru wajib diisi.',

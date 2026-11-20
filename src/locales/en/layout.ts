@@ -7,6 +7,7 @@ export default {
   demoDengan: 'with',
   demoDan: 'and',
   demoAkhir: 'to use a real database.',
+  judulResetDemo: 'Reset demo data',
   konfirmasiResetDemo:
     'Reset the demo data to the original 12 products? Demo transactions will be deleted.',
   resetDemo: 'Reset demo data',

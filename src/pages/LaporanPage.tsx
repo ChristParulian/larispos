@@ -19,6 +19,7 @@ import {
   tanggalHariIni,
 } from '../lib/format'
 import { IconChevron } from '../components/icons'
+import DialogKonfirmasi from '../components/DialogKonfirmasi'
 
 export default function LaporanPage() {
   const { t } = useTranslation()
@@ -29,6 +30,8 @@ export default function LaporanPage() {
   const [tanggal, setTanggal] = useState(tanggalHariIni())
   const [semuaTanggal, setSemuaTanggal] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
+  // Id transaksi di dialog konfirmasi batal.
+  const [dialogBatal, setDialogBatal] = useState<string | null>(null)
   // Pesan sukses dari halaman ubah transaksi (Pro) atau dari batal.
   const [pesan, setPesan] = useState<string | null>(
     () => (location.state as { pesan?: string } | null)?.pesan ?? null,
@@ -70,9 +73,7 @@ export default function LaporanPage() {
   })
 
   function konfirmasiBatal(id: string) {
-    if (window.confirm(t('laporan.konfirmasiBatal'))) {
-      batalMutation.mutate(id)
-    }
+    setDialogBatal(id)
   }
 
   const ringkasan = useMemo(() => {
@@ -377,6 +378,19 @@ export default function LaporanPage() {
             )}
           </div>
         </>
+      )}
+      {dialogBatal && (
+        <DialogKonfirmasi
+          judul={t('laporan.judulBatal')}
+          pesan={t('laporan.konfirmasiBatal')}
+          labelKonfirmasi={t('laporan.batalkan')}
+          berbahaya
+          onKonfirmasi={() => {
+            batalMutation.mutate(dialogBatal)
+            setDialogBatal(null)
+          }}
+          onBatal={() => setDialogBatal(null)}
+        />
       )}
     </div>
   )

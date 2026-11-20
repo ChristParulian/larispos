@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../lib/auth'
 import { formatRupiah, formatTanggal } from '../lib/format'
 import { IconPlus, IconProduk, IconSearch } from '../components/icons'
+import DialogKonfirmasi from '../components/DialogKonfirmasi'
 import type { Produk } from '../lib/types'
 
 type Tab = 'produk' | 'kategori' | 'satuan' | 'log'
@@ -170,6 +171,20 @@ export default function ProdukPage() {
 
   // Form tambah stok: satu produk dalam satu waktu.
   const [stokId, setStokId] = useState<string | null>(null)
+  // Target dialog konfirmasi hapus: hanya satu dialog yang terbuka
+  // dalam satu waktu.
+  const [dialogProduk, setDialogProduk] = useState<{
+    id: string
+    nama: string
+  } | null>(null)
+  const [dialogKategori, setDialogKategori] = useState<{
+    id: string
+    nama: string
+  } | null>(null)
+  const [dialogSatuan, setDialogSatuan] = useState<{
+    id: string
+    nama: string
+  } | null>(null)
 
   const stokMutation = useMutation({
     mutationFn: ({
@@ -202,9 +217,7 @@ export default function ProdukPage() {
   })
 
   function konfirmasiHapus(id: string, nama: string) {
-    if (window.confirm(t('produk.konfirmasiHapusProduk', { nama }))) {
-      hapusMutation.mutate(id)
-    }
+    setDialogProduk({ id, nama })
   }
 
   // Jumlah produk per kategori, untuk tab Kategori.
@@ -253,18 +266,20 @@ export default function ProdukPage() {
     },
   })
 
-  function konfirmasiHapusKategori(id: string, nama: string) {
+  // Pesan dialog hapus kategori: memperingatkan berapa produk yang
+  // akan menjadi tanpa kategori.
+  function pesanHapusKategori(id: string, nama: string): string {
     const jumlah = jumlahProduk.get(id) ?? 0
-    const pesanKonfirmasi =
-      jumlah > 0
-        ? t('produk.konfirmasiHapusKategoriDenganProduk', {
-            nama,
-            count: jumlah,
-          })
-        : t('produk.konfirmasiHapusKategori', { nama })
-    if (window.confirm(pesanKonfirmasi)) {
-      hapusKategoriMutation.mutate(id)
-    }
+    return jumlah > 0
+      ? t('produk.konfirmasiHapusKategoriDenganProduk', {
+          nama,
+          count: jumlah,
+        })
+      : t('produk.konfirmasiHapusKategori', { nama })
+  }
+
+  function konfirmasiHapusKategori(id: string, nama: string) {
+    setDialogKategori({ id, nama })
   }
 
   // Jumlah produk per satuan (produk menyimpan satuannya sebagai
@@ -312,18 +327,20 @@ export default function ProdukPage() {
     },
   })
 
-  function konfirmasiHapusSatuan(id: string, nama: string) {
+  // Pesan dialog hapus satuan: memperingatkan berapa produk yang
+  // masih memakainya.
+  function pesanHapusSatuan(nama: string): string {
     const jumlah = jumlahProdukSatuan.get(nama) ?? 0
-    const pesanKonfirmasi =
-      jumlah > 0
-        ? t('produk.konfirmasiHapusSatuanDenganProduk', {
-            nama,
-            count: jumlah,
-          })
-        : t('produk.konfirmasiHapusSatuan', { nama })
-    if (window.confirm(pesanKonfirmasi)) {
-      hapusSatuanMutation.mutate(id)
-    }
+    return jumlah > 0
+      ? t('produk.konfirmasiHapusSatuanDenganProduk', {
+          nama,
+          count: jumlah,
+        })
+      : t('produk.konfirmasiHapusSatuan', { nama })
+  }
+
+  function konfirmasiHapusSatuan(id: string, nama: string) {
+    setDialogSatuan({ id, nama })
   }
 
   // Alasan log yang dikenal diterjemahkan; catatan bebas pengguna
@@ -1032,6 +1049,47 @@ export default function ProdukPage() {
             ))}
           </ul>
         </div>
+      )}
+      {dialogProduk && (
+        <DialogKonfirmasi
+          judul={t('produk.judulHapusProduk')}
+          pesan={t('produk.konfirmasiHapusProduk', {
+            nama: dialogProduk.nama,
+          })}
+          labelKonfirmasi={t('umum.hapus')}
+          berbahaya
+          onKonfirmasi={() => {
+            hapusMutation.mutate(dialogProduk.id)
+            setDialogProduk(null)
+          }}
+          onBatal={() => setDialogProduk(null)}
+        />
+      )}
+      {dialogKategori && (
+        <DialogKonfirmasi
+          judul={t('produk.judulHapusKategori')}
+          pesan={pesanHapusKategori(dialogKategori.id, dialogKategori.nama)}
+          labelKonfirmasi={t('umum.hapus')}
+          berbahaya
+          onKonfirmasi={() => {
+            hapusKategoriMutation.mutate(dialogKategori.id)
+            setDialogKategori(null)
+          }}
+          onBatal={() => setDialogKategori(null)}
+        />
+      )}
+      {dialogSatuan && (
+        <DialogKonfirmasi
+          judul={t('produk.judulHapusSatuan')}
+          pesan={pesanHapusSatuan(dialogSatuan.nama)}
+          labelKonfirmasi={t('umum.hapus')}
+          berbahaya
+          onKonfirmasi={() => {
+            hapusSatuanMutation.mutate(dialogSatuan.id)
+            setDialogSatuan(null)
+          }}
+          onBatal={() => setDialogSatuan(null)}
+        />
       )}
     </div>
   )

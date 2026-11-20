@@ -33,6 +33,7 @@ export default {
   gagalTambahStok: 'Gagal menambah stok.',
   stokBertambah:
     'Stok {{nama}} bertambah {{jumlah}}. Stok sekarang {{stokBaru}}.',
+  judulHapusProduk: 'Hapus produk',
   konfirmasiHapusProduk:
     'Hapus produk "{{nama}}"? Produk yang pernah terjual tidak bisa dihapus.',
   // Form tambah stok
@@ -62,6 +63,7 @@ export default {
   gagalSimpanKategori: 'Gagal menyimpan kategori.',
   kategoriDihapus: 'Kategori berhasil dihapus.',
   gagalHapusKategori: 'Gagal menghapus kategori.',
+  judulHapusKategori: 'Hapus kategori',
   konfirmasiHapusKategori: 'Hapus kategori "{{nama}}"?',
   konfirmasiHapusKategoriDenganProduk_one:
     'Hapus kategori "{{nama}}"? {{count}} produk di dalamnya akan menjadi tanpa kategori.',
@@ -84,6 +86,7 @@ export default {
   gagalSimpanSatuan: 'Gagal menyimpan satuan.',
   satuanDihapus: 'Satuan berhasil dihapus.',
   gagalHapusSatuan: 'Gagal menghapus satuan.',
+  judulHapusSatuan: 'Hapus satuan',
   konfirmasiHapusSatuan: 'Hapus satuan "{{nama}}"?',
   konfirmasiHapusSatuanDenganProduk_one:
     'Hapus satuan "{{nama}}"? {{count}} produk masih memakainya, tapi produk tersebut tetap menampilkan satuannya.',

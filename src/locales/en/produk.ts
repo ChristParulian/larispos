@@ -29,6 +29,7 @@ export default {
   gagalTambahStok: 'Failed to add stock.',
   stokBertambah:
     'Stock for {{nama}} increased by {{jumlah}}. Current stock is {{stokBaru}}.',
+  judulHapusProduk: 'Delete product',
   konfirmasiHapusProduk:
     'Delete the product "{{nama}}"? Products that have been sold cannot be deleted.',
   jumlahBulatMinimal: 'The amount must be a whole number of at least 1.',
@@ -56,6 +57,7 @@ export default {
   gagalSimpanKategori: 'Failed to save the category.',
   kategoriDihapus: 'Category deleted.',
   gagalHapusKategori: 'Failed to delete the category.',
+  judulHapusKategori: 'Delete category',
   konfirmasiHapusKategori: 'Delete the category "{{nama}}"?',
   konfirmasiHapusKategoriDenganProduk_one:
     'Delete the category "{{nama}}"? {{count}} product inside it will become uncategorized.',
@@ -77,6 +79,7 @@ export default {
   gagalSimpanSatuan: 'Failed to save the unit.',
   satuanDihapus: 'Unit deleted.',
   gagalHapusSatuan: 'Failed to delete the unit.',
+  judulHapusSatuan: 'Delete unit',
   konfirmasiHapusSatuan: 'Delete the unit "{{nama}}"?',
   konfirmasiHapusSatuanDenganProduk_one:
     'Delete the unit "{{nama}}"? {{count}} product still uses it, but that product will keep showing its unit.',

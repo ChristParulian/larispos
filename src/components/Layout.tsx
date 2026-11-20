@@ -1,4 +1,4 @@
-import { Suspense, type ComponentType } from 'react'
+import { Suspense, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { isDemoMode } from '../lib/supabase'
@@ -14,6 +14,7 @@ import {
 } from './icons'
 import BatasError from './BatasError'
 import Memuat from './Memuat'
+import DialogKonfirmasi from './DialogKonfirmasi'
 
 interface NavItem {
   to: string
@@ -78,6 +79,7 @@ export default function Layout() {
   const namaDepan = (profil?.nama ?? user?.email?.split('@')[0] ?? '').split(
     ' ',
   )[0]
+  const [dialogReset, setDialogReset] = useState(false)
 
   async function handleKeluar() {
     await signOut()
@@ -138,12 +140,7 @@ export default function Layout() {
           <button
             type="button"
             className="underline"
-            onClick={() => {
-              if (window.confirm(t('layout.konfirmasiResetDemo'))) {
-                demoReset()
-                window.location.reload()
-              }
-            }}
+            onClick={() => setDialogReset(true)}
           >
             {t('layout.resetDemo')}
           </button>
@@ -181,6 +178,20 @@ export default function Layout() {
           {tampilPengguna && <BottomNavItem item={NAV_PENGGUNA} />}
         </div>
       </nav>
+
+      {dialogReset && (
+        <DialogKonfirmasi
+          judul={t('layout.judulResetDemo')}
+          pesan={t('layout.konfirmasiResetDemo')}
+          labelKonfirmasi={t('layout.resetDemo')}
+          berbahaya
+          onKonfirmasi={() => {
+            demoReset()
+            window.location.reload()
+          }}
+          onBatal={() => setDialogReset(false)}
+        />
+      )}
     </div>
   )
 }

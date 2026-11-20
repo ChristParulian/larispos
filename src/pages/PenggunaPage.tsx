@@ -14,6 +14,7 @@ import { aturSandiPengguna, ubahEmailPengguna, useAuth } from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
 import { IconChevron, IconSearch } from '../components/icons'
+import DialogKonfirmasi from '../components/DialogKonfirmasi'
 import type { Peran, Profil } from '../lib/types'
 
 export default function PenggunaPage() {
@@ -22,6 +23,12 @@ export default function PenggunaPage() {
   const queryClient = useQueryClient()
   const [cari, setCari] = useState('')
   const [detailId, setDetailId] = useState<string | null>(null)
+  // Target dialog konfirmasi ubah peran.
+  const [dialogPeran, setDialogPeran] = useState<{
+    id: string
+    target: Peran
+    nama: string
+  } | null>(null)
   const [namaEdit, setNamaEdit] = useState('')
   const [emailBaru, setEmailBaru] = useState('')
   const [sandiBaru, setSandiBaru] = useState('')
@@ -101,18 +108,7 @@ export default function PenggunaPage() {
   function konfirmasiUbah(p: Profil) {
     const target: Peran = p.role === 'owner' ? 'kasir' : 'owner'
     const nama = p.nama ?? p.email ?? t('pengguna.penggunaIni')
-    if (
-      window.confirm(
-        t('pengguna.konfirmasiUbahPeran', {
-          nama,
-          peran: t(
-            target === 'owner' ? 'pengguna.peranOwner' : 'pengguna.peranKasir',
-          ),
-        }),
-      )
-    ) {
-      ubahMutation.mutate({ id: p.id, role: target, nama })
-    }
+    setDialogPeran({ id: p.id, target, nama })
   }
 
   async function simpanEmailPengguna(p: Profil) {
@@ -475,6 +471,33 @@ export default function PenggunaPage() {
             })}
           </ul>
         </div>
+      )}
+      {dialogPeran && (
+        <DialogKonfirmasi
+          judul={t('pengguna.judulUbahPeran')}
+          pesan={t('pengguna.konfirmasiUbahPeran', {
+            nama: dialogPeran.nama,
+            peran: t(
+              dialogPeran.target === 'owner'
+                ? 'pengguna.peranOwner'
+                : 'pengguna.peranKasir',
+            ),
+          })}
+          labelKonfirmasi={t(
+            dialogPeran.target === 'owner'
+              ? 'pengguna.jadikanOwner'
+              : 'pengguna.jadikanKasir',
+          )}
+          onKonfirmasi={() => {
+            ubahMutation.mutate({
+              id: dialogPeran.id,
+              role: dialogPeran.target,
+              nama: dialogPeran.nama,
+            })
+            setDialogPeran(null)
+          }}
+          onBatal={() => setDialogPeran(null)}
+        />
       )}
     </div>
   )

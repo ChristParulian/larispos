@@ -1,6 +1,7 @@
 export default {
   batalBerhasil: 'Transaction cancelled. The stock has been returned.',
   gagalMembatalkan: 'Could not cancel the transaction.',
+  judulBatal: 'Cancel transaction',
   konfirmasiBatal:
     'Cancel this transaction? The stock of all items will be returned, and the transaction will no longer count in the reports.',
   produkDihapus: 'Deleted product',
