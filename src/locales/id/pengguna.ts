@@ -5,14 +5,19 @@ export default {
   gagalUbahNama: 'Gagal mengubah nama.',
   penggunaIni: 'pengguna ini',
   konfirmasiUbahPeran: 'Ubah {{nama}} menjadi {{peran}}?',
-  tidakPunyaEmail: 'Pengguna ini tidak punya email.',
-  linkResetDikirim: 'Link atur ulang kata sandi dikirim ke {{email}}.',
+  emailPenggunaDiubah: 'Email {{nama}} diubah menjadi {{email}}.',
+  sandiBaruWajib: 'Kata sandi baru wajib diisi.',
+  aturSandi: 'Atur kata sandi baru',
+  sandiPenggunaDiubah:
+    'Kata sandi {{nama}} diubah. Beri tahu kata sandi barunya kepada {{nama}}.',
+  keteranganSandiOwner:
+    'Kata sandi langsung berubah, dan pengguna harus masuk ulang dengan kata sandi baru.',
   peranOwner: 'Owner',
   peranKasir: 'Kasir',
   hanyaSupabase:
     'Halaman ini hanya tersedia saat memakai Supabase. Di mode demo tidak ada akun pengguna.',
   keterangan:
-    'Owner bisa melihat harga beli, laba, dan mengatur peran. Kasir fokus berjualan. Akun baru yang mendaftar otomatis menjadi Kasir. Ketuk salah satu pengguna untuk mengubah nama dan perannya, atau mengirim link atur ulang kata sandi. Untuk akunmu sendiri, buka Profil Saya di pojok kanan atas.',
+    'Owner bisa melihat harga beli, laba, dan mengatur peran. Kasir fokus berjualan. Akun baru yang mendaftar otomatis menjadi Kasir. Ketuk salah satu pengguna untuk mengubah nama, peran, email, dan kata sandinya. Untuk akunmu sendiri, buka Profil Saya di pojok kanan atas.',
   jumlahPengguna_one: '{{count}} pengguna',
   jumlahPengguna_other: '{{count}} pengguna',
   jumlahOwner_one: '{{count}} Owner',
@@ -36,9 +41,4 @@ export default {
   placeholderNama: 'Nama pengguna',
   jadikanKasir: 'Jadikan Kasir',
   jadikanOwner: 'Jadikan Owner',
-  emailHanyaPemilik:
-    'Email hanya bisa diubah oleh pemilik akun dari akunnya sendiri.',
-  sandiTidakBisaDilihat:
-    'Kata sandi tidak bisa dilihat atau diubah langsung. Kirim link atur ulang ke email pengguna, dan dia mengatur kata sandi barunya sendiri.',
-  kirimLinkReset: 'Kirim link atur ulang kata sandi',
 }

@@ -228,6 +228,38 @@ export async function ubahEmailSendiri(
   return null
 }
 
+/** Owner ganti email pengguna lain, langsung tanpa link konfirmasi (RPC 016). */
+export async function ubahEmailPengguna(
+  penggunaId: string,
+  emailBaru: string,
+): Promise<string | null> {
+  if (!supabase) return i18n.t('galat.supabaseBelumSiap')
+  const { error } = await supabase.rpc('ubah_email_pengguna', {
+    p_pengguna_id: penggunaId,
+    p_email_baru: emailBaru,
+  })
+  if (error) {
+    return terjemahkanGalatDb(error.message)
+  }
+  return null
+}
+
+/** Owner atur kata sandi baru untuk pengguna lain (RPC 016). */
+export async function aturSandiPengguna(
+  penggunaId: string,
+  sandiBaru: string,
+): Promise<string | null> {
+  if (!supabase) return i18n.t('galat.supabaseBelumSiap')
+  const { error } = await supabase.rpc('atur_sandi_pengguna', {
+    p_pengguna_id: penggunaId,
+    p_sandi_baru: sandiBaru,
+  })
+  if (error) {
+    return terjemahkanGalatDb(error.message)
+  }
+  return null
+}
+
 /**
  * Ubah kata sandi akun sendiri. Kata sandi saat ini diverifikasi
  * dulu (masuk ulang), supaya orang yang memegang sesi terbuka

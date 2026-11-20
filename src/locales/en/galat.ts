@@ -49,6 +49,14 @@ export default {
   supabaseBelumSiap: 'Supabase is not configured.',
   emailDipakai: 'This email is already used by another account.',
   harusMasuk: 'Please sign in first.',
+  hanyaOwnerUbahEmail:
+    "Only the owner can change another user's email.",
+  hanyaOwnerAturSandi:
+    "Only the owner can set another user's password.",
+  ubahEmailSendiriProfil: 'Change your own email on the My Profile page.',
+  ubahSandiSendiriProfil:
+    'Change your own password on the My Profile page.',
+  penggunaTidakDitemukan: 'User not found.',
   sandiBaruMin8: 'The new password must be at least 8 characters.',
   sandiLamaSalah: 'The current password is incorrect.',
 }

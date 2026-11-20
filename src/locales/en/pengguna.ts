@@ -5,14 +5,19 @@ export default {
   gagalUbahNama: 'Could not change the name.',
   penggunaIni: 'this user',
   konfirmasiUbahPeran: 'Change {{nama}} to {{peran}}?',
-  tidakPunyaEmail: 'This user has no email.',
-  linkResetDikirim: 'A password reset link was sent to {{email}}.',
+  emailPenggunaDiubah: "{{nama}}'s email changed to {{email}}.",
+  sandiBaruWajib: 'The new password is required.',
+  aturSandi: 'Set a new password',
+  sandiPenggunaDiubah:
+    "{{nama}}'s password changed. Tell {{nama}} the new password.",
+  keteranganSandiOwner:
+    'The password changes right away, and the user must sign in again with the new password.',
   peranOwner: 'Owner',
   peranKasir: 'Cashier',
   hanyaSupabase:
     'This page is only available with Supabase. There are no user accounts in demo mode.',
   keterangan:
-    'Owners can see purchase prices, profit, and manage roles. Cashiers focus on selling. New accounts that sign up automatically become cashiers. Tap a user to change their name and role, or to send a password reset link. For your own account, open My Profile at the top right.',
+    'Owners can see purchase prices, profit, and manage roles. Cashiers focus on selling. New accounts that sign up automatically become cashiers. Tap a user to change their name, role, email, and password. For your own account, open My Profile at the top right.',
   jumlahPengguna_one: '{{count}} user',
   jumlahPengguna_other: '{{count}} users',
   jumlahOwner_one: '{{count}} Owner',
@@ -36,9 +41,4 @@ export default {
   placeholderNama: 'User name',
   jadikanKasir: 'Make cashier',
   jadikanOwner: 'Make owner',
-  emailHanyaPemilik:
-    'Only the account owner can change the email, from their own account.',
-  sandiTidakBisaDilihat:
-    'The password cannot be seen or changed directly. Send a reset link to the user email, and they set a new password themselves.',
-  kirimLinkReset: 'Send a password reset link',
 }

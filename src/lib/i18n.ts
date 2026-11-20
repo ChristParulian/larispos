@@ -77,6 +77,24 @@ const GALAT_DB_TETAP: Array<[string, string]> = [
   ['Harus masuk dulu.', 'galat.harusMasuk'],
   ['Format email tidak valid.', 'galat.emailTidakValid'],
   ['Email ini sudah dipakai akun lain.', 'galat.emailDipakai'],
+  [
+    'Hanya owner yang boleh mengubah email pengguna lain.',
+    'galat.hanyaOwnerUbahEmail',
+  ],
+  [
+    'Hanya owner yang boleh mengatur kata sandi pengguna lain.',
+    'galat.hanyaOwnerAturSandi',
+  ],
+  [
+    'Ubah email sendiri dari halaman Profil Saya.',
+    'galat.ubahEmailSendiriProfil',
+  ],
+  [
+    'Ubah kata sandi sendiri dari halaman Profil Saya.',
+    'galat.ubahSandiSendiriProfil',
+  ],
+  ['Pengguna tidak ditemukan.', 'galat.penggunaTidakDitemukan'],
+  ['Kata sandi baru minimal 8 karakter.', 'galat.sandiBaruMin8'],
 ]
 
 /** Pesan galat database dengan nilai di dalamnya (pola + kunci). */

@@ -53,6 +53,14 @@ export default {
   supabaseBelumSiap: 'Supabase belum dikonfigurasi.',
   emailDipakai: 'Email ini sudah dipakai akun lain.',
   harusMasuk: 'Harus masuk dulu.',
+  hanyaOwnerUbahEmail:
+    'Hanya owner yang boleh mengubah email pengguna lain.',
+  hanyaOwnerAturSandi:
+    'Hanya owner yang boleh mengatur kata sandi pengguna lain.',
+  ubahEmailSendiriProfil: 'Ubah email sendiri dari halaman Profil Saya.',
+  ubahSandiSendiriProfil:
+    'Ubah kata sandi sendiri dari halaman Profil Saya.',
+  penggunaTidakDitemukan: 'Pengguna tidak ditemukan.',
   sandiBaruMin8: 'Kata sandi baru minimal 8 karakter.',
   sandiLamaSalah: 'Kata sandi saat ini salah.',
 }

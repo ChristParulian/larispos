@@ -1,6 +1,6 @@
 // Halaman Pengguna (khusus Owner, Tahap 2): daftar akun yang
 // terdaftar beserta perannya, dan kelola akun pengguna lain:
-// ubah nama, ubah peran, dan kirim tautan atur ulang kata sandi.
+// ubah nama, ubah peran, ubah email, dan atur kata sandi baru.
 // Akun sendiri dikelola di halaman Profil Saya.
 // Aturan ditegakkan database (004): hanya owner yang boleh mengubah
 // peran, dan owner terakhir tidak boleh diturunkan.
@@ -14,7 +14,7 @@ import {
   ubahNamaProfil,
   ubahPeranProfil,
 } from '../lib/api'
-import { kirimLinkAturUlangSandi, useAuth } from '../lib/auth'
+import { aturSandiPengguna, ubahEmailPengguna, useAuth } from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
 import { IconChevron, IconSearch } from '../components/icons'
@@ -27,7 +27,10 @@ export default function PenggunaPage() {
   const [cari, setCari] = useState('')
   const [detailId, setDetailId] = useState<string | null>(null)
   const [namaEdit, setNamaEdit] = useState('')
-  const [sibukReset, setSibukReset] = useState(false)
+  const [emailBaru, setEmailBaru] = useState('')
+  const [sandiBaru, setSandiBaru] = useState('')
+  const [lihatSandiBaru, setLihatSandiBaru] = useState(false)
+  const [sibukAksi, setSibukAksi] = useState<'email' | 'sandi' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pesan, setPesan] = useState<string | null>(null)
 
@@ -98,6 +101,8 @@ export default function PenggunaPage() {
     setDetailId(buka ? p.id : null)
     if (buka) {
       setNamaEdit(p.nama ?? '')
+      setEmailBaru('')
+      setSandiBaru('')
     }
   }
 
@@ -120,21 +125,63 @@ export default function PenggunaPage() {
     }
   }
 
-  async function kirimReset(p: Profil) {
-    if (!p.email) {
-      setError(t('pengguna.tidakPunyaEmail'))
+  async function simpanEmailPengguna(p: Profil) {
+    const baru = emailBaru.trim()
+    if (!baru) {
+      setError(t('profil.emailBaruWajib'))
       return
     }
-    setSibukReset(true)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(baru)) {
+      setError(t('galat.emailTidakValid'))
+      return
+    }
+    if (baru.toLowerCase() === (p.email ?? '').toLowerCase()) {
+      setError(t('profil.emailBaruSama'))
+      return
+    }
+    setSibukAksi('email')
     setError(null)
     setPesan(null)
-    const err = await kirimLinkAturUlangSandi(p.email)
-    setSibukReset(false)
+    const err = await ubahEmailPengguna(p.id, baru)
+    setSibukAksi(null)
     if (err) {
       setError(err)
       return
     }
-    setPesan(t('pengguna.linkResetDikirim', { email: p.email }))
+    void queryClient.invalidateQueries({ queryKey: ['profil-semua'] })
+    setPesan(
+      t('pengguna.emailPenggunaDiubah', {
+        nama: p.nama ?? p.email ?? t('pengguna.penggunaIni'),
+        email: baru,
+      }),
+    )
+    setEmailBaru('')
+  }
+
+  async function simpanSandiPengguna(p: Profil) {
+    if (!sandiBaru) {
+      setError(t('pengguna.sandiBaruWajib'))
+      return
+    }
+    if (sandiBaru.length < 8) {
+      setError(t('galat.sandiBaruMin8'))
+      return
+    }
+    setSibukAksi('sandi')
+    setError(null)
+    setPesan(null)
+    const err = await aturSandiPengguna(p.id, sandiBaru)
+    setSibukAksi(null)
+    if (err) {
+      setError(err)
+      return
+    }
+    setPesan(
+      t('pengguna.sandiPenggunaDiubah', {
+        nama: p.nama ?? p.email ?? t('pengguna.penggunaIni'),
+      }),
+    )
+    setSandiBaru('')
   }
 
   function badgePeran(role: Peran) {
@@ -350,25 +397,69 @@ export default function PenggunaPage() {
                           <div className="border-t border-dashed border-garis pt-5">
                             <span className="label">{t('umum.email')}</span>
                             <p className="text-sm text-stone-600">
-                              {t('pengguna.emailHanyaPemilik')}
+                              {t('profil.emailSaatIni', {
+                                email: p.email ?? t('pengguna.tanpaEmail'),
+                              })}
+                            </p>
+                            <div className="mt-2 flex gap-2">
+                              <input
+                                type="email"
+                                className="input"
+                                value={emailBaru}
+                                onChange={(e) => setEmailBaru(e.target.value)}
+                                placeholder={t('profil.emailBaruPlaceholder')}
+                                autoComplete="email"
+                              />
+                              <button
+                                type="button"
+                                disabled={
+                                  sibukAksi === 'email' || !emailBaru.trim()
+                                }
+                                onClick={() => void simpanEmailPengguna(p)}
+                                className="btn-secondary min-h-11 shrink-0 px-4"
+                              >
+                                {t('profil.ubahEmail')}
+                              </button>
+                            </div>
+                            <p className="mt-2 text-xs text-stone-600">
+                              {t('profil.keteranganEmail')}
                             </p>
                           </div>
 
                           <div className="border-t border-dashed border-garis pt-5">
-                            <span className="label">
-                              {t('umum.kataSandi')}
-                            </span>
-                            <p className="text-sm text-stone-600">
-                              {t('pengguna.sandiTidakBisaDilihat')}
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <span className="label">
+                                {t('umum.kataSandi')}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setLihatSandiBaru((v) => !v)}
+                                className="min-h-11 px-2 text-xs font-bold text-pinus-700"
+                              >
+                                {lihatSandiBaru
+                                  ? t('aturSandi.sembunyikan')
+                                  : t('aturSandi.lihat')}
+                              </button>
+                            </div>
+                            <input
+                              type={lihatSandiBaru ? 'text' : 'password'}
+                              className="input"
+                              value={sandiBaru}
+                              onChange={(e) => setSandiBaru(e.target.value)}
+                              placeholder={t('profil.sandiBaruPlaceholder')}
+                              autoComplete="new-password"
+                            />
                             <button
                               type="button"
-                              disabled={sibukReset || !p.email}
-                              onClick={() => void kirimReset(p)}
+                              disabled={sibukAksi === 'sandi' || !sandiBaru}
+                              onClick={() => void simpanSandiPengguna(p)}
                               className="btn-secondary mt-2 min-h-11 w-full sm:w-auto"
                             >
-                              {t('pengguna.kirimLinkReset')}
+                              {t('pengguna.aturSandi')}
                             </button>
+                            <p className="mt-2 text-xs text-stone-600">
+                              {t('pengguna.keteranganSandiOwner')}
+                            </p>
                           </div>
                         </>
                       )}
