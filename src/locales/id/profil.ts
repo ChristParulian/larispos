@@ -2,8 +2,7 @@ export default {
   judul: 'Profil Saya',
   emailBaruWajib: 'Email baru wajib diisi.',
   emailBaruSama: 'Email baru sama dengan email saat ini.',
-  linkKonfirmasiDikirim:
-    'Link konfirmasi dikirim ke {{email}}. Email berubah setelah kamu membuka link itu.',
+  emailDiubah: 'Email diubah menjadi {{email}}.',
   semuaKolomSandiWajib: 'Semua kolom kata sandi wajib diisi.',
   emailAkunTidakDitemukan:
     'Email akun tidak ditemukan. Masuk ulang lalu coba lagi.',
@@ -16,7 +15,7 @@ export default {
   emailBaruPlaceholder: 'Email baru',
   ubahEmail: 'Ubah email',
   keteranganEmail:
-    'Link konfirmasi dikirim ke email baru. Email berubah setelah kamu membuka link itu.',
+    'Email langsung berubah setelah disimpan. Pastikan alamatnya benar.',
   sandiSaatIni: 'Kata sandi saat ini',
   sandiBaruPlaceholder: 'Kata sandi baru (minimal 8 karakter)',
   ubahSandi: 'Ubah kata sandi',

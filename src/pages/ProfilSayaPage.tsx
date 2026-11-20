@@ -1,7 +1,7 @@
 // Halaman Profil Saya: kelola akun sendiri (nama, email, kata
 // sandi). Bisa dibuka semua pengguna login, termasuk kasir.
-// Aturannya sama seperti di PenggunaPage: email diubah lewat
-// tautan konfirmasi ke email baru (disalin ke profiles lewat
+// Aturannya sama seperti di PenggunaPage: email diubah langsung
+// lewat fungsi ubah_email_sendiri (disalin ke profiles lewat
 // trigger 012), kata sandi diubah setelah verifikasi kata sandi
 // saat ini.
 
@@ -92,8 +92,9 @@ export default function ProfilSayaPage() {
       setError(err)
       return
     }
-    setPesan(t('profil.linkKonfirmasiDikirim', { email: baru }))
+    setPesan(t('profil.emailDiubah', { email: baru }))
     setEmailBaru('')
+    void muatUlangProfil()
   }
 
   async function simpanSandi() {

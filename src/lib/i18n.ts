@@ -74,6 +74,9 @@ const GALAT_DB_TETAP: Array<[string, string]> = [
     'galat.hutangTidakBisaDiubah',
   ],
   ['Jumlah stok harus minimal 1.', 'galat.jumlahStokMinimal'],
+  ['Harus masuk dulu.', 'galat.harusMasuk'],
+  ['Format email tidak valid.', 'galat.emailTidakValid'],
+  ['Email ini sudah dipakai akun lain.', 'galat.emailDipakai'],
 ]
 
 /** Pesan galat database dengan nilai di dalamnya (pola + kunci). */

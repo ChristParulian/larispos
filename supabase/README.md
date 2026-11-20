@@ -19,6 +19,7 @@ checkout hanya lewat fungsi `buat_transaksi()` di database.
 | `012_sinkron_email_profil.sql` | **Core.** Trigger yang menyalin perubahan email di `auth.users` ke `profiles.email`, supaya email yang diubah pengguna lewat tautan konfirmasi langsung tampil benar di halaman Pengguna. |
 | `013_tambah_stok.sql` | **Core.** Fungsi `tambah_stok()`: menambah stok produk dan mencatatnya di `log_stok` (alasan `restock` atau catatan yang diisi) dalam satu transaksi atomik. Bisa dipakai owner maupun kasir; mengembalikan stok baru. |
 | `014_batasi_kelola_produk_owner.sql` | **Core.** Hanya owner yang boleh tambah, ubah, dan hapus produk, kategori, dan satuan (policy tulis ketiga tabel dibatasi owner). Kasir tetap bisa membaca ketiganya dan menambah stok lewat `tambah_stok()`; fungsi checkout dan stok tidak terpengaruh karena melewati RLS. |
+| `015_ubah_email_langsung.sql` | **Core.** Fungsi `ubah_email_sendiri()`: ganti email pengguna yang sedang masuk secara langsung, tanpa link konfirmasi. Menolak format salah dan email yang sudah dipakai akun lain, dan membersihkan permintaan ganti email yang tertunda. Trigger 012 menyalin email baru ke `profiles.email`. |
 
 ## Urutan menjalankan
 
@@ -35,6 +36,7 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 9. `012_sinkron_email_profil.sql`: setelah 011, di project utama **dan** project Pro.
 10. `013_tambah_stok.sql`: setelah 001, di project utama **dan** project Pro.
 11. `014_batasi_kelola_produk_owner.sql`: setelah 001, di project utama **dan** project Pro.
+12. `015_ubah_email_langsung.sql`: setelah 012, di project utama **dan** project Pro.
 
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing: jangan tertukar.

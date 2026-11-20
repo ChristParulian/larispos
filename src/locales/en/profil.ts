@@ -2,8 +2,7 @@ export default {
   judul: 'My Profile',
   emailBaruWajib: 'The new email is required.',
   emailBaruSama: 'The new email is the same as the current one.',
-  linkKonfirmasiDikirim:
-    'A confirmation link was sent to {{email}}. Your email changes after you open that link.',
+  emailDiubah: 'Email changed to {{email}}.',
   semuaKolomSandiWajib: 'All password fields are required.',
   emailAkunTidakDitemukan:
     'Account email not found. Sign in again and try once more.',
@@ -16,7 +15,7 @@ export default {
   emailBaruPlaceholder: 'New email',
   ubahEmail: 'Change email',
   keteranganEmail:
-    'A confirmation link is sent to the new email. Your email changes after you open that link.',
+    'Your email changes as soon as you save it. Make sure the address is correct.',
   sandiSaatIni: 'Current password',
   sandiBaruPlaceholder: 'New password (at least 8 characters)',
   ubahSandi: 'Change password',

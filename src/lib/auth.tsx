@@ -23,7 +23,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { isDemoMode, supabase } from './supabase'
 import { fetchProfil } from './api'
 import type { Peran, Profil } from './types'
-import i18n from './i18n'
+import i18n, { terjemahkanGalatDb } from './i18n'
 
 export interface AuthState {
   /** Akun Supabase yang login (null bila belum login / mode demo). */
@@ -210,17 +210,21 @@ export function useAuth(): AuthState {
  * email baru; email baru berlaku setelah tautan itu diklik, lalu
  * trigger 012 menyalinnya ke profiles.email.
  */
+/** Ganti email sendiri, langsung tanpa link konfirmasi (RPC 015). */
 export async function ubahEmailSendiri(
   emailBaru: string,
 ): Promise<string | null> {
   if (!supabase) return i18n.t('galat.supabaseBelumSiap')
-  const { error } = await supabase.auth.updateUser({ email: emailBaru })
+  const { error } = await supabase.rpc('ubah_email_sendiri', {
+    p_email_baru: emailBaru,
+  })
   if (error) {
-    if (/already registered|already exists/i.test(error.message)) {
-      return i18n.t('galat.emailDipakai')
-    }
-    return terjemahkanError(error.message)
+    return terjemahkanGalatDb(error.message)
   }
+  // Segarkan sesi supaya token membawa email baru. Kalau gagal,
+  // email tetap sudah berubah dan token ikut baru saat refresh
+  // berikutnya, jadi kegagalan ini tidak dilaporkan.
+  await supabase.auth.refreshSession().catch(() => undefined)
   return null
 }
 

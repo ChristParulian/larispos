@@ -48,6 +48,7 @@ export default {
   tidakTerhubung: 'Cannot reach the server. Check your connection.',
   supabaseBelumSiap: 'Supabase is not configured.',
   emailDipakai: 'This email is already used by another account.',
+  harusMasuk: 'Please sign in first.',
   sandiBaruMin8: 'The new password must be at least 8 characters.',
   sandiLamaSalah: 'The current password is incorrect.',
 }

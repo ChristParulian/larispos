@@ -52,6 +52,7 @@ export default {
   tidakTerhubung: 'Tidak bisa terhubung ke server. Periksa koneksimu.',
   supabaseBelumSiap: 'Supabase belum dikonfigurasi.',
   emailDipakai: 'Email ini sudah dipakai akun lain.',
+  harusMasuk: 'Harus masuk dulu.',
   sandiBaruMin8: 'Kata sandi baru minimal 8 karakter.',
   sandiLamaSalah: 'Kata sandi saat ini salah.',
 }
