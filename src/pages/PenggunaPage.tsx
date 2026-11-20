@@ -9,11 +9,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  fetchSemuaProfil,
-  ubahNamaProfil,
-  ubahPeranProfil,
-} from '../lib/api'
+import { fetchSemuaProfil, ubahNamaProfil, ubahPeranProfil } from '../lib/api'
 import { aturSandiPengguna, ubahEmailPengguna, useAuth } from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
@@ -49,9 +45,7 @@ export default function PenggunaPage() {
         t('pengguna.peranDiubah', {
           nama: v.nama,
           peran: t(
-            v.role === 'owner'
-              ? 'pengguna.peranOwner'
-              : 'pengguna.peranKasir',
+            v.role === 'owner' ? 'pengguna.peranOwner' : 'pengguna.peranKasir',
           ),
         }),
       )
@@ -73,9 +67,7 @@ export default function PenggunaPage() {
       setError(null)
     },
     onError: (err: unknown) => {
-      setError(
-        err instanceof Error ? err.message : t('pengguna.gagalUbahNama'),
-      )
+      setError(err instanceof Error ? err.message : t('pengguna.gagalUbahNama'))
     },
   })
 
@@ -114,9 +106,7 @@ export default function PenggunaPage() {
         t('pengguna.konfirmasiUbahPeran', {
           nama,
           peran: t(
-            target === 'owner'
-              ? 'pengguna.peranOwner'
-              : 'pengguna.peranKasir',
+            target === 'owner' ? 'pengguna.peranOwner' : 'pengguna.peranKasir',
           ),
         }),
       )
@@ -193,9 +183,7 @@ export default function PenggunaPage() {
             : 'bg-kertas-gelap text-stone-700'
         }`}
       >
-        {role === 'owner'
-          ? t('pengguna.peranOwner')
-          : t('pengguna.peranKasir')}
+        {role === 'owner' ? t('pengguna.peranOwner') : t('pengguna.peranKasir')}
       </span>
     )
   }
@@ -226,8 +214,8 @@ export default function PenggunaPage() {
               })}
             </span>
             <span className="text-stone-600">
-              {' '}·{' '}
-              {t('pengguna.jumlahOwner', { count: jumlahOwner })} ·{' '}
+              {' '}
+              · {t('pengguna.jumlahOwner', { count: jumlahOwner })} ·{' '}
               {t('pengguna.jumlahKasir', { count: jumlahKasir })}
             </span>
           </p>

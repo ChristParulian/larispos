@@ -9,6 +9,11 @@
 // Default aman: bila peran tidak diketahui, pengguna dianggap BUKAN
 // owner (harga beli & laba disembunyikan) sampai profil terbaca.
 
+/* eslint-disable react-refresh/only-export-components -- Modul auth
+   sengaja mengekspor provider, hook, dan helper akun dalam satu file:
+   ketiganya berbagi klien Supabase dan tipe AuthState. Satu-satunya
+   akibat: Fast Refresh (HMR) tidak jalan untuk file ini di dev. */
+
 import {
   createContext,
   useCallback,
@@ -159,7 +164,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: { data: { nama } },
       })
       if (error) {
-        return { needsConfirmation: false, error: terjemahkanError(error.message) }
+        return {
+          needsConfirmation: false,
+          error: terjemahkanError(error.message),
+        }
       }
       // Tanpa sesi berarti konfirmasi email aktif: akun dibuat, tapi
       // belum bisa masuk sebelum tautan di email diklik.

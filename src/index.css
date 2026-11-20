@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Identitas visual LarisPOS, "warung modern": palet ColorHunt
    (F5F7F8, F4CE14, 495E57, 45474B). Latar abu terang, hijau
@@ -6,8 +6,9 @@
    dan arang untuk teks. Sengaja BUKAN palet default Tailwind:
    tidak ada emerald, gradien, atau kaca. */
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", sans-serif;
+  --font-sans:
+    'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
 
   /* Latar & tinta. */
   --color-kertas: #f5f7f8;
@@ -47,12 +48,12 @@
      kartu, chrome (header, menu bawah), dan elemen yang benar-benar
      mengambang yang berbayang. Tombol, kolom isian, dan lencana
      tetap datar. */
-  --shadow-kartu: 0 1px 2px rgb(69 71 75 / 0.04),
-    0 6px 16px rgb(69 71 75 / 0.05);
+  --shadow-kartu:
+    0 1px 2px rgb(69 71 75 / 0.04), 0 6px 16px rgb(69 71 75 / 0.05);
   --shadow-bar-atas: 0 6px 20px rgb(44 56 52 / 0.22);
   --shadow-bar-bawah: 0 -6px 20px rgb(69 71 75 / 0.07);
-  --shadow-angkat: 0 2px 6px rgb(69 71 75 / 0.08),
-    0 16px 32px rgb(69 71 75 / 0.14);
+  --shadow-angkat:
+    0 2px 6px rgb(69 71 75 / 0.08), 0 16px 32px rgb(69 71 75 / 0.14);
 }
 
 @layer base {

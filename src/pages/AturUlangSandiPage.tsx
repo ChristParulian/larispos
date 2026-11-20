@@ -63,7 +63,9 @@ export default function AturUlangSandiPage() {
         <div className="card p-5 sm:p-6">
           {!user ? (
             <>
-              <h1 className="judul-halaman">{t('aturSandi.linkTidakBerlaku')}</h1>
+              <h1 className="judul-halaman">
+                {t('aturSandi.linkTidakBerlaku')}
+              </h1>
               <p className="mt-2 text-sm text-stone-600">
                 {t('aturSandi.linkKedaluwarsa')}
               </p>
@@ -91,9 +93,7 @@ export default function AturUlangSandiPage() {
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="label">
-                      {t('aturSandi.sandiBaru')} *
-                    </span>
+                    <span className="label">{t('aturSandi.sandiBaru')} *</span>
                     <button
                       type="button"
                       onClick={() => setLihatSandi((v) => !v)}

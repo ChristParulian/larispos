@@ -5,8 +5,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 // dan TIDAK crash, lihat src/lib/demo.ts.
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as
-  | string
-  | undefined
+  string | undefined
 
 export const isDemoMode: boolean = !supabaseUrl || !supabaseAnonKey
 

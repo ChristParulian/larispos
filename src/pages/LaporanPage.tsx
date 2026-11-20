@@ -12,7 +12,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { batalkanTransaksi, fetchTransaksi } from '../lib/api'
 import { useAuth } from '../lib/auth'
-import { formatRupiah, formatTanggal, labelMetode, tanggalHariIni } from '../lib/format'
+import {
+  formatRupiah,
+  formatTanggal,
+  labelMetode,
+  tanggalHariIni,
+} from '../lib/format'
 import { IconChevron } from '../components/icons'
 
 export default function LaporanPage() {
@@ -26,17 +31,26 @@ export default function LaporanPage() {
   const [detailId, setDetailId] = useState<string | null>(null)
   // Pesan sukses dari halaman ubah transaksi (Pro) atau dari batal.
   const [pesan, setPesan] = useState<string | null>(
-    () =>
-      (location.state as { pesan?: string } | null)?.pesan ?? null,
+    () => (location.state as { pesan?: string } | null)?.pesan ?? null,
   )
   const [errorAksi, setErrorAksi] = useState<string | null>(null)
+  // Waktu ditangkap sekali saat halaman dibuka: dipakai untuk batas edit
+  // 24 jam, supaya render tetap murni dan tombol Ubah tidak berubah di
+  // tengah sesi.
+  const [sekarang] = useState(() => Date.now())
 
   const transaksiQuery = useQuery({
     queryKey: ['transaksi', semuaTanggal ? 'semua' : tanggal],
     queryFn: () => fetchTransaksi(semuaTanggal ? undefined : tanggal),
   })
 
-  const transaksi = transaksiQuery.data ?? []
+  // Dibungkus useMemo supaya referensinya stabil saat data belum termuat:
+  // fallback [] harfiah berubah identitas tiap render dan membuat memo
+  // di bawahnya menghitung ulang terus.
+  const transaksi = useMemo(
+    () => transaksiQuery.data ?? [],
+    [transaksiQuery.data],
+  )
 
   const batalMutation = useMutation({
     mutationFn: (id: string) => batalkanTransaksi(id),
@@ -66,7 +80,10 @@ export default function LaporanPage() {
     let labaKotor = 0
     let adaHargaBeliKosong = false
     let jumlahDibatalkan = 0
-    const perProduk = new Map<string, { nama: string; qty: number; omzet: number }>()
+    const perProduk = new Map<
+      string,
+      { nama: string; qty: number; omzet: number }
+    >()
 
     for (const trx of transaksi) {
       // Transaksi yang dibatalkan tidak dihitung di ringkasan.
@@ -257,9 +274,7 @@ export default function LaporanPage() {
                     <li key={trx.id}>
                       <button
                         type="button"
-                        onClick={() =>
-                          setDetailId(terbuka ? null : trx.id)
-                        }
+                        onClick={() => setDetailId(terbuka ? null : trx.id)}
                         className="flex min-h-16 w-full flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-left transition-colors hover:bg-kertas sm:px-5"
                       >
                         <span className="min-w-0">
@@ -328,8 +343,7 @@ export default function LaporanPage() {
                           </dl>
                           {isOwner && trx.status !== 'dibatalkan' && (
                             <div className="mt-3 flex flex-wrap gap-2 border-t border-dashed border-garis pt-3">
-                              {Date.now() -
-                                new Date(trx.created_at).getTime() <
+                              {sekarang - new Date(trx.created_at).getTime() <
                               24 * 60 * 60 * 1000 ? (
                                 <Link
                                   to={`/transaksi/ubah/${trx.id}`}

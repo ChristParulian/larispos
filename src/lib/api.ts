@@ -38,7 +38,8 @@ import type {
   Transaksi,
 } from './types'
 
-const PRODUK_SELECT = 'id, kategori_id, nama, satuan, harga_beli, harga_jual, stok, kategori:kategori_id ( id, nama )'
+const PRODUK_SELECT =
+  'id, kategori_id, nama, satuan, harga_beli, harga_jual, stok, kategori:kategori_id ( id, nama )'
 const TRANSAKSI_SELECT = `
   id, created_at, metode_bayar, total, dibayar, kembalian, status,
   item_transaksi (
@@ -182,10 +183,7 @@ export async function hapusSatuan(id: string): Promise<void> {
     demoHapusSatuan(id)
     return
   }
-  const { error } = await requireSupabase()
-    .from('satuan')
-    .delete()
-    .eq('id', id)
+  const { error } = await requireSupabase().from('satuan').delete().eq('id', id)
   if (error) throw error
 }
 
@@ -383,7 +381,9 @@ export async function batalkanTransaksi(id: string): Promise<void> {
 }
 
 /** Satu transaksi + itemnya, untuk halaman ubah transaksi. */
-export async function fetchTransaksiById(id: string): Promise<Transaksi | null> {
+export async function fetchTransaksiById(
+  id: string,
+): Promise<Transaksi | null> {
   if (isDemoMode) {
     return demoGetTransaksi().find((t) => t.id === id) ?? null
   }

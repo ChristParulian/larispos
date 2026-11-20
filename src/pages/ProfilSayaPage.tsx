@@ -9,11 +9,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ubahNamaProfil } from '../lib/api'
-import {
-  ubahEmailSendiri,
-  ubahKataSandiSendiri,
-  useAuth,
-} from '../lib/auth'
+import { ubahEmailSendiri, ubahKataSandiSendiri, useAuth } from '../lib/auth'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
 import PemilihBahasa from '../components/PemilihBahasa'
@@ -29,9 +25,7 @@ function BagianBahasa() {
       <div className="mt-1">
         <PemilihBahasa />
       </div>
-      <p className="mt-1.5 text-xs text-stone-600">
-        {t('bahasa.keterangan')}
-      </p>
+      <p className="mt-1.5 text-xs text-stone-600">{t('bahasa.keterangan')}</p>
     </div>
   )
 }
@@ -63,9 +57,7 @@ export default function ProfilSayaPage() {
       setError(null)
     },
     onError: (err: unknown) => {
-      setError(
-        err instanceof Error ? err.message : t('pengguna.gagalUbahNama'),
-      )
+      setError(err instanceof Error ? err.message : t('pengguna.gagalUbahNama'))
     },
   })
 
@@ -163,9 +155,7 @@ export default function ProfilSayaPage() {
     <div>
       <div className="mb-4">
         <h1 className="judul-halaman">{t('profil.judul')}</h1>
-        <p className="mt-1 text-sm text-stone-600">
-          {t('profil.keterangan')}
-        </p>
+        <p className="mt-1 text-sm text-stone-600">{t('profil.keterangan')}</p>
       </div>
 
       {pesan && (
@@ -270,9 +260,7 @@ export default function ProfilSayaPage() {
                 onClick={() => setLihatSandi((v) => !v)}
                 className="min-h-11 px-2 text-xs font-bold text-pinus-700"
               >
-                {lihatSandi
-                  ? t('aturSandi.sembunyikan')
-                  : t('aturSandi.lihat')}
+                {lihatSandi ? t('aturSandi.sembunyikan') : t('aturSandi.lihat')}
               </button>
             </div>
             <div className="space-y-2">

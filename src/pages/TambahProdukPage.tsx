@@ -8,12 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import {
-  fetchKategori,
-  fetchProduk,
-  fetchSatuan,
-  saveProduk,
-} from '../lib/api'
+import { fetchKategori, fetchProduk, fetchSatuan, saveProduk } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import type { ProdukInput } from '../lib/types'
 import { IconBack } from '../components/icons'
@@ -61,8 +56,12 @@ export default function TambahProdukPage() {
   // kosong saat pindah ke mode tambah.
   useEffect(() => {
     if (!isEdit) {
-      setForm(FORM_AWAL)
-      prefillUntuk.current = null
+      // Reset hanya bila sebelumnya mengedit: di mount baru form sudah
+      // FORM_AWAL, jadi tidak perlu setState di sini.
+      if (prefillUntuk.current !== null) {
+        prefillUntuk.current = null
+        setForm(FORM_AWAL)
+      }
       return
     }
     if (produkEdit && prefillUntuk.current !== editId) {
@@ -97,7 +96,9 @@ export default function TambahProdukPage() {
     },
     onError: (err: unknown) => {
       setError(
-        err instanceof Error ? err.message : t('tambahProduk.gagalSimpanProduk'),
+        err instanceof Error
+          ? err.message
+          : t('tambahProduk.gagalSimpanProduk'),
       )
     },
   })
@@ -119,9 +120,7 @@ export default function TambahProdukPage() {
     simpanMutation.mutate()
   }
 
-  const judul = isEdit
-    ? t('tambahProduk.judulUbah')
-    : t('produk.tambahProduk')
+  const judul = isEdit ? t('tambahProduk.judulUbah') : t('produk.tambahProduk')
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -214,9 +213,7 @@ export default function TambahProdukPage() {
               <select
                 className="input"
                 value={form.satuan}
-                onChange={(e) =>
-                  setForm({ ...form, satuan: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, satuan: e.target.value })}
               >
                 {(satuanQuery.data ?? []).map((s) => (
                   <option key={s.id} value={s.nama}>
@@ -228,14 +225,14 @@ export default function TambahProdukPage() {
                 {form.satuan &&
                   !(satuanQuery.data ?? []).some(
                     (s) => s.nama === form.satuan,
-                  ) && (
-                    <option value={form.satuan}>{form.satuan}</option>
-                  )}
+                  ) && <option value={form.satuan}>{form.satuan}</option>}
               </select>
             </label>
             {isOwner && (
               <label className="block">
-                <span className="label">{t('tambahProduk.labelHargaBeli')}</span>
+                <span className="label">
+                  {t('tambahProduk.labelHargaBeli')}
+                </span>
                 <input
                   className="input"
                   type="number"

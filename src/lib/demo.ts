@@ -32,21 +32,105 @@ const SEED: Array<
   Omit<Produk, 'id' | 'kategori_id' | 'kategori'> & { kategori: string }
 > = [
   // Sembako (5), sama dengan 002_seed_12_produk.sql
-  { kategori: 'Sembako', nama: 'Beras Premium 5 kg', satuan: 'karung', harga_beli: 58000, harga_jual: 65000, stok: 20 },
-  { kategori: 'Sembako', nama: 'Minyak Goreng 1 Liter', satuan: 'botol', harga_beli: 17500, harga_jual: 20000, stok: 24 },
-  { kategori: 'Sembako', nama: 'Gula Pasir 1 kg', satuan: 'kg', harga_beli: 15500, harga_jual: 17500, stok: 30 },
-  { kategori: 'Sembako', nama: 'Telur Ayam 1 kg', satuan: 'kg', harga_beli: 26000, harga_jual: 29000, stok: 15 },
-  { kategori: 'Sembako', nama: 'Mie Instan Goreng', satuan: 'bungkus', harga_beli: 2600, harga_jual: 3500, stok: 60 },
+  {
+    kategori: 'Sembako',
+    nama: 'Beras Premium 5 kg',
+    satuan: 'karung',
+    harga_beli: 58000,
+    harga_jual: 65000,
+    stok: 20,
+  },
+  {
+    kategori: 'Sembako',
+    nama: 'Minyak Goreng 1 Liter',
+    satuan: 'botol',
+    harga_beli: 17500,
+    harga_jual: 20000,
+    stok: 24,
+  },
+  {
+    kategori: 'Sembako',
+    nama: 'Gula Pasir 1 kg',
+    satuan: 'kg',
+    harga_beli: 15500,
+    harga_jual: 17500,
+    stok: 30,
+  },
+  {
+    kategori: 'Sembako',
+    nama: 'Telur Ayam 1 kg',
+    satuan: 'kg',
+    harga_beli: 26000,
+    harga_jual: 29000,
+    stok: 15,
+  },
+  {
+    kategori: 'Sembako',
+    nama: 'Mie Instan Goreng',
+    satuan: 'bungkus',
+    harga_beli: 2600,
+    harga_jual: 3500,
+    stok: 60,
+  },
   // Minuman (3)
-  { kategori: 'Minuman', nama: 'Kopi Sachet', satuan: 'sachet', harga_beli: 900, harga_jual: 1500, stok: 100 },
-  { kategori: 'Minuman', nama: 'Air Mineral 600 ml', satuan: 'botol', harga_beli: 2200, harga_jual: 3000, stok: 48 },
-  { kategori: 'Minuman', nama: 'Susu Kental Manis 370 g', satuan: 'kaleng', harga_beli: 11000, harga_jual: 13500, stok: 24 },
+  {
+    kategori: 'Minuman',
+    nama: 'Kopi Sachet',
+    satuan: 'sachet',
+    harga_beli: 900,
+    harga_jual: 1500,
+    stok: 100,
+  },
+  {
+    kategori: 'Minuman',
+    nama: 'Air Mineral 600 ml',
+    satuan: 'botol',
+    harga_beli: 2200,
+    harga_jual: 3000,
+    stok: 48,
+  },
+  {
+    kategori: 'Minuman',
+    nama: 'Susu Kental Manis 370 g',
+    satuan: 'kaleng',
+    harga_beli: 11000,
+    harga_jual: 13500,
+    stok: 24,
+  },
   // Makanan Ringan (2)
-  { kategori: 'Makanan Ringan', nama: 'Biskuit Kelapa', satuan: 'bungkus', harga_beli: 4500, harga_jual: 6000, stok: 30 },
-  { kategori: 'Makanan Ringan', nama: 'Keripik Singkong', satuan: 'bungkus', harga_beli: 6000, harga_jual: 8000, stok: 25 },
+  {
+    kategori: 'Makanan Ringan',
+    nama: 'Biskuit Kelapa',
+    satuan: 'bungkus',
+    harga_beli: 4500,
+    harga_jual: 6000,
+    stok: 30,
+  },
+  {
+    kategori: 'Makanan Ringan',
+    nama: 'Keripik Singkong',
+    satuan: 'bungkus',
+    harga_beli: 6000,
+    harga_jual: 8000,
+    stok: 25,
+  },
   // Perawatan & Rumah Tangga (2)
-  { kategori: 'Perawatan & Rumah Tangga', nama: 'Sabun Mandi Batang', satuan: 'pcs', harga_beli: 3200, harga_jual: 4500, stok: 36 },
-  { kategori: 'Perawatan & Rumah Tangga', nama: 'Deterjen Bubuk 800 g', satuan: 'bungkus', harga_beli: 14000, harga_jual: 17000, stok: 18 },
+  {
+    kategori: 'Perawatan & Rumah Tangga',
+    nama: 'Sabun Mandi Batang',
+    satuan: 'pcs',
+    harga_beli: 3200,
+    harga_jual: 4500,
+    stok: 36,
+  },
+  {
+    kategori: 'Perawatan & Rumah Tangga',
+    nama: 'Deterjen Bubuk 800 g',
+    satuan: 'bungkus',
+    harga_beli: 14000,
+    harga_jual: 17000,
+    stok: 18,
+  },
 ]
 
 /** Daftar kategori demo, tersimpan di localStorage agar CRUD bertahan. */
@@ -63,8 +147,7 @@ export function demoSaveKategori(nama: string, id?: string): Kategori {
   const list = demoGetKategori()
   if (
     list.some(
-      (k) =>
-        k.nama.toLowerCase() === namaBersih.toLowerCase() && k.id !== id,
+      (k) => k.nama.toLowerCase() === namaBersih.toLowerCase() && k.id !== id,
     )
   ) {
     throw new Error(
@@ -126,8 +209,7 @@ export function demoSaveSatuan(nama: string, id?: string): Satuan {
   const list = demoGetSatuan()
   if (
     list.some(
-      (s) =>
-        s.nama.toLowerCase() === namaBersih.toLowerCase() && s.id !== id,
+      (s) => s.nama.toLowerCase() === namaBersih.toLowerCase() && s.id !== id,
     )
   ) {
     throw new Error(
@@ -297,7 +379,6 @@ export function demoCheckout(
   })
 
   let dibayar = dibayarInput
-  let kembalian = 0
   if (metode === 'tunai') {
     if (dibayar < total) {
       throw new Error(
@@ -307,11 +388,10 @@ export function demoCheckout(
         }),
       )
     }
-    kembalian = dibayar - total
   } else {
     dibayar = total
-    kembalian = 0
   }
+  const kembalian = metode === 'tunai' ? dibayar - total : 0
 
   const transaksiId = `demo-trx-${Date.now()}`
   const now = new Date().toISOString()
@@ -502,7 +582,6 @@ export function demoUbahTransaksi(
 
   // 3. Pembayaran (metode tidak berubah).
   let dibayar = dibayarInput
-  let kembalian = 0
   if (lama.metode_bayar === 'tunai') {
     if (dibayar < total) {
       throw new Error(
@@ -512,14 +591,12 @@ export function demoUbahTransaksi(
         }),
       )
     }
-    kembalian = dibayar - total
   } else if (lama.metode_bayar === 'qris') {
     dibayar = total
-    kembalian = 0
   } else {
     dibayar = 0
-    kembalian = 0
   }
+  const kembalian = lama.metode_bayar === 'tunai' ? dibayar - total : 0
 
   // 4. Kurangi stok item baru + tulis log.
   produkList = produkList.map((p) => {

@@ -15,7 +15,13 @@ interface Props {
   onTransaksiBaru: () => void
 }
 
-export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBaru }: Props) {
+export default function Struk({
+  items,
+  hasil,
+  tanggalIso,
+  onTutup,
+  onTransaksiBaru,
+}: Props) {
   const { t } = useTranslation()
   const teks = teksStruk(items, hasil, tanggalIso)
 
@@ -27,7 +33,9 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
           <div className="text-center">
             <h2 className="text-lg font-bold">LARISPOS - WARUNG</h2>
             <p className="text-sm text-stone-600">{t('struk.judul')}</p>
-            <p className="text-sm text-stone-600">{formatTanggal(tanggalIso)}</p>
+            <p className="text-sm text-stone-600">
+              {formatTanggal(tanggalIso)}
+            </p>
             <p className="text-sm text-stone-600">
               No. {hasil.transaksi_id.slice(0, 8).toUpperCase()}
             </p>
@@ -60,7 +68,9 @@ export default function Struk({ items, hasil, tanggalIso, onTutup, onTransaksiBa
               <dd className="font-bold">{formatRupiah(hasil.total)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt>{t('struk.bayar')} ({labelMetode(hasil.metode_bayar)})</dt>
+              <dt>
+                {t('struk.bayar')} ({labelMetode(hasil.metode_bayar)})
+              </dt>
               <dd>{formatRupiah(hasil.dibayar)}</dd>
             </div>
             <div className="flex justify-between">

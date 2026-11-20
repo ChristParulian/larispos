@@ -101,9 +101,15 @@ export default function DashboardPage() {
     queryFn: () => fetchTransaksi(),
   })
 
-  const produk = produkQuery.data ?? []
-  const transaksiHariIni = hariIniQuery.data ?? []
-  const semuaTransaksi = semuaQuery.data ?? []
+  // Dibungkus useMemo supaya referensinya stabil saat data belum termuat:
+  // fallback [] harfiah berubah identitas tiap render dan membuat memo
+  // di bawahnya menghitung ulang terus.
+  const produk = useMemo(() => produkQuery.data ?? [], [produkQuery.data])
+  const transaksiHariIni = useMemo(
+    () => hariIniQuery.data ?? [],
+    [hariIniQuery.data],
+  )
+  const semuaTransaksi = useMemo(() => semuaQuery.data ?? [], [semuaQuery.data])
 
   const namaDepan = (profil?.nama ?? user?.email?.split('@')[0] ?? '').split(
     ' ',
@@ -160,6 +166,11 @@ export default function DashboardPage() {
 
   const transaksiTerakhir = semuaTransaksi.slice(0, 5)
 
+  // Locale tanggal dari bahasa aktif; nilainya string primitif, jadi
+  // aman dipakai sebagai dep memo (berubah hanya saat bahasa diganti,
+  // dan komponen me-render ulang saat itu).
+  const locale = i18n.language === 'en' ? 'en-US' : 'id-ID'
+
   const tujuhHari = useMemo(() => {
     const hari = Array.from({ length: 7 }, (_, i) => {
       const nLalu = 6 - i
@@ -167,10 +178,7 @@ export default function DashboardPage() {
       d.setDate(d.getDate() - nLalu)
       return {
         tanggal: tanggalLokal(nLalu),
-        label: d.toLocaleDateString(
-          i18n.language === 'en' ? 'en-US' : 'id-ID',
-          { weekday: 'short' },
-        ),
+        label: d.toLocaleDateString(locale, { weekday: 'short' }),
         hariIni: nLalu === 0,
         total: 0,
       }
@@ -184,12 +192,11 @@ export default function DashboardPage() {
     const maks = Math.max(0, ...hari.map((h) => h.total))
     const totalMinggu = hari.reduce((s, h) => s + h.total, 0)
     return { hari, maks, totalMinggu }
-  }, [semuaTransaksi, i18n.language])
+  }, [semuaTransaksi, locale])
 
   const memuat =
     produkQuery.isLoading || hariIniQuery.isLoading || semuaQuery.isLoading
-  const galat =
-    produkQuery.error ?? hariIniQuery.error ?? semuaQuery.error
+  const galat = produkQuery.error ?? hariIniQuery.error ?? semuaQuery.error
 
   return (
     <div>
@@ -265,10 +272,7 @@ export default function DashboardPage() {
                   <IconPeringatan className="h-5 w-5 text-aksen-600" />
                   {t('dashboard.stokMenipis')}
                 </h2>
-                <Link
-                  to="/produk"
-                  className="tautan"
-                >
+                <Link to="/produk" className="tautan">
                   {t('dashboard.lihatProduk')}
                 </Link>
               </div>
@@ -325,10 +329,7 @@ export default function DashboardPage() {
                 <h2 className="text-base font-bold">
                   {t('dashboard.produkTerlaris')}
                 </h2>
-                <Link
-                  to="/laporan"
-                  className="tautan"
-                >
+                <Link to="/laporan" className="tautan">
                   {t('dashboard.lihatLaporanTautan')}
                 </Link>
               </div>
@@ -367,10 +368,7 @@ export default function DashboardPage() {
                 <h2 className="text-base font-bold">
                   {t('dashboard.transaksiTerakhir')}
                 </h2>
-                <Link
-                  to="/laporan"
-                  className="tautan"
-                >
+                <Link to="/laporan" className="tautan">
                   {t('dashboard.lihatSemua')}
                 </Link>
               </div>

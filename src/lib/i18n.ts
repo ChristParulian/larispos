@@ -56,7 +56,10 @@ const GALAT_DB_TETAP: Array<[string, string]> = [
     'Transaksi hanya bisa diubah dalam 24 jam setelah dibuat.',
     'galat.ubah24Jam',
   ],
-  ['Pembayaran Bon hanya tersedia di versi Pro.', 'galat.pembayaranBonHanyaPro'],
+  [
+    'Pembayaran Bon hanya tersedia di versi Pro.',
+    'galat.pembayaranBonHanyaPro',
+  ],
   ['Pembayaran Bon wajib memilih pelanggan.', 'galat.bonWajibPelanggan'],
   ['Pelanggan hanya dipakai untuk pembayaran Bon.', 'galat.pelangganHanyaBon'],
   [

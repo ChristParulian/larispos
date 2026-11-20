@@ -10,8 +10,7 @@ export default {
     'Amount paid (Rp{{dibayar}}) is less than the total (Rp{{total}}).',
   transaksiTidakDitemukan: 'Transaction not found.',
   transaksiSudahBatal: 'This transaction was already cancelled.',
-  transaksiBatalTidakBisaDiubah:
-    'A cancelled transaction cannot be edited.',
+  transaksiBatalTidakBisaDiubah: 'A cancelled transaction cannot be edited.',
   bonHanyaPro: 'Bon transactions can only be edited in the Pro version.',
   ubah24Jam: 'Transactions can only be edited within 24 hours of the sale.',
   pembayaranBonHanyaPro: 'Bon payments are only available in the Pro version.',
@@ -49,13 +48,10 @@ export default {
   supabaseBelumSiap: 'Supabase is not configured.',
   emailDipakai: 'This email is already used by another account.',
   harusMasuk: 'Please sign in first.',
-  hanyaOwnerUbahEmail:
-    "Only the owner can change another user's email.",
-  hanyaOwnerAturSandi:
-    "Only the owner can set another user's password.",
+  hanyaOwnerUbahEmail: "Only the owner can change another user's email.",
+  hanyaOwnerAturSandi: "Only the owner can set another user's password.",
   ubahEmailSendiriProfil: 'Change your own email on the My Profile page.',
-  ubahSandiSendiriProfil:
-    'Change your own password on the My Profile page.',
+  ubahSandiSendiriProfil: 'Change your own password on the My Profile page.',
   penggunaTidakDitemukan: 'User not found.',
   sandiBaruMin8: 'The new password must be at least 8 characters.',
   sandiLamaSalah: 'The current password is incorrect.',

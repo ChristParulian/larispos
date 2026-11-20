@@ -109,9 +109,7 @@ export default function Layout() {
                   className="inline-flex min-h-10 items-center rounded-lg border border-pinus-700 px-3 py-2 text-xs font-semibold text-pinus-100 hover:bg-pinus-800"
                 >
                   <IconPengguna className="h-5 w-5 sm:hidden" />
-                  <span className="hidden sm:inline">
-                    {t('layout.profil')}
-                  </span>
+                  <span className="hidden sm:inline">{t('layout.profil')}</span>
                 </NavLink>
                 <button
                   type="button"
@@ -128,8 +126,7 @@ export default function Layout() {
 
       {isDemoMode && (
         <div className="bg-aksen-100 px-4 py-2 text-center text-sm text-aksen-800 no-print">
-          <strong>{t('layout.demoJudul')}</strong>{' '}
-          {t('layout.demoKeterangan')}{' '}
+          <strong>{t('layout.demoJudul')}</strong> {t('layout.demoKeterangan')}{' '}
           <code className="rounded bg-aksen-200 px-1">.env</code>{' '}
           {t('layout.demoDengan')}{' '}
           <code className="rounded bg-aksen-200 px-1">VITE_SUPABASE_URL</code>{' '}

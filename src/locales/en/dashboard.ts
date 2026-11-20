@@ -12,8 +12,7 @@ export default {
   penjualanHariIni: "Today's sales",
   belumAdaTransaksiHariIni: 'No sales yet today.',
   ringkasanHariIni_one: '{{jumlah}} sale · average {{rataRata}} per sale',
-  ringkasanHariIni_other:
-    '{{jumlah}} sales · average {{rataRata}} per sale',
+  ringkasanHariIni_other: '{{jumlah}} sales · average {{rataRata}} per sale',
   estimasiLabaHariIni: "Today's estimated gross profit:",
   mulaiJualan: 'Start selling',
   tambahProduk: 'Add product',
@@ -24,8 +23,7 @@ export default {
   habis: 'Out of stock',
   sisaStok: '{{stok}} {{satuan}} left',
   danProdukLagi_one: 'And {{jumlah}} more product, see the Products page.',
-  danProdukLagi_other:
-    'And {{jumlah}} more products, see the Products page.',
+  danProdukLagi_other: 'And {{jumlah}} more products, see the Products page.',
   produkTerlaris: 'Best-selling products',
   lihatLaporanTautan: 'View the report',
   belumAdaPenjualan: 'No sales yet.',

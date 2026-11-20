@@ -93,7 +93,9 @@ function CartPanel(props: CartPanelProps) {
               <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
-                  aria-label={t('kasir.kurangiProduk', { nama: it.produk.nama })}
+                  aria-label={t('kasir.kurangiProduk', {
+                    nama: it.produk.nama,
+                  })}
                   onClick={() => onUbahQty(it.produk.id, -1)}
                   className="flex h-11 w-11 items-center justify-center rounded-lg border border-garis text-xl font-bold hover:bg-kertas-gelap active:scale-95"
                 >
@@ -173,7 +175,9 @@ function CartPanel(props: CartPanelProps) {
               className={`font-bold ${uangKurang ? 'text-red-600' : 'text-pinus-700'}`}
             >
               {uangKurang
-                ? t('kasir.kurang', { jumlah: formatRupiah(total - dibayarNum) })
+                ? t('kasir.kurang', {
+                    jumlah: formatRupiah(total - dibayarNum),
+                  })
                 : formatRupiah(kembalian)}
             </span>
           </div>
@@ -183,7 +187,9 @@ function CartPanel(props: CartPanelProps) {
                 key={n}
                 type="button"
                 onClick={() => onDibayar(String(n))}
-                aria-label={t('kasir.bayarNominal', { jumlah: formatRupiah(n) })}
+                aria-label={t('kasir.bayarNominal', {
+                  jumlah: formatRupiah(n),
+                })}
                 className="min-h-11 rounded-lg border border-garis px-3 py-2 text-sm font-semibold hover:bg-kertas-gelap"
               >
                 {formatRupiah(n)}
@@ -284,9 +290,7 @@ export default function KasirPage() {
 
   const kategoriList = kategoriQuery.data ?? []
   const kategoriAktif = kategoriList.find((k) => k.id === kategoriId)
-  const adaTanpaKategori = (produkQuery.data ?? []).some(
-    (p) => !p.kategori_id,
-  )
+  const adaTanpaKategori = (produkQuery.data ?? []).some((p) => !p.kategori_id)
 
   const total = keranjang.reduce(
     (sum, it) => sum + it.qty * it.produk.harga_jual,
@@ -367,11 +371,7 @@ export default function KasirPage() {
       void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
     },
     onError: (err: unknown) => {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('kasir.pembayaranGagal'),
-      )
+      setError(err instanceof Error ? err.message : t('kasir.pembayaranGagal'))
     },
   })
 
@@ -487,14 +487,16 @@ export default function KasirPage() {
         )}
         {produkQuery.data && produkList.length === 0 && (
           <div className="card flex flex-col items-center px-6 py-10 text-center">
-            <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
+            <IconProduk
+              className="h-10 w-10 text-pinus-300"
+              strokeWidth={1.5}
+            />
             <p className="mt-3 font-semibold">
               {cari.trim()
                 ? t('kasir.tidakAdaCocok', { cari })
                 : kategoriId
                   ? t('kasir.tidakAdaDiKategori', {
-                      kategori:
-                        kategoriAktif?.nama ?? t('umum.tanpaKategori'),
+                      kategori: kategoriAktif?.nama ?? t('umum.tanpaKategori'),
                     })
                   : t('kasir.belumAdaProduk')}
             </p>
@@ -529,7 +531,8 @@ export default function KasirPage() {
                     {p.nama}
                   </div>
                   <div className="mt-1 text-xs text-stone-600">
-                    {p.kategori?.nama ?? t('umum.tanpaKategori')} · per {p.satuan}
+                    {p.kategori?.nama ?? t('umum.tanpaKategori')} · per{' '}
+                    {p.satuan}
                   </div>
                   <div className="mt-2 text-base font-bold text-pinus-700 sm:text-lg">
                     {formatRupiah(p.harga_jual)}

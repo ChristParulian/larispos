@@ -21,8 +21,7 @@ export default {
   lihatLaporan: 'Lihat Laporan',
   stokMenipis: 'Stok menipis',
   lihatProduk: 'Lihat produk',
-  semuaStokAman:
-    'Semua stok aman. Tidak ada produk dengan stok 5 atau kurang.',
+  semuaStokAman: 'Semua stok aman. Tidak ada produk dengan stok 5 atau kurang.',
   habis: 'Habis',
   sisaStok: 'Sisa {{stok}} {{satuan}}',
   danProdukLagi_one: 'Dan {{jumlah}} produk lagi, lihat di halaman Produk.',

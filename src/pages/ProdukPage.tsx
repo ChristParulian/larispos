@@ -126,8 +126,7 @@ export default function ProdukPage() {
   const [editSatuanNama, setEditSatuanNama] = useState('')
   // Pesan sukses dari halaman tambah/ubah produk (location state).
   const [pesan, setPesan] = useState<string | null>(
-    () =>
-      (location.state as { pesan?: string } | null)?.pesan ?? null,
+    () => (location.state as { pesan?: string } | null)?.pesan ?? null,
   )
 
   const produkQuery = useQuery({ queryKey: ['produk'], queryFn: fetchProduk })
@@ -186,8 +185,7 @@ export default function ProdukPage() {
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
       const nama =
-        produkQuery.data?.find((p) => p.id === v.id)?.nama ??
-        t('umum.produk')
+        produkQuery.data?.find((p) => p.id === v.id)?.nama ?? t('umum.produk')
       setPesan(
         t('produk.stokBertambah', {
           nama,
@@ -199,16 +197,12 @@ export default function ProdukPage() {
       setStokId(null)
     },
     onError: (err: unknown) => {
-      setError(
-        err instanceof Error ? err.message : t('produk.gagalTambahStok'),
-      )
+      setError(err instanceof Error ? err.message : t('produk.gagalTambahStok'))
     },
   })
 
   function konfirmasiHapus(id: string, nama: string) {
-    if (
-      window.confirm(t('produk.konfirmasiHapusProduk', { nama }))
-    ) {
+    if (window.confirm(t('produk.konfirmasiHapusProduk', { nama }))) {
       hapusMutation.mutate(id)
     }
   }
@@ -230,9 +224,7 @@ export default function ProdukPage() {
       void queryClient.invalidateQueries({ queryKey: ['kategori'] })
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       setPesan(
-        input.id
-          ? t('produk.kategoriDiubah')
-          : t('produk.kategoriDitambahkan'),
+        input.id ? t('produk.kategoriDiubah') : t('produk.kategoriDitambahkan'),
       )
       setError(null)
       setNamaBaru('')
@@ -292,9 +284,7 @@ export default function ProdukPage() {
       void queryClient.invalidateQueries({ queryKey: ['satuan'] })
       void queryClient.invalidateQueries({ queryKey: ['produk'] })
       setPesan(
-        input.id
-          ? t('produk.satuanDiubah')
-          : t('produk.satuanDitambahkan'),
+        input.id ? t('produk.satuanDiubah') : t('produk.satuanDitambahkan'),
       )
       setError(null)
       setNamaSatuanBaru('')
@@ -476,7 +466,10 @@ export default function ProdukPage() {
           )}
           {produkQuery.data && produkTampil.length === 0 && (
             <div className="card flex flex-col items-center px-6 py-10 text-center">
-              <IconProduk className="h-10 w-10 text-pinus-300" strokeWidth={1.5} />
+              <IconProduk
+                className="h-10 w-10 text-pinus-300"
+                strokeWidth={1.5}
+              />
               <p className="mt-3 font-semibold">
                 {sedangFilter
                   ? t('produk.tidakAdaYangCocok')
@@ -504,8 +497,12 @@ export default function ProdukPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-kertas text-left">
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">{t('umum.produk')}</th>
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">{t('umum.kategori')}</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">
+                      {t('umum.produk')}
+                    </th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">
+                      {t('umum.kategori')}
+                    </th>
                     {isOwner && (
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
                         {t('produk.hargaBeli')}
@@ -514,8 +511,12 @@ export default function ProdukPage() {
                     <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
                       {t('produk.hargaJual')}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">{t('umum.stok')}</th>
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">{t('produk.aksi')}</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-stone-600">
+                      {t('umum.stok')}
+                    </th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-600">
+                      {t('produk.aksi')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -708,9 +709,7 @@ export default function ProdukPage() {
               />
               <button
                 type="submit"
-                disabled={
-                  !namaBaru.trim() || simpanKategoriMutation.isPending
-                }
+                disabled={!namaBaru.trim() || simpanKategoriMutation.isPending}
                 className="btn-primary sm:w-auto"
               >
                 <IconPlus className="h-5 w-5" strokeWidth={2.2} />
@@ -769,8 +768,7 @@ export default function ProdukPage() {
                       <button
                         type="submit"
                         disabled={
-                          !editNama.trim() ||
-                          simpanKategoriMutation.isPending
+                          !editNama.trim() || simpanKategoriMutation.isPending
                         }
                         className="inline-flex min-h-9 items-center rounded-lg bg-pinus-700 px-3 text-xs font-bold text-white hover:bg-pinus-800 disabled:opacity-50"
                       >
@@ -961,9 +959,7 @@ export default function ProdukPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() =>
-                              konfirmasiHapusSatuan(s.id, s.nama)
-                            }
+                            onClick={() => konfirmasiHapusSatuan(s.id, s.nama)}
                             className="inline-flex min-h-9 items-center rounded-lg border border-red-300 px-3 text-xs font-bold text-red-700 hover:bg-red-50"
                           >
                             {t('umum.hapus')}
