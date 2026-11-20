@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import { Suspense, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { isDemoMode } from '../lib/supabase'
@@ -13,6 +13,7 @@ import {
   IconProduk,
 } from './icons'
 import BatasError from './BatasError'
+import Memuat from './Memuat'
 
 interface NavItem {
   to: string
@@ -158,7 +159,11 @@ export default function Layout() {
         {/* Batas dalam: error halaman ditangkap di sini supaya header dan
             menu bawah tetap tampil. */}
         <BatasError>
-          <Outlet />
+          {/* Suspense dalam: halaman yang dimuat malas menampilkan
+              "Memuat..." di area konten, shell-nya tetap tampil. */}
+          <Suspense fallback={<Memuat />}>
+            <Outlet />
+          </Suspense>
         </BatasError>
       </main>
 
