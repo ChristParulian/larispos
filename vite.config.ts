@@ -6,13 +6,18 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         // Satu chunk vendor untuk semua dependensi: berubah hanya saat
         // dependensi naik versi, jadi browser bisa memakai cache-nya di
         // banyak deploy. Kode aplikasi dan halaman tetap terpisah.
-        manualChunks(id) {
-          if (id.includes('node_modules')) return 'vendor'
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor',
+              test: (id) => id.includes('node_modules'),
+            },
+          ],
         },
       },
     },
