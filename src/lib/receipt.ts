@@ -10,6 +10,7 @@ export function teksStruk(
   items: CartItem[],
   hasil: CheckoutResult,
   tanggalIso: string,
+  namaToko = 'LarisPOS',
 ): string {
   const garis = '------------------------------'
   const baris = items
@@ -19,7 +20,7 @@ export function teksStruk(
     )
     .join('\n')
   return [
-    'LARISPOS - WARUNG',
+    namaToko.toUpperCase(),
     i18n.t('struk.judul'),
     formatTanggal(tanggalIso),
     `No. ${hasil.transaksi_id.slice(0, 8).toUpperCase()}`,

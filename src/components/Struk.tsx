@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import type { CartItem, CheckoutResult } from '../lib/types'
 import { formatRupiah, formatTanggal, labelMetode } from '../lib/format'
 import { linkWhatsApp, teksStruk } from '../lib/receipt'
+import { NAMA_TOKO_BAWAAN } from '../lib/api'
+import { usePengaturan } from '../lib/usePengaturan'
 
 interface Props {
   items: CartItem[]
@@ -23,7 +25,9 @@ export default function Struk({
   onTransaksiBaru,
 }: Props) {
   const { t } = useTranslation()
-  const teks = teksStruk(items, hasil, tanggalIso)
+  const { data: pengaturan } = usePengaturan()
+  const namaToko = pengaturan?.nama_toko ?? NAMA_TOKO_BAWAAN
+  const teks = teksStruk(items, hasil, tanggalIso, namaToko)
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
@@ -31,7 +35,7 @@ export default function Struk({
         {/* Area struk, satu-satunya yang tercetak. */}
         <div className="print-area px-6 py-6">
           <div className="text-center">
-            <h2 className="text-lg font-bold">LARISPOS - WARUNG</h2>
+            <h2 className="text-lg font-bold">{namaToko.toUpperCase()}</h2>
             <p className="text-sm text-stone-600">{t('struk.judul')}</p>
             <p className="text-sm text-stone-600">
               {formatTanggal(tanggalIso)}

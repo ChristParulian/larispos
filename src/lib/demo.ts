@@ -8,6 +8,7 @@ import type {
   CheckoutResult,
   Kategori,
   LogStok,
+  Pengaturan,
   Produk,
   ProdukInput,
   Satuan,
@@ -20,6 +21,7 @@ const KEY_TRANSAKSI = 'larispos-demo-transaksi'
 const KEY_LOG = 'larispos-demo-log-stok'
 const KEY_KATEGORI = 'larispos-demo-kategori'
 const KEY_SATUAN = 'larispos-demo-satuan'
+const KEY_PENGATURAN = 'larispos-demo-pengaturan'
 
 export const DEMO_KATEGORI: Kategori[] = [
   { id: 'demo-kat-sembako', nama: 'Sembako' },
@@ -641,10 +643,42 @@ export function demoUbahTransaksi(
 }
 
 /** Kembalikan data demo ke 12 produk seed awal (hapus transaksi demo). */
+const DEMO_PENGATURAN: Pengaturan = {
+  id: '00000000-0000-0000-0000-000000000001',
+  nama_toko: 'LarisPOS',
+  logo_url: null,
+}
+
+export function demoGetPengaturan(): Pengaturan {
+  const saved = load<Pengaturan>(KEY_PENGATURAN)
+  if (saved) return saved
+  save(KEY_PENGATURAN, DEMO_PENGATURAN)
+  return { ...DEMO_PENGATURAN }
+}
+
+export function demoSimpanPengaturan(patch: {
+  nama_toko?: string
+  logo_url?: string | null
+}): Pengaturan {
+  const saatIni = demoGetPengaturan()
+  const nama =
+    patch.nama_toko === undefined ? saatIni.nama_toko : patch.nama_toko.trim()
+  if (!nama) throw new Error(i18n.t('pengaturanToko.namaWajib'))
+  if (nama.length > 50) throw new Error(i18n.t('pengaturanToko.namaMaksimal'))
+  const next: Pengaturan = {
+    ...saatIni,
+    nama_toko: nama,
+    logo_url: patch.logo_url === undefined ? saatIni.logo_url : patch.logo_url,
+  }
+  save(KEY_PENGATURAN, next)
+  return next
+}
+
 export function demoReset(): void {
   localStorage.removeItem(KEY_PRODUK)
   localStorage.removeItem(KEY_TRANSAKSI)
   localStorage.removeItem(KEY_LOG)
   localStorage.removeItem(KEY_KATEGORI)
   localStorage.removeItem(KEY_SATUAN)
+  localStorage.removeItem(KEY_PENGATURAN)
 }

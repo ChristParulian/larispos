@@ -16,6 +16,7 @@ import pengguna from './id/pengguna'
 import profil from './id/profil'
 import layout from './id/layout'
 import batasError from './id/batasError'
+import pengaturanToko from './id/pengaturanToko'
 
 export default {
   umum,
@@ -36,4 +37,5 @@ export default {
   profil,
   layout,
   batasError,
+  pengaturanToko,
 }

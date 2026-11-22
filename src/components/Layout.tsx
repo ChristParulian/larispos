@@ -1,9 +1,11 @@
-import { Suspense, useState, type ComponentType } from 'react'
+import { Suspense, useEffect, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { isDemoMode } from '../lib/supabase'
 import { demoReset } from '../lib/demo'
 import { useAuth } from '../lib/auth'
+import { NAMA_TOKO_BAWAAN } from '../lib/api'
+import { usePengaturan } from '../lib/usePengaturan'
 import {
   BrandMark,
   IconDashboard,
@@ -80,6 +82,12 @@ export default function Layout() {
     ' ',
   )[0]
   const [dialogReset, setDialogReset] = useState(false)
+  // Merek di header mengikuti nama toko; judul tab ikut berubah.
+  const { data: pengaturan } = usePengaturan()
+  const namaToko = pengaturan?.nama_toko ?? NAMA_TOKO_BAWAAN
+  useEffect(() => {
+    if (pengaturan) document.title = `${namaToko} - Kasir Warung`
+  }, [pengaturan, namaToko])
 
   async function handleKeluar() {
     await signOut()
@@ -91,9 +99,9 @@ export default function Layout() {
       <header className="sticky top-0 z-40 bg-pinus-900 text-white shadow-bar-atas no-print">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <NavLink to="/dashboard" className="flex items-center gap-2">
-            <BrandMark className="h-7 w-7 text-aksen-400" />
-            <span className="text-xl font-extrabold tracking-tight">
-              LarisPOS
+            <BrandMark className="h-7 w-7 shrink-0 text-aksen-400" />
+            <span className="max-w-40 truncate text-xl font-extrabold tracking-tight sm:max-w-xs">
+              {namaToko}
             </span>
           </NavLink>
           {/* Header hanya berisi merek dan akun; semua navigasi

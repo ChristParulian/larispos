@@ -7,9 +7,11 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ubahNamaProfil } from '../lib/api'
+import { NAMA_TOKO_BAWAAN, ubahNamaProfil } from '../lib/api'
 import { ubahEmailSendiri, ubahKataSandiSendiri, useAuth } from '../lib/auth'
+import { usePengaturan } from '../lib/usePengaturan'
 import { isDemoMode } from '../lib/supabase'
 import { formatTanggal } from '../lib/format'
 import PemilihBahasa from '../components/PemilihBahasa'
@@ -30,9 +32,31 @@ function BagianBahasa() {
   )
 }
 
+/** Bagian tautan ke Pengaturan Toko (owner saja). */
+function BagianToko() {
+  const { t } = useTranslation()
+  const { data: pengaturan } = usePengaturan()
+  return (
+    <div>
+      <span className="label">{t('pengaturanToko.judul')}</span>
+      <p className="mt-1 text-sm text-stone-600">
+        {t('pengaturanToko.namaSaatIni', {
+          nama: pengaturan?.nama_toko ?? NAMA_TOKO_BAWAAN,
+        })}
+      </p>
+      <Link
+        to="/pengaturan-toko"
+        className="btn-secondary mt-2 inline-flex min-h-11 items-center px-4"
+      >
+        {t('pengaturanToko.ubahNama')}
+      </Link>
+    </div>
+  )
+}
+
 export default function ProfilSayaPage() {
   const { t } = useTranslation()
-  const { user, profil, loading, muatUlangProfil } = useAuth()
+  const { user, profil, loading, muatUlangProfil, isOwner } = useAuth()
   const queryClient = useQueryClient()
   const [namaEdit, setNamaEdit] = useState<string | null>(null)
   const [emailBaru, setEmailBaru] = useState('')
@@ -135,6 +159,9 @@ export default function ProfilSayaPage() {
         </p>
         <div className="card mt-4 px-4 py-4 sm:px-5">
           <BagianBahasa />
+          <div className="mt-5 border-t border-dashed border-garis pt-5">
+            <BagianToko />
+          </div>
         </div>
       </div>
     )
@@ -191,6 +218,12 @@ export default function ProfilSayaPage() {
 
         <div className="space-y-5 border-t border-dashed border-garis px-4 py-4 sm:px-5">
           <BagianBahasa />
+
+          {isOwner && (
+            <div className="border-t border-dashed border-garis pt-5">
+              <BagianToko />
+            </div>
+          )}
 
           <div className="border-t border-dashed border-garis pt-5">
             <label htmlFor="nama-profil" className="label">

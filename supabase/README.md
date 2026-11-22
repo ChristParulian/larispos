@@ -21,6 +21,7 @@ checkout hanya lewat fungsi `buat_transaksi()` di database.
 | `014_batasi_kelola_produk_owner.sql` | **Core.** Hanya owner yang boleh tambah, ubah, dan hapus produk, kategori, dan satuan (policy tulis ketiga tabel dibatasi owner). Kasir tetap bisa membaca ketiganya dan menambah stok lewat `tambah_stok()`; fungsi checkout dan stok tidak terpengaruh karena melewati RLS. |
 | `015_ubah_email_langsung.sql` | **Core.** Fungsi `ubah_email_sendiri()`: ganti email pengguna yang sedang masuk secara langsung, tanpa link konfirmasi. Menolak format salah dan email yang sudah dipakai akun lain, dan membersihkan permintaan ganti email yang tertunda. Trigger 012 menyalin email baru ke `profiles.email`. |
 | `016_owner_perbaiki_akun.sql` | **Core.** Fungsi `ubah_email_pengguna()` dan `atur_sandi_pengguna()`: owner memperbaiki akun pengguna lain langsung dari aplikasi, tanpa link konfirmasi dan tanpa membuka dashboard Supabase. Keduanya hanya boleh dipanggil owner dan hanya untuk pengguna lain; kata sandi disimpan sebagai hash bcrypt dan semua sesi pengguna yang bersangkutan dihapus supaya dia harus masuk ulang. |
+| `017_pengaturan_toko.sql` | **Core.** Tabel `pengaturan` (satu baris per toko): nama toko dan URL logo. Nama tampil di header, judul tab, dan struk; logo tampil di header. Semua pengguna login boleh membaca, hanya owner yang boleh mengubah. |
 
 ## Urutan menjalankan
 
@@ -39,6 +40,7 @@ Di Supabase Dashboard → SQL Editor, jalankan berurutan (copy-paste per file):
 11. `014_batasi_kelola_produk_owner.sql`: setelah 001, di project utama **dan** project Pro.
 12. `015_ubah_email_langsung.sql`: setelah 012, di project utama **dan** project Pro.
 13. `016_owner_perbaiki_akun.sql`: setelah 001, di project utama **dan** project Pro.
+14. `017_pengaturan_toko.sql`: setelah 001, di project utama **dan** project Pro.
 
 Project utama dan Pro adalah project Supabase yang berbeda, dengan URL
 dan anon key masing-masing: jangan tertukar.

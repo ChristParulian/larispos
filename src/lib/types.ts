@@ -12,6 +12,13 @@ export interface Satuan {
   nama: string
 }
 
+/** Pengaturan toko: satu baris untuk satu toko (lihat 017). */
+export interface Pengaturan {
+  id: string
+  nama_toko: string
+  logo_url: string | null
+}
+
 export interface Produk {
   id: string
   kategori_id: string | null

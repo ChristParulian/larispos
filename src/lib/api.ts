@@ -14,6 +14,7 @@ import {
   demoCheckout,
   demoGetKategori,
   demoGetLogStok,
+  demoGetPengaturan,
   demoGetProduk,
   demoGetSatuan,
   demoGetTransaksi,
@@ -23,6 +24,7 @@ import {
   demoSaveKategori,
   demoSaveProduk,
   demoSaveSatuan,
+  demoSimpanPengaturan,
   demoTambahStok,
   demoUbahTransaksi,
 } from './demo'
@@ -30,6 +32,7 @@ import type {
   CheckoutResult,
   Kategori,
   LogStok,
+  Pengaturan,
   Peran,
   Produk,
   ProdukInput,
@@ -60,6 +63,38 @@ export async function fetchKategori(): Promise<Kategori[]> {
     .order('nama')
   if (error) throw error
   return (data ?? []) as Kategori[]
+}
+
+/** Id tetap satu-satunya baris pengaturan (lihat 017). */
+export const ID_PENGATURAN = '00000000-0000-0000-0000-000000000001'
+
+/** Nama toko bawaan, dipakai sebelum pengaturan dimuat. */
+export const NAMA_TOKO_BAWAAN = 'LarisPOS'
+
+export async function fetchPengaturan(): Promise<Pengaturan> {
+  if (isDemoMode) return demoGetPengaturan()
+  const { data, error } = await requireSupabase()
+    .from('pengaturan')
+    .select('id, nama_toko, logo_url')
+    .eq('id', ID_PENGATURAN)
+    .single()
+  if (error) throw error
+  return data as Pengaturan
+}
+
+export async function simpanPengaturan(patch: {
+  nama_toko?: string
+  logo_url?: string | null
+}): Promise<Pengaturan> {
+  if (isDemoMode) return demoSimpanPengaturan(patch)
+  const { data, error } = await requireSupabase()
+    .from('pengaturan')
+    .update(patch)
+    .eq('id', ID_PENGATURAN)
+    .select('id, nama_toko, logo_url')
+    .single()
+  if (error) throw galatRpc(error)
+  return data as Pengaturan
 }
 
 /**

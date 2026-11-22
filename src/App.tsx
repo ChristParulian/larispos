@@ -19,6 +19,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'))
 const AturUlangSandiPage = lazy(() => import('./pages/AturUlangSandiPage'))
 const PenggunaPage = lazy(() => import('./pages/PenggunaPage'))
 const ProfilSayaPage = lazy(() => import('./pages/ProfilSayaPage'))
+const PengaturanTokoPage = lazy(() => import('./pages/PengaturanTokoPage'))
 const UbahTransaksiPage = lazy(() => import('./pages/UbahTransaksiPage'))
 
 /** Rute yang butuh login. Mode demo (tanpa Supabase) bebas lewat. */
@@ -140,6 +141,16 @@ export default function App() {
                 element={
                   <ButuhLogin>
                     <ProfilSayaPage />
+                  </ButuhLogin>
+                }
+              />
+              <Route
+                path="/pengaturan-toko"
+                element={
+                  <ButuhLogin>
+                    <KhususOwner>
+                      <PengaturanTokoPage />
+                    </KhususOwner>
                   </ButuhLogin>
                 }
               />
