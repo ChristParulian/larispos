@@ -213,11 +213,6 @@ export function useAuth(): AuthState {
   return ctx
 }
 
-/**
- * Ubah email akun sendiri. Supabase mengirim tautan konfirmasi ke
- * email baru; email baru berlaku setelah tautan itu diklik, lalu
- * trigger 012 menyalinnya ke profiles.email.
- */
 /** Ganti email sendiri, langsung tanpa link konfirmasi (RPC 015). */
 export async function ubahEmailSendiri(
   emailBaru: string,
