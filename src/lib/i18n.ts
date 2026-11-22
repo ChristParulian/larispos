@@ -77,6 +77,12 @@ const GALAT_DB_TETAP: Array<[string, string]> = [
     'galat.hutangTidakBisaDiubah',
   ],
   ['Jumlah stok harus minimal 1.', 'galat.jumlahStokMinimal'],
+  ['Stok baru minimal 0.', 'galat.stokBaruMinimal'],
+  ['Alasan penyesuaian wajib diisi.', 'galat.alasanPenyesuaianWajib'],
+  [
+    'Hanya owner yang boleh menyesuaikan stok.',
+    'galat.hanyaOwnerSesuaikanStok',
+  ],
   ['Harus masuk dulu.', 'galat.harusMasuk'],
   ['Format email tidak valid.', 'galat.emailTidakValid'],
   ['Email ini sudah dipakai akun lain.', 'galat.emailDipakai'],

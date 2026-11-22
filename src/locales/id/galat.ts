@@ -32,6 +32,9 @@ export default {
   hanyaOwnerHargaBeli: 'Hanya owner yang boleh mengisi harga beli.',
   hanyaOwnerUbahHargaBeli: 'Hanya owner yang boleh mengubah harga beli.',
   jumlahStokMinimal: 'Jumlah stok harus minimal 1.',
+  stokBaruMinimal: 'Stok baru minimal 0.',
+  alasanPenyesuaianWajib: 'Alasan penyesuaian wajib diisi.',
+  hanyaOwnerSesuaikanStok: 'Hanya owner yang boleh menyesuaikan stok.',
   // Pesan dari kode aplikasi.
   sudahAda: '{{label}} "{{nama}}" sudah ada.',
   namaKategoriKosong: 'Nama kategori tidak boleh kosong.',

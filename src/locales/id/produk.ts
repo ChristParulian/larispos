@@ -27,12 +27,16 @@ export default {
   badgeStok: 'Stok {{jumlah}}',
   hargaBeliSingkat: 'Beli {{harga}}',
   tambahStok: 'Tambah Stok',
+  opname: 'Opname',
   // Pesan produk
   produkDihapus: 'Produk berhasil dihapus.',
   gagalHapusProduk: 'Gagal menghapus produk.',
   gagalTambahStok: 'Gagal menambah stok.',
   stokBertambah:
     'Stok {{nama}} bertambah {{jumlah}}. Stok sekarang {{stokBaru}}.',
+  gagalSesuaikanStok: 'Gagal menyesuaikan stok.',
+  stokDisesuaikan:
+    'Stok {{nama}} disesuaikan menjadi {{stokBaru}} (selisih {{selisih}}).',
   judulHapusProduk: 'Hapus produk',
   konfirmasiHapusProduk:
     'Hapus produk "{{nama}}"? Produk yang pernah terjual tidak bisa dihapus.',
@@ -43,6 +47,16 @@ export default {
   ariaJumlahMasuk: 'Jumlah stok yang masuk',
   placeholderCatatan: 'Catatan (opsional)',
   ariaCatatanRestock: 'Catatan restock',
+  // Form opname
+  stokFisik: 'Stok fisik',
+  placeholderStokFisik: 'Stok hasil hitung',
+  ariaStokFisik: 'Stok fisik hasil hitung',
+  alasanPenyesuaian: 'Alasan penyesuaian',
+  placeholderAlasanOpname: 'mis. rusak, kedaluwarsa, hilang',
+  selisih: 'Selisih',
+  stokFisikBulat: 'Stok fisik harus angka bulat minimal 0.',
+  alasanWajib: 'Alasan wajib diisi.',
+  stokSama: 'Stok fisik sama dengan stok sistem.',
   // Kategori
   judulKategori: 'Kategori Produk',
   keteranganKategori:
@@ -104,4 +118,5 @@ export default {
   alasanRestock: 'Restock',
   alasanBatal: 'Batal transaksi',
   alasanUbah: 'Ubah transaksi',
+  alasanOpname: 'Opname',
 }

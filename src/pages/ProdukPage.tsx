@@ -2,12 +2,13 @@
 // tambah stok yang tercatat di log), kelola kategori dan satuan,
 // dan riwayat pergerakan stok (log_stok). Tambah / ubah / hapus
 // produk, kategori, dan satuan hanya untuk owner; kasir hanya
-// bisa melihat daftar dan menambah stok. Tambah / ubah produk
+// bisa melihat daftar dan menambah stok. Opname (koreksi stok
+// satu produk) juga hanya untuk owner. Tambah / ubah produk
 // lewat halaman sendiri (/produk/tambah dan /produk/ubah/:id).
 //
 // Isi tiap tab tinggal di ./produk/ (TabProduk, TabKategori,
-// TabSatuan, TabLogStok, FormTambahStok); file ini hanya mengatur
-// state, data, dan dialog konfirmasi.
+// TabSatuan, TabLogStok, FormTambahStok, FormOpname); file ini
+// hanya mengatur state, data, dan dialog konfirmasi.
 
 import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -23,6 +24,7 @@ import {
   hapusSatuan,
   saveKategori,
   saveSatuan,
+  sesuaikanStok,
   tambahStok,
 } from '../lib/api'
 import { useAuth } from '../lib/auth'
@@ -98,6 +100,8 @@ export default function ProdukPage() {
 
   // Form tambah stok: satu produk dalam satu waktu.
   const [stokId, setStokId] = useState<string | null>(null)
+  // Form opname: satu produk dalam satu waktu, owner saja.
+  const [opnameId, setOpnameId] = useState<string | null>(null)
   // Target dialog konfirmasi hapus: hanya satu dialog yang terbuka
   // dalam satu waktu.
   const [dialogProduk, setDialogProduk] = useState<{
@@ -140,6 +144,39 @@ export default function ProdukPage() {
     },
     onError: (err: unknown) => {
       setError(err instanceof Error ? err.message : t('produk.gagalTambahStok'))
+    },
+  })
+
+  const opnameMutation = useMutation({
+    mutationFn: ({
+      id,
+      stokBaru,
+      alasan,
+    }: {
+      id: string
+      stokBaru: number
+      alasan: string
+    }) => sesuaikanStok(id, stokBaru, alasan),
+    onSuccess: (stokBaru, v) => {
+      void queryClient.invalidateQueries({ queryKey: ['produk'] })
+      void queryClient.invalidateQueries({ queryKey: ['log-stok'] })
+      const produk = produkQuery.data?.find((p) => p.id === v.id)
+      const nama = produk?.nama ?? t('umum.produk')
+      const selisih = stokBaru - (produk?.stok ?? 0)
+      setPesan(
+        t('produk.stokDisesuaikan', {
+          nama,
+          stokBaru,
+          selisih: selisih > 0 ? `+${selisih}` : selisih,
+        }),
+      )
+      setError(null)
+      setOpnameId(null)
+    },
+    onError: (err: unknown) => {
+      setError(
+        err instanceof Error ? err.message : t('produk.gagalSesuaikanStok'),
+      )
     },
   })
 
@@ -362,6 +399,12 @@ export default function ProdukPage() {
           tambahStokPending={stokMutation.isPending}
           onTambahStok={(id, jumlah, catatan) =>
             stokMutation.mutate({ id, jumlah, catatan })
+          }
+          opnameId={opnameId}
+          onOpnameId={setOpnameId}
+          opnamePending={opnameMutation.isPending}
+          onOpname={(id, stokBaru, alasan) =>
+            opnameMutation.mutate({ id, stokBaru, alasan })
           }
           onHapus={konfirmasiHapus}
         />

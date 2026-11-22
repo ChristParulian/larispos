@@ -1,6 +1,6 @@
 // Tab Daftar Produk pada halaman Produk: cari + filter kategori,
 // daftar produk (tabel di layar besar, kartu di HP), dan form
-// tambah stok sebaris. Data dan aksi datang dari ProdukPage.
+// tambah stok + opname sebaris. Data dan aksi datang dari ProdukPage.
 
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { formatRupiah } from '../../lib/format'
 import { IconPlus, IconProduk, IconSearch } from '../../components/icons'
 import FormTambahStok from './FormTambahStok'
+import FormOpname from './FormOpname'
 import type { Kategori, Produk } from '../../lib/types'
 
 interface QueryProduk {
@@ -31,6 +32,10 @@ interface Props {
   onStokId: (id: string | null) => void
   tambahStokPending: boolean
   onTambahStok: (id: string, jumlah: number, catatan?: string) => void
+  opnameId: string | null
+  onOpnameId: (id: string | null) => void
+  opnamePending: boolean
+  onOpname: (id: string, stokBaru: number, alasan: string) => void
   onHapus: (id: string, nama: string) => void
 }
 
@@ -48,9 +53,24 @@ export default function TabProduk({
   onStokId,
   tambahStokPending,
   onTambahStok,
+  opnameId,
+  onOpnameId,
+  opnamePending,
+  onOpname,
   onHapus,
 }: Props) {
   const { t } = useTranslation()
+
+  // Hanya satu form sebaris yang terbuka dalam satu waktu.
+  function bukaStok(id: string) {
+    onOpnameId(null)
+    onStokId(stokId === id ? null : id)
+  }
+
+  function bukaOpname(id: string) {
+    onStokId(null)
+    onOpnameId(opnameId === id ? null : id)
+  }
 
   return (
     <>
@@ -182,13 +202,20 @@ export default function TabProduk({
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() =>
-                            onStokId(stokId === p.id ? null : p.id)
-                          }
+                          onClick={() => bukaStok(p.id)}
                           className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
                         >
                           {t('produk.tambahStok')}
                         </button>
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => bukaOpname(p.id)}
+                            className="inline-flex min-h-9 items-center rounded-lg border border-garis px-3 text-xs font-bold hover:bg-kertas-gelap"
+                          >
+                            {t('produk.opname')}
+                          </button>
+                        )}
                         {isOwner && (
                           <>
                             <Link
@@ -219,6 +246,20 @@ export default function TabProduk({
                             onTambahStok(p.id, jumlah, catatan)
                           }
                           onBatal={() => onStokId(null)}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                  {opnameId === p.id && (
+                    <tr className="border-b bg-kertas">
+                      <td colSpan={isOwner ? 6 : 5} className="px-4 py-4">
+                        <FormOpname
+                          produk={p}
+                          sibuk={opnamePending}
+                          onSimpan={(stokBaru, alasan) =>
+                            onOpname(p.id, stokBaru, alasan)
+                          }
+                          onBatal={() => onOpnameId(null)}
                         />
                       </td>
                     </tr>
@@ -286,11 +327,20 @@ export default function TabProduk({
             )}
             <button
               type="button"
-              onClick={() => onStokId(stokId === p.id ? null : p.id)}
+              onClick={() => bukaStok(p.id)}
               className="btn-secondary mt-2 min-h-11 w-full py-2"
             >
               {t('produk.tambahStok')}
             </button>
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => bukaOpname(p.id)}
+                className="btn-secondary mt-2 min-h-11 w-full py-2"
+              >
+                {t('produk.opname')}
+              </button>
+            )}
             {stokId === p.id && (
               <div className="mt-3 border-t border-dashed border-garis pt-3">
                 <FormTambahStok
@@ -300,6 +350,18 @@ export default function TabProduk({
                     onTambahStok(p.id, jumlah, catatan)
                   }
                   onBatal={() => onStokId(null)}
+                />
+              </div>
+            )}
+            {opnameId === p.id && (
+              <div className="mt-3 border-t border-dashed border-garis pt-3">
+                <FormOpname
+                  produk={p}
+                  sibuk={opnamePending}
+                  onSimpan={(stokBaru, alasan) =>
+                    onOpname(p.id, stokBaru, alasan)
+                  }
+                  onBatal={() => onOpnameId(null)}
                 />
               </div>
             )}

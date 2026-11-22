@@ -26,6 +26,7 @@ import {
   demoSaveSatuan,
   demoSimpanPengaturan,
   demoTambahStok,
+  demoSesuaikanStok,
   demoUbahTransaksi,
 } from './demo'
 import type {
@@ -325,6 +326,26 @@ export async function tambahStok(
     p_produk_id: produkId,
     p_jumlah: jumlah,
     p_alasan: catatan?.trim() ? catatan.trim() : null,
+  })
+  if (error) throw galatRpc(error)
+  return data as number
+}
+
+/**
+ * Koreksi stok opname: tetapkan stok ke angka hasil hitung fisik,
+ * dengan alasan yang wajib diisi (019). Hanya owner yang boleh
+ * memakai fungsi ini. Mengembalikan stok baru.
+ */
+export async function sesuaikanStok(
+  produkId: string,
+  stokBaru: number,
+  alasan: string,
+): Promise<number> {
+  if (isDemoMode) return demoSesuaikanStok(produkId, stokBaru, alasan)
+  const { data, error } = await requireSupabase().rpc('sesuaikan_stok', {
+    p_produk_id: produkId,
+    p_stok_baru: stokBaru,
+    p_alasan: alasan,
   })
   if (error) throw galatRpc(error)
   return data as number

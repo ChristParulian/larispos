@@ -24,11 +24,15 @@ export default {
   badgeStok: 'Stock {{jumlah}}',
   hargaBeliSingkat: 'Cost {{harga}}',
   tambahStok: 'Add stock',
+  opname: 'Stock count',
   produkDihapus: 'Product deleted.',
   gagalHapusProduk: 'Failed to delete the product.',
   gagalTambahStok: 'Failed to add stock.',
   stokBertambah:
     'Stock for {{nama}} increased by {{jumlah}}. Current stock is {{stokBaru}}.',
+  gagalSesuaikanStok: 'Failed to adjust the stock.',
+  stokDisesuaikan:
+    'Stock for {{nama}} adjusted to {{stokBaru}} (difference {{selisih}}).',
   judulHapusProduk: 'Delete product',
   konfirmasiHapusProduk:
     'Delete the product "{{nama}}"? Products that have been sold cannot be deleted.',
@@ -38,6 +42,15 @@ export default {
   ariaJumlahMasuk: 'Incoming stock amount',
   placeholderCatatan: 'Note (optional)',
   ariaCatatanRestock: 'Restock note',
+  stokFisik: 'Physical stock',
+  placeholderStokFisik: 'Counted stock',
+  ariaStokFisik: 'Counted physical stock',
+  alasanPenyesuaian: 'Reason for adjustment',
+  placeholderAlasanOpname: 'e.g. damaged, expired, lost',
+  selisih: 'Difference',
+  stokFisikBulat: 'Physical stock must be a whole number, at least 0.',
+  alasanWajib: 'A reason is required.',
+  stokSama: 'Physical stock matches the system stock.',
   judulKategori: 'Product categories',
   keteranganKategori:
     'Group products so they are easy to find at the cashier and to filter in the product list. Category names must be unique.',
@@ -96,4 +109,5 @@ export default {
   alasanRestock: 'Restock',
   alasanBatal: 'Cancelled transaction',
   alasanUbah: 'Edited transaction',
+  alasanOpname: 'Stock count',
 }

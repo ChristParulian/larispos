@@ -45,6 +45,8 @@ langsung dilihat.
   Akun pertama yang terdaftar otomatis menjadi Owner.
 - **Pengaturan Toko**: Owner bisa mengubah nama toko yang tampil
   di header, judul tab, dan struk.
+- **Opname Stok**: Owner bisa mengoreksi stok satu produk ke angka
+  hasil hitung fisik, dengan alasan yang tercatat di log stok.
 - **Bahasa**: Tampilan bisa diganti antara Bahasa Indonesia dan
   Inggris di halaman Profil Saya, atau di halaman Masuk sebelum
   login. Pilihan bahasanya tersimpan di perangkat.
@@ -87,6 +89,7 @@ berjalan dalam mode demo dengan data contoh lokal.
    - `015_ubah_email_langsung.sql`: ganti email langsung dari Profil Saya, tanpa link konfirmasi
    - `016_owner_perbaiki_akun.sql`: owner perbaiki email dan kata sandi pengguna lain dari aplikasi
    - `017_pengaturan_toko.sql`: pengaturan toko (nama toko dan logo)
+   - `019_opname.sql`: koreksi stok satu produk (opname) dengan alasan wajib
 3. Salin `.env.example` menjadi `.env`, lalu isi dari
    **Project Settings → API**:
    - `VITE_SUPABASE_URL`: Project URL
@@ -141,7 +144,8 @@ larispos/
 ├── supabase/         Migrasi SQL (001 core, 002 seed, 004 auth, 006 satuan,
 │                     007 batal, 009 ubah, 011 email, 012 sinkron email,
 │                     013 tambah stok, 014 owner kelola, 015 email langsung,
-│                     016 owner perbaiki akun, 017 pengaturan toko)
+│                     016 owner perbaiki akun, 017 pengaturan toko,
+│                     019 opname)
 ├── vercel.json       SPA rewrite
 └── .env.example      Template environment variables
 ```

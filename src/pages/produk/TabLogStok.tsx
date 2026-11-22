@@ -20,8 +20,12 @@ export default function TabLogStok({ logQuery }: Props) {
   const { t } = useTranslation()
 
   // Alasan log yang dikenal diterjemahkan; catatan bebas pengguna
-  // ditampilkan apa adanya.
+  // ditampilkan apa adanya. Log opname menyimpan alasannya
+  // setelah awalan 'opname: '.
   function alasanTampil(alasan: string): string {
+    if (alasan.startsWith('opname: ')) {
+      return `${t('produk.alasanOpname')}: ${alasan.slice('opname: '.length)}`
+    }
     switch (alasan) {
       case 'penjualan':
         return t('produk.alasanPenjualan')

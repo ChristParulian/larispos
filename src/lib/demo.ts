@@ -485,6 +485,41 @@ export function demoTambahStok(
   return stokSesudah
 }
 
+/** Sesuaikan stok produk demo + catat di log stok (cermin 019). */
+export function demoSesuaikanStok(
+  produkId: string,
+  stokBaru: number,
+  alasan: string,
+): number {
+  if (!Number.isInteger(stokBaru) || stokBaru < 0) {
+    throw new Error(i18n.t('galat.stokBaruMinimal'))
+  }
+  if (!alasan.trim()) {
+    throw new Error(i18n.t('galat.alasanPenyesuaianWajib'))
+  }
+  const produkList = demoGetProduk()
+  const p = produkList.find((x) => x.id === produkId)
+  if (!p) throw new Error(i18n.t('galat.produkTidakDitemukan'))
+  const perubahan = stokBaru - p.stok
+  const logs = demoGetLogStok()
+  logs.unshift({
+    id: `opname-${produkId}-${Date.now()}`,
+    produk_id: produkId,
+    transaksi_id: null,
+    perubahan,
+    stok_sebelum: p.stok,
+    stok_sesudah: stokBaru,
+    alasan: `opname: ${alasan.trim()}`,
+    created_at: new Date().toISOString(),
+  })
+  save(KEY_LOG, logs)
+  save(
+    KEY_PRODUK,
+    produkList.map((x) => (x.id === produkId ? { ...x, stok: stokBaru } : x)),
+  )
+  return stokBaru
+}
+
 /** Meniru batalkan_transaksi() untuk mode demo (stok kembali, log ditulis). */
 export function demoBatalkanTransaksi(id: string): void {
   const list = demoGetTransaksi()
