@@ -35,6 +35,8 @@ export default function TabLogStok({ logQuery }: Props) {
         return t('produk.alasanBatal')
       case 'ubah transaksi':
         return t('produk.alasanUbah')
+      case 'pembelian':
+        return t('produk.alasanPembelian')
       default:
         return alasan
     }

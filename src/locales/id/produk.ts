@@ -119,4 +119,5 @@ export default {
   alasanBatal: 'Batal transaksi',
   alasanUbah: 'Ubah transaksi',
   alasanOpname: 'Opname',
+  alasanPembelian: 'Pembelian',
 }

@@ -110,4 +110,5 @@ export default {
   alasanBatal: 'Cancelled transaction',
   alasanUbah: 'Edited transaction',
   alasanOpname: 'Stock count',
+  alasanPembelian: 'Purchase',
 }
